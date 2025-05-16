@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "WikiGraph"
+version = "0.1.0"
+description = "Graph-based database analysis"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "zhaomin", email = "zhaomin@nus.edu.sg"}
+]
+dependencies = [
+    "torch~=2.4.0",
+    "torchvision",
+    "torchdata",
+    "dgl @ https://data.dgl.ai/wheels/torch-2.4/cu121/dgl-2.4.0%2Bcu121-cp312-cp312-manylinux1_x86_64.whl",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "scikit-learn",
+    "orjson",
+    "tqdm",
+]
+

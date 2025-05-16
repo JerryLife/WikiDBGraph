@@ -1,6 +1,6 @@
 # WikiDBGraph
 
-A tool for analyzing and visualizing Wikipedia database relationships.
+A tool for analyzing and visualizing Wikidata relationships.
 
 ## Project Structure
 

@@ -60,10 +60,6 @@ The analysis module provides several key functionalities:
    - `add_properties.py`: Enhances the graph with computed properties
    - `filter_edges.py`: Applies filtering criteria to graph edges
 
-## Usage
-
-[Usage instructions to be added]
-
 ## Features
 
 - Graph-based analysis of Wikipedia database relationships

@@ -1,0 +1,20 @@
+{
+  "scenario": "hfl",
+  "models": [
+    "neural_network"
+  ],
+  "runs": 1,
+  "show_std": false,
+  "metrics": {
+    "neural_network": {
+      "solo1": {
+        "mean": 0.14434201963996843,
+        "std": 0.0
+      },
+      "solo2": {
+        "mean": 0.4960622523330969,
+        "std": 0.0
+      }
+    }
+  }
+}

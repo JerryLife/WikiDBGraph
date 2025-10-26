@@ -1,0 +1,60 @@
+{
+  "experiment_type": "horizontal",
+  "algorithm": "individual_clients",
+  "timestamp": "20250729_151312",
+  "seed": 0,
+  "database_ids": [
+    "02799",
+    "79665"
+  ],
+  "experiment_params": {
+    "hidden_dims": [
+      64,
+      32
+    ],
+    "learning_rate": 0.0001,
+    "local_epochs": 5,
+    "global_rounds": 20,
+    "batch_size": 32,
+    "device": "cuda:1"
+  },
+  "selected_models": [
+    "neural_network"
+  ],
+  "individual_results": {
+    "client_02799": {
+      "Neural_Network": [
+        0.2909698996655518,
+        0.09802488654662567,
+        0.2909698996655518,
+        0.14434201963996843
+      ]
+    },
+    "client_79665": {
+      "Neural_Network": [
+        0.6187290969899666,
+        0.4159573410699655,
+        0.6187290969899666,
+        0.4960622523330969
+      ]
+    }
+  },
+  "combined_results": {
+    "client_02799": {
+      "Neural_Network": [
+        0.2909698996655518,
+        0.09802488654662567,
+        0.2909698996655518,
+        0.14434201963996843
+      ]
+    },
+    "client_79665": {
+      "Neural_Network": [
+        0.6187290969899666,
+        0.4159573410699655,
+        0.6187290969899666,
+        0.4960622523330969
+      ]
+    }
+  }
+}

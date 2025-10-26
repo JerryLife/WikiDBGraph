@@ -1,0 +1,368 @@
+{
+  "db_id1": 42290,
+  "db_id2": 59314,
+  "similarity": 0.98999774,
+  "cluster1": 3,
+  "cluster2": 3,
+  "same_cluster": true,
+  "database1": {
+    "db_id": 42290,
+    "wikidata_topic_item_id": "Q59861732",
+    "database_name": "PlasmodiumOvaleOrthologsDb27",
+    "num_tables": 3,
+    "tables": [
+      {
+        "table_name": "GeneOrthologAnnotations",
+        "columns": [
+          {
+            "name": "GeneId",
+            "type": "string"
+          },
+          {
+            "name": "GeneDescription",
+            "type": "string"
+          },
+          {
+            "name": "EntityType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneClassification",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "EncodedProtein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Species",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "OrthologId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ChromosomeId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "StrandOrientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GenomicStartPosition",
+            "type": "string"
+          },
+          {
+            "name": "GenomicEndPosition",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "table_name": "ProteinEncodingDetails",
+        "columns": [
+          {
+            "name": "ProteinLabel",
+            "type": "string"
+          },
+          {
+            "name": "ProteinDescription",
+            "type": "string"
+          },
+          {
+            "name": "ProteinType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ProteinCategory",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "GeneId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "HostTaxon",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "EncodedBy",
+        "columns": [
+          {
+            "name": "GeneLabel",
+            "type": "string"
+          },
+          {
+            "name": "GeneDescription",
+            "type": "string"
+          },
+          {
+            "name": "GeneInstanceType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneSubclassType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "EncodedProtein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "OrthologId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ChromosomeId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "StrandOrientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GenomicStartPosition",
+            "type": "string"
+          },
+          {
+            "name": "GenomicEndPosition",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "all_columns": [
+      "genelabel",
+      "proteinlabel",
+      "encodedprotein",
+      "genedbid",
+      "chromosomeid",
+      "geneid",
+      "proteindescription",
+      "species",
+      "geneinstancetype",
+      "hosttaxon",
+      "proteincategory",
+      "genesubclasstype",
+      "genomicstartposition",
+      "orthologid",
+      "entitytype",
+      "genedescription",
+      "taxon",
+      "strandorientation",
+      "geneclassification",
+      "genomicendposition",
+      "proteintype"
+    ],
+    "max_rows": 118
+  },
+  "database2": {
+    "db_id": 59314,
+    "wikidata_topic_item_id": "Q59868157",
+    "database_name": "PlasmodiumOvaleOrthologsDb41",
+    "num_tables": 3,
+    "tables": [
+      {
+        "table_name": "GeneOrthologMapping",
+        "columns": [
+          {
+            "name": "GeneLabel",
+            "type": "string"
+          },
+          {
+            "name": "GeneDescription",
+            "type": "string"
+          },
+          {
+            "name": "GeneType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneSubclass",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "EncodedProtein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ChromosomeId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "StrandOrientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GenomicStartPosition",
+            "type": "string"
+          },
+          {
+            "name": "GenomicEndPosition",
+            "type": "string"
+          },
+          {
+            "name": "OrthologId",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "PlasmodiumProteinEncodings",
+        "columns": [
+          {
+            "name": "ProteinLabel",
+            "type": "string"
+          },
+          {
+            "name": "ProteinDescription",
+            "type": "string"
+          },
+          {
+            "name": "ProteinType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ProteinCategory",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "GeneId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "HostTaxon",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "OrthologGeneAnnotations",
+        "columns": [
+          {
+            "name": "GeneLabel",
+            "type": "string"
+          },
+          {
+            "name": "GeneDescription",
+            "type": "string"
+          },
+          {
+            "name": "GeneInstanceOf",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneSubclassOf",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "EncodedProtein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ChromosomeId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "StrandOrientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GenomicStartPosition",
+            "type": "string"
+          },
+          {
+            "name": "GenomicEndPosition",
+            "type": "string"
+          },
+          {
+            "name": "OrthologId",
+            "type": "wikibase-entityid"
+          }
+        ]
+      }
+    ],
+    "all_columns": [
+      "geneinstanceof",
+      "genelabel",
+      "genetype",
+      "proteinlabel",
+      "encodedprotein",
+      "genedbid",
+      "chromosomeid",
+      "geneid",
+      "proteindescription",
+      "hosttaxon",
+      "proteincategory",
+      "genomicstartposition",
+      "orthologid",
+      "genesubclassof",
+      "genedescription",
+      "taxon",
+      "strandorientation",
+      "genomicendposition",
+      "genesubclass",
+      "proteintype"
+    ],
+    "max_rows": 162
+  },
+  "common_columns": [
+    "orthologid",
+    "proteintype",
+    "genelabel",
+    "hosttaxon",
+    "geneid",
+    "proteincategory",
+    "genedescription",
+    "proteinlabel",
+    "taxon",
+    "proteindescription",
+    "strandorientation",
+    "encodedprotein",
+    "genomicendposition",
+    "genomicstartposition",
+    "genedbid",
+    "chromosomeid"
+  ],
+  "num_common_columns": 16
+}

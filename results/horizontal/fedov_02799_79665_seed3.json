@@ -1,0 +1,36 @@
+{
+  "experiment_type": "horizontal",
+  "algorithm": "fedov",
+  "timestamp": "20250726_211754",
+  "seed": 3,
+  "database_ids": [
+    "02799",
+    "79665"
+  ],
+  "weighted_metrics": {
+    "accuracy": 0.5752508361204013,
+    "precision": 0.5048119582281072,
+    "recall": 0.5752508361204013,
+    "f1": 0.537734477242984
+  },
+  "centralized_baseline": {
+    "accuracy": 0.8662207357859532,
+    "precision": 0.7809154508587401,
+    "recall": 0.8662207357859532,
+    "f1": 0.8204945842584567
+  },
+  "all_results": {
+    "FedOV": {
+      "accuracy": 0.5752508361204013,
+      "precision": 0.5048119582281072,
+      "recall": 0.5752508361204013,
+      "f1": 0.537734477242984
+    },
+    "Centralized_Baseline": {
+      "accuracy": 0.8662207357859532,
+      "precision": 0.7809154508587401,
+      "recall": 0.8662207357859532,
+      "f1": 0.8204945842584567
+    }
+  }
+}

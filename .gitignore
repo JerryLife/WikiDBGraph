@@ -1,0 +1,37 @@
+data
+logs
+out
+out.bak
+
+*.pt
+*.dgl
+
+*/*__pycache__*
+__pycache__/
+*.py[cod]
+*$py.class
+
+.*
+
+
+*/*.egg-info
+*.egg-info
+*/*/*.egg-info
+
+uv.lock
+
+# External repositories and FedTree experiments
+FedTree/
+*fedtree*
+
+src/demo/__pycache__/
+src/model/__pycache__/
+
+# Reference repositories (keep local, don't push)
+FedOV/
+NIID-Bench/
+FedTree/
+
+# Statistics files
+statistics.json
+database_stats.json

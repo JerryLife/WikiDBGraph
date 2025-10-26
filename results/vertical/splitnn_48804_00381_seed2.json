@@ -1,0 +1,22 @@
+{
+  "experiment_type": "vertical",
+  "algorithm": "splitnn",
+  "timestamp": "20250726_210047",
+  "seed": 2,
+  "database_ids": [
+    "48804",
+    "00381"
+  ],
+  "splitnn_results": {
+    "accuracy": 0.6530612244897959,
+    "precision": 0.5727040816326531,
+    "recall": 0.6530612244897959,
+    "f1": 0.5962475312705727
+  },
+  "centralized_results": {
+    "accuracy": 0.6781609195402298,
+    "precision": 0.6436781609195402,
+    "recall": 0.6781609195402298,
+    "f1": 0.6586677421523157
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "experiment_type": "centralized",
+  "scenario": "vfl",
+  "model": "random_forest",
+  "timestamp": "20250729_152523",
+  "seed": 3,
+  "database_ids": [
+    "48804",
+    "00381"
+  ],
+  "results": {
+    "Random_Forest": [
+      0.9387755102040817,
+      0.9142857142857143,
+      0.9387755102040817,
+      0.9212827988338192
+    ]
+  }
+}

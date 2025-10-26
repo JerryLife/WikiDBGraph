@@ -1,0 +1,19 @@
+{
+  "experiment_type": "centralized",
+  "scenario": "vfl",
+  "model": "logistic_regression",
+  "timestamp": "20250729_152532",
+  "seed": 2,
+  "database_ids": [
+    "48804",
+    "00381"
+  ],
+  "results": {
+    "Logistic_Regression": [
+      0.9387755102040817,
+      0.8834759710335747,
+      0.9387755102040817,
+      0.9097198201314424
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "experiment_type": "primary_client",
+  "client": "48804_LPG1L",
+  "timestamp": "20250729_142943",
+  "seed": 1,
+  "experiment_params": {
+    "hidden_dims": [
+      64,
+      32
+    ],
+    "learning_rate": 0.0001,
+    "local_epochs": 5,
+    "global_rounds": 20,
+    "batch_size": 32,
+    "device": "cuda:1"
+  },
+  "selected_models": [
+    "logistic_regression"
+  ],
+  "results": {
+    "Logistic_Regression": [
+      0.3673469387755102,
+      0.33197278911564626,
+      0.3673469387755102,
+      0.3361344537815126
+    ]
+  },
+  "summary": {
+    "best_model": "Logistic_Regression",
+    "best_f1": 0.3361344537815126,
+    "all_models": {
+      "Logistic_Regression": {
+        "f1": 0.3361344537815126
+      }
+    }
+  }
+}

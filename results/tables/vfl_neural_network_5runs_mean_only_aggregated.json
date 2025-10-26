@@ -1,0 +1,16 @@
+{
+  "scenario": "vfl",
+  "model": "neural_network",
+  "runs": 5,
+  "show_std": false,
+  "metrics": {
+    "solo": {
+      "mean": 0.3374099639855942,
+      "std": 0.0
+    },
+    "combined": {
+      "mean": 0.6586677421523157,
+      "std": 0.0
+    }
+  }
+}

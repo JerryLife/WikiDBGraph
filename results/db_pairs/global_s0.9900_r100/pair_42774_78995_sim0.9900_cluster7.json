@@ -1,0 +1,284 @@
+{
+  "db_id1": 42774,
+  "db_id2": 78995,
+  "similarity": 0.98999864,
+  "cluster1": 7,
+  "cluster2": 7,
+  "same_cluster": true,
+  "database1": {
+    "db_id": 42774,
+    "wikidata_topic_item_id": "Q59726794",
+    "database_name": "PlasmodiumVivaxOrthologsDb28",
+    "num_tables": 2,
+    "tables": [
+      {
+        "table_name": "GeneOrthologsAnnotations",
+        "columns": [
+          {
+            "name": "GeneLabel",
+            "type": "string"
+          },
+          {
+            "name": "GeneDescription",
+            "type": "string"
+          },
+          {
+            "name": "GeneInstanceType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneSubclassType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "EncodedProtein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "HostTaxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ChromosomeId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "StrandOrientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GenomicStartPosition",
+            "type": "string"
+          },
+          {
+            "name": "GenomicEndPosition",
+            "type": "string"
+          },
+          {
+            "name": "OrthologId",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "GeneOrthologs",
+        "columns": [
+          {
+            "name": "GeneLabel",
+            "type": "string"
+          },
+          {
+            "name": "GeneDescription",
+            "type": "string"
+          },
+          {
+            "name": "GeneInstanceOf",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneSubclassOf",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "EncodedProtein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ChromosomeId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "StrandOrientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GenomicStartPosition",
+            "type": "string"
+          },
+          {
+            "name": "GenomicEndPosition",
+            "type": "string"
+          },
+          {
+            "name": "OrthologId",
+            "type": "wikibase-entityid"
+          }
+        ]
+      }
+    ],
+    "all_columns": [
+      "orthologid",
+      "genesubclassof",
+      "geneinstancetype",
+      "genelabel",
+      "hosttaxon",
+      "geneinstanceof",
+      "genedescription",
+      "taxon",
+      "genesubclasstype",
+      "strandorientation",
+      "encodedprotein",
+      "genomicendposition",
+      "genomicstartposition",
+      "genedbid",
+      "chromosomeid"
+    ],
+    "max_rows": 294
+  },
+  "database2": {
+    "db_id": 78995,
+    "wikidata_topic_item_id": "Q59722373",
+    "database_name": "PlasmodiumVivaxOrthologsDb57",
+    "num_tables": 2,
+    "tables": [
+      {
+        "table_name": "PseudogeneOrthologs",
+        "columns": [
+          {
+            "name": "PseudogeneId",
+            "type": "string"
+          },
+          {
+            "name": "Description",
+            "type": "string"
+          },
+          {
+            "name": "GeneType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneSubclass",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "EncodedProtein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ChromosomeId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "StrandOrientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GenomicStartPosition",
+            "type": "string"
+          },
+          {
+            "name": "GenomicEndPosition",
+            "type": "string"
+          },
+          {
+            "name": "OrthologId",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "PlasmodiumVivaxGeneOrthologs",
+        "columns": [
+          {
+            "name": "GeneId",
+            "type": "string"
+          },
+          {
+            "name": "GeneDescription",
+            "type": "string"
+          },
+          {
+            "name": "GeneType",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneSubclass",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GeneDbId",
+            "type": "string"
+          },
+          {
+            "name": "EncodedProtein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ChromosomeId",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Strand",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "GenomicStartPosition",
+            "type": "string"
+          },
+          {
+            "name": "GenomicEndPosition",
+            "type": "string"
+          },
+          {
+            "name": "OrthologId",
+            "type": "wikibase-entityid"
+          }
+        ]
+      }
+    ],
+    "all_columns": [
+      "orthologid",
+      "genomicstartposition",
+      "geneid",
+      "taxon",
+      "genetype",
+      "genedescription",
+      "strand",
+      "strandorientation",
+      "description",
+      "encodedprotein",
+      "genesubclass",
+      "genedbid",
+      "pseudogeneid",
+      "genomicendposition",
+      "chromosomeid"
+    ],
+    "max_rows": 294
+  },
+  "common_columns": [
+    "orthologid",
+    "genedescription",
+    "taxon",
+    "strandorientation",
+    "encodedprotein",
+    "genomicendposition",
+    "genomicstartposition",
+    "genedbid",
+    "chromosomeid"
+  ],
+  "num_common_columns": 9
+}

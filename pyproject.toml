@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "WikiGraph"
+version = "0.1.0"
+description = "Graph-based database analysis"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "zhaomin", email = "zhaomin@nus.edu.sg"}
+]
+dependencies = [
+    "torch~=2.4.0",
+    "torchvision",
+    "torchdata",
+    "dgl @ https://data.dgl.ai/wheels/torch-2.4/cu121/dgl-2.4.0%2Bcu121-cp312-cp312-manylinux1_x86_64.whl",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "scikit-learn",
+    "orjson",
+    "tqdm",
+    "seaborn",
+    "cudf-cu12==25.4.*",
+    "dask-cudf-cu12==25.4.*",
+    "cuml-cu12==25.4.*",
+    "cugraph-cu12==25.4.*",
+    "nx-cugraph-cu12==25.4.*",
+    "cuspatial-cu12==25.4.*",
+    "cuproj-cu12==25.4.*",
+    "cuxfilter-cu12==25.4.*",
+    "cucim-cu12==25.4.*",
+    "pylibraft-cu12==25.4.*",
+    "raft-dask-cu12==25.4.*",
+    "cuvs-cu12==25.4.*",
+    "xgboost",
+    "pydot>=4.0.1",
+]
+
+[[tool.poetry.source]]
+name = "nvidia"
+url = "https://pypi.nvidia.com"
+priority = "supplemental"

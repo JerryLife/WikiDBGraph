@@ -1,0 +1,36 @@
+{
+  "experiment_type": "horizontal",
+  "algorithm": "scaffold",
+  "timestamp": "20250726_211658",
+  "seed": 3,
+  "database_ids": [
+    "02799",
+    "79665"
+  ],
+  "weighted_metrics": {
+    "accuracy": 0.010033444816053512,
+    "precision": 0.5771321070234113,
+    "recall": 0.010033444816053512,
+    "f1": 0.01563218390804598
+  },
+  "centralized_baseline": {
+    "accuracy": 0.8595317725752508,
+    "precision": 0.7578554798358965,
+    "recall": 0.8595317725752508,
+    "f1": 0.8026283375317906
+  },
+  "all_results": {
+    "SCAFFOLD": {
+      "accuracy": 0.010033444816053512,
+      "precision": 0.5771321070234113,
+      "recall": 0.010033444816053512,
+      "f1": 0.01563218390804598
+    },
+    "Centralized_Baseline": {
+      "accuracy": 0.8595317725752508,
+      "precision": 0.7578554798358965,
+      "recall": 0.8595317725752508,
+      "f1": 0.8026283375317906
+    }
+  }
+}

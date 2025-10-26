@@ -1,0 +1,19 @@
+{
+  "experiment_type": "centralized",
+  "scenario": "vfl",
+  "model": "xgboost",
+  "timestamp": "20250729_152456",
+  "seed": 0,
+  "database_ids": [
+    "48804",
+    "00381"
+  ],
+  "results": {
+    "XGBoost": [
+      0.9387755102040817,
+      0.9183673469387755,
+      0.9387755102040817,
+      0.9251700680272109
+    ]
+  }
+}

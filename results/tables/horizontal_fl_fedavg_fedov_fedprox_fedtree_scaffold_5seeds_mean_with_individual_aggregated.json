@@ -1,0 +1,223 @@
+{
+  "experiment_type": "horizontal",
+  "num_files_processed": 26,
+  "algorithms": {
+    "fedavg": {
+      "weighted_metrics": {
+        "accuracy": {
+          "mean": 0.6153846153846154,
+          "std": 0.0
+        },
+        "precision": {
+          "mean": 0.6044967743114572,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.6153846153846154,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.5986359921927963,
+          "std": 0.0
+        }
+      },
+      "centralized_baseline": {
+        "accuracy": {
+          "mean": 0.8996655518394648,
+          "std": 0.0
+        },
+        "precision": {
+          "mean": 0.8129667329100222,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.8996655518394648,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.8532123390934137,
+          "std": 1.1102230246251565e-16
+        }
+      }
+    },
+    "fedprox": {
+      "weighted_metrics": {
+        "accuracy": {
+          "mean": 0.6153846153846154,
+          "std": 0.0
+        },
+        "precision": {
+          "mean": 0.6044967743114572,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.6153846153846154,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.5986359921927963,
+          "std": 0.0
+        }
+      },
+      "centralized_baseline": {
+        "accuracy": {
+          "mean": 0.8996655518394648,
+          "std": 0.0
+        },
+        "precision": {
+          "mean": 0.8129667329100222,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.8996655518394648,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.8532123390934137,
+          "std": 1.1102230246251565e-16
+        }
+      }
+    },
+    "scaffold": {
+      "weighted_metrics": {
+        "accuracy": {
+          "mean": 0.010033444816053512,
+          "std": 0.0
+        },
+        "precision": {
+          "mean": 0.5771321070234113,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.010033444816053512,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.01563218390804598,
+          "std": 0.0
+        }
+      },
+      "centralized_baseline": {
+        "accuracy": {
+          "mean": 0.8595317725752508,
+          "std": 0.0
+        },
+        "precision": {
+          "mean": 0.7578554798358965,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.8595317725752508,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.8026283375317906,
+          "std": 0.0
+        }
+      }
+    },
+    "fedov": {
+      "weighted_metrics": {
+        "accuracy": {
+          "mean": 0.5752508361204013,
+          "std": 0.0
+        },
+        "precision": {
+          "mean": 0.5048119582281072,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.5752508361204013,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.537734477242984,
+          "std": 0.0
+        }
+      },
+      "centralized_baseline": {
+        "accuracy": {
+          "mean": 0.866220735785953,
+          "std": 1.1102230246251565e-16
+        },
+        "precision": {
+          "mean": 0.7809154508587401,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.866220735785953,
+          "std": 1.1102230246251565e-16
+        },
+        "f1": {
+          "mean": 0.8204945842584566,
+          "std": 1.1102230246251565e-16
+        }
+      }
+    },
+    "fedtree": {
+      "weighted_metrics": {
+        "accuracy": {
+          "mean": 0.8193979933110368,
+          "std": 0.0
+        },
+        "precision": {
+          "mean": 0.7803145201138512,
+          "std": 0.0
+        },
+        "recall": {
+          "mean": 0.8193979933110368,
+          "std": 0.0
+        },
+        "f1": {
+          "mean": 0.786953765298247,
+          "std": 0.0
+        }
+      },
+      "centralized_baseline": {}
+    },
+    "individual": {
+      "clients": {
+        "client_02799": {
+          "Neural_Network": {
+            "accuracy": {
+              "mean": 0.2909698996655518,
+              "std": 0.0
+            },
+            "precision": {
+              "mean": 0.09802488654662567,
+              "std": 0.0
+            },
+            "recall": {
+              "mean": 0.2909698996655518,
+              "std": 0.0
+            },
+            "f1": {
+              "mean": 0.14434201963996843,
+              "std": 0.0
+            }
+          }
+        },
+        "client_79665": {
+          "Neural_Network": {
+            "accuracy": {
+              "mean": 0.6187290969899666,
+              "std": 0.0
+            },
+            "precision": {
+              "mean": 0.41595734106996557,
+              "std": 5.551115123125783e-17
+            },
+            "recall": {
+              "mean": 0.6187290969899666,
+              "std": 0.0
+            },
+            "f1": {
+              "mean": 0.496062252333097,
+              "std": 5.551115123125783e-17
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "experiment_type": "centralized",
+  "scenario": "vfl",
+  "model": "neural_network",
+  "timestamp": "20250729_152213",
+  "seed": 0,
+  "database_ids": [
+    "48804",
+    "00381"
+  ],
+  "results": {
+    "Neural_Network": [
+      0.5918367346938775,
+      0.3741496598639456,
+      0.5918367346938775,
+      0.44826351593268887
+    ]
+  }
+}

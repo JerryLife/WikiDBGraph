@@ -1,0 +1,37 @@
+{
+  "experiment_type": "primary_client",
+  "client": "48804_LPG1L",
+  "timestamp": "20250729_142910",
+  "seed": 3,
+  "experiment_params": {
+    "hidden_dims": [
+      64,
+      32
+    ],
+    "learning_rate": 0.0001,
+    "local_epochs": 5,
+    "global_rounds": 20,
+    "batch_size": 32,
+    "device": "cuda:1"
+  },
+  "selected_models": [
+    "xgboost"
+  ],
+  "results": {
+    "XGBoost": [
+      0.8571428571428571,
+      0.8326530612244898,
+      0.8571428571428571,
+      0.8418367346938775
+    ]
+  },
+  "summary": {
+    "best_model": "XGBoost",
+    "best_f1": 0.8418367346938775,
+    "all_models": {
+      "XGBoost": {
+        "f1": 0.8418367346938775
+      }
+    }
+  }
+}

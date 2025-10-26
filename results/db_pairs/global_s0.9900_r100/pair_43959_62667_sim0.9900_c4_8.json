@@ -1,0 +1,430 @@
+{
+  "db_id1": 43959,
+  "db_id2": 62667,
+  "similarity": 0.98999906,
+  "cluster1": 4,
+  "cluster2": 8,
+  "same_cluster": false,
+  "database1": {
+    "db_id": 43959,
+    "wikidata_topic_item_id": "Q61582635",
+    "database_name": "trypanosoma_orthologs_db_31",
+    "num_tables": 3,
+    "tables": [
+      {
+        "table_name": "gene_orthologs_details",
+        "columns": [
+          {
+            "name": "gene_label",
+            "type": "string"
+          },
+          {
+            "name": "gene_description",
+            "type": "string"
+          },
+          {
+            "name": "gene_type",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "gene_subclass",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "gene_db_id",
+            "type": "string"
+          },
+          {
+            "name": "encoded_protein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "host_taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "chromosome_id",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "strand_orientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "genomic_start_position",
+            "type": "string"
+          },
+          {
+            "name": "genomic_end_position",
+            "type": "string"
+          },
+          {
+            "name": "ortholog_id",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "gene_orthologs",
+        "columns": [
+          {
+            "name": "gene_label",
+            "type": "string"
+          },
+          {
+            "name": "gene_description",
+            "type": "string"
+          },
+          {
+            "name": "gene_instance_of",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "gene_subclass_of",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "gene_db_id",
+            "type": "string"
+          },
+          {
+            "name": "encoded_protein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "chromosome_id",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "strand_orientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "genomic_start_position",
+            "type": "string"
+          },
+          {
+            "name": "genomic_end_position",
+            "type": "string"
+          },
+          {
+            "name": "ortholog_id",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "taxonomic_classification",
+        "columns": [
+          {
+            "name": "species_label",
+            "type": "string"
+          },
+          {
+            "name": "species_description",
+            "type": "string"
+          },
+          {
+            "name": "scientific_name",
+            "type": "string"
+          },
+          {
+            "name": "taxonomic_rank",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "parent_taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "ncbi_taxonomy_id",
+            "type": "string"
+          },
+          {
+            "name": "classification_type",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "me_sh_descriptor_id",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "all_columns": [
+      "geneinstanceof",
+      "genelabel",
+      "genetype",
+      "speciesdescription",
+      "meshdescriptorid",
+      "encodedprotein",
+      "genedbid",
+      "chromosomeid",
+      "genesubclass",
+      "classificationtype",
+      "parenttaxon",
+      "hosttaxon",
+      "specieslabel",
+      "scientificname",
+      "genomicstartposition",
+      "orthologid",
+      "taxonomicrank",
+      "ncbitaxonomyid",
+      "genedescription",
+      "taxon",
+      "strandorientation",
+      "genomicendposition",
+      "genesubclassof"
+    ],
+    "max_rows": 277
+  },
+  "database2": {
+    "db_id": 62667,
+    "wikidata_topic_item_id": "Q62202559",
+    "database_name": "Trypanosoma_Brucei_Orthologs_30",
+    "num_tables": 4,
+    "tables": [
+      {
+        "table_name": "Gene_Ortholog_Annotations",
+        "columns": [
+          {
+            "name": "Gene_Label",
+            "type": "string"
+          },
+          {
+            "name": "Gene_Description",
+            "type": "string"
+          },
+          {
+            "name": "Entity_Type",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Gene_Classification",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Gene_Db_Id",
+            "type": "string"
+          },
+          {
+            "name": "Encoded_Protein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Host_Taxon",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Chromosome_Id",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Strand_Orientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Genomic_Start_Position",
+            "type": "string"
+          },
+          {
+            "name": "Genomic_End_Position",
+            "type": "string"
+          },
+          {
+            "name": "Ortholog_Identifier",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "Gene_Orthologs",
+        "columns": [
+          {
+            "name": "Gene_Label",
+            "type": "string"
+          },
+          {
+            "name": "Gene_Description",
+            "type": "string"
+          },
+          {
+            "name": "Gene_Instance",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Gene_Subclass",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Gene_Db_Id",
+            "type": "string"
+          },
+          {
+            "name": "Encoded_Protein",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Taxon_Found",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Chromosome_Location",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Strand_Orientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Genomic_Start_Position",
+            "type": "string"
+          },
+          {
+            "name": "Genomic_End_Position",
+            "type": "string"
+          },
+          {
+            "name": "Ortholog_Identifier",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "Protein_Ortholog_Encodings",
+        "columns": [
+          {
+            "name": "Protein_Name",
+            "type": "string"
+          },
+          {
+            "name": "Protein_Description",
+            "type": "string"
+          },
+          {
+            "name": "Protein_Type",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Protein_Category",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Gene_Db_Id",
+            "type": "string"
+          },
+          {
+            "name": "Gene_Identifier",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Host_Organism",
+            "type": "wikibase-entityid"
+          }
+        ]
+      },
+      {
+        "table_name": "Encoded_By",
+        "columns": [
+          {
+            "name": "Gene_Label",
+            "type": "string"
+          },
+          {
+            "name": "Gene_Description",
+            "type": "string"
+          },
+          {
+            "name": "Gene_Instance_Of",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Gene_Subclass_Of",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Gene_Db_Id",
+            "type": "string"
+          },
+          {
+            "name": "Gene_Encodes",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Found_In_Species",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Chromosome_Id",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Strand_Orientation",
+            "type": "wikibase-entityid"
+          },
+          {
+            "name": "Genomic_Start_Position",
+            "type": "string"
+          },
+          {
+            "name": "Genomic_End_Position",
+            "type": "string"
+          },
+          {
+            "name": "Ortholog_Label",
+            "type": "wikibase-entityid"
+          }
+        ]
+      }
+    ],
+    "all_columns": [
+      "proteinname",
+      "geneinstanceof",
+      "genelabel",
+      "taxonfound",
+      "orthologidentifier",
+      "geneencodes",
+      "encodedprotein",
+      "genedbid",
+      "chromosomelocation",
+      "chromosomeid",
+      "proteindescription",
+      "orthologlabel",
+      "geneinstance",
+      "foundinspecies",
+      "hosttaxon",
+      "proteincategory",
+      "genomicstartposition",
+      "geneidentifier",
+      "entitytype",
+      "genesubclassof",
+      "hostorganism",
+      "genedescription",
+      "strandorientation",
+      "geneclassification",
+      "genomicendposition",
+      "genesubclass",
+      "proteintype"
+    ],
+    "max_rows": 139
+  },
+  "common_columns": [
+    "genesubclassof",
+    "geneinstanceof",
+    "genelabel",
+    "hosttaxon",
+    "genesubclass",
+    "genedescription",
+    "strandorientation",
+    "encodedprotein",
+    "genomicendposition",
+    "genomicstartposition",
+    "genedbid",
+    "chromosomeid"
+  ],
+  "num_common_columns": 12
+}

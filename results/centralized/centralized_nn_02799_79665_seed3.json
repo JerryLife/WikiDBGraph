@@ -1,0 +1,19 @@
+{
+  "experiment_type": "centralized",
+  "scenario": "hfl",
+  "model": "neural_network",
+  "timestamp": "20250729_152243",
+  "seed": 3,
+  "database_ids": [
+    "02799",
+    "79665"
+  ],
+  "results": {
+    "Neural_Network": [
+      0.782608695652174,
+      0.7384066389444915,
+      0.782608695652174,
+      0.7168466750054499
+    ]
+  }
+}

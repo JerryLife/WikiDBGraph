@@ -1,0 +1,41 @@
+{
+  "scenario": "vfl",
+  "models": [
+    "neural_network",
+    "xgboost",
+    "random_forest",
+    "logistic_regression"
+  ],
+  "runs": 1,
+  "show_std": false,
+  "metrics": {
+    "neural_network": {
+      "solo": {
+        "mean": 0.3374099639855942,
+        "std": 0.0
+      },
+      "combined": {
+        "mean": 0.6586677421523157,
+        "std": 0.0
+      }
+    },
+    "xgboost": {
+      "solo": {
+        "mean": 0.8418367346938775,
+        "std": 0.0
+      }
+    },
+    "random_forest": {
+      "solo": {
+        "mean": 0.9387755102040817,
+        "std": 0.0
+      }
+    },
+    "logistic_regression": {
+      "solo": {
+        "mean": 0.3361344537815126,
+        "std": 0.0
+      }
+    }
+  }
+}

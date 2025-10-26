@@ -1,0 +1,19 @@
+{
+  "experiment_type": "centralized",
+  "scenario": "hfl",
+  "model": "logistic_regression",
+  "timestamp": "20250729_152601",
+  "seed": 4,
+  "database_ids": [
+    "02799",
+    "79665"
+  ],
+  "results": {
+    "Logistic_Regression": [
+      0.8929765886287625,
+      0.8119186264271332,
+      0.8929765886287625,
+      0.8498631421041737
+    ]
+  }
+}

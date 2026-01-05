@@ -35,3 +35,6 @@ FedTree/
 # Statistics files
 statistics.json
 database_stats.json
+
+# huggingface
+/hf

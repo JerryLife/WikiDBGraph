@@ -18,6 +18,7 @@ SKIP_TRAINING=""
 LR="1e-05"
 EPOCHS=10
 BATCH_SIZE=32
+SEED=0
 
 # Colors
 GREEN='\033[0;32m'
@@ -35,6 +36,7 @@ while [[ $# -gt 0 ]]; do
         --lr) LR="$2"; shift 2 ;;
         --epochs) EPOCHS="$2"; shift 2 ;;
         --batch-size) BATCH_SIZE="$2"; shift 2 ;;
+        --seed) SEED="$2"; shift 2 ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
 done
@@ -42,7 +44,7 @@ done
 export PYTHONPATH="${BASE_DIR}/src:${PYTHONPATH}"
 
 # Number of negatives to test
-NUM_NEGATIVES=(2 4 6 10 15)
+NUM_NEGATIVES=(2 4 10 15)
 
 log "=========================================="
 log "ABLATION STUDY: Number of Negatives"
@@ -56,6 +58,23 @@ log "=========================================="
 mkdir -p out
 
 for num in "${NUM_NEGATIVES[@]}"; do
+    OUTPUT_DIR="${BASE_DIR}/out/graph_full_ss3_neg${num}"
+    EMBEDDINGS_FILE="${OUTPUT_DIR}/database_embeddings.pt"
+    MODEL_DIR="${OUTPUT_DIR}/weights/finetuned_bge_m3_softmax_lr${LR}/best"
+    
+    # Auto-detect: skip if embeddings already exist (pipeline completed)
+    if [[ -f "$EMBEDDINGS_FILE" ]]; then
+        log "⏭️  Skipping num_negatives=$num (embeddings already exist: $EMBEDDINGS_FILE)"
+        continue
+    fi
+    
+    # Auto-detect: if model exists but no embeddings, skip training and continue from embeddings
+    SKIP_FLAG="$SKIP_TRAINING"
+    if [[ -d "$MODEL_DIR" ]]; then
+        log "🔄 Model exists for num_negatives=$num, skipping training and continuing from embeddings..."
+        SKIP_FLAG="--skip-training --skip-triplets"
+    fi
+    
     log "Running num_negatives: $num"
     
     # Run full pipeline with training for each num_negatives value
@@ -68,7 +87,8 @@ for num in "${NUM_NEGATIVES[@]}"; do
         --lr "$LR" \
         --epochs "$EPOCHS" \
         --batch-size "$BATCH_SIZE" \
-        $SKIP_TRAINING \
+        --seed "$SEED" \
+        $SKIP_FLAG \
         2>&1 | tee "out/ablation_num_negatives_${num}.log"
     
     log_success "Completed num_negatives: $num"

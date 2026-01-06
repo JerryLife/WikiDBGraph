@@ -42,7 +42,7 @@ class TripletGenerator:
     def __init__(
         self,
         num_negatives: int = 6,
-        seed: int = 42,
+        seed: int = 0,
         train_ratio: float = 0.7,
         val_ratio: float = 0.1
     ):
@@ -218,7 +218,7 @@ class TripletGenerator:
             Dict mapping split names to output file paths
         """
         if test_seeds is None:
-            test_seeds = [42, 43, 44, 45, 46]
+            test_seeds = [self.seed + i for i in range(5)]
         
         os.makedirs(output_dir, exist_ok=True)
         
@@ -275,7 +275,7 @@ if __name__ == "__main__":
     parser.add_argument("--negative-pool", type=str, required=True, help="Path to negative candidates CSV")
     parser.add_argument("--output-dir", type=str, required=True, help="Output directory")
     parser.add_argument("--num-negatives", type=int, default=6, help="Negatives per triplet (default: 6)")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--seed", type=int, default=0, help="Random seed")
     
     args = parser.parse_args()
     

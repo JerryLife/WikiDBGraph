@@ -28,7 +28,7 @@ SEED=0
 # Training parameters
 LR=1e-05
 EPOCHS=10
-BATCH_SIZE=16
+BATCH_SIZE=32
 GPU_ID="0"  # GPU device ID (e.g., "0", "1", "0,1" for multi-GPU)
 
 # Flags
@@ -71,7 +71,7 @@ OPTIONS:
     --sample-size N         Sample values per column (default: 3)
     --num-negatives N       Negatives per triplet (default: 6)
     --threshold FLOAT       Similarity threshold (default: 0.6713)
-    --seed N                Random seed (default: 42)
+    --seed N                Random seed (default: 0)
     --lr FLOAT              Learning rate (default: 1e-05)
     --epochs N              Training epochs (default: 10)
     --batch-size N          Training batch size (default: 32)
@@ -278,7 +278,8 @@ if [[ $SKIP_EMBEDDINGS -eq 0 ]]; then
         --output "$EMBEDDINGS_FILE" \
         $MODEL_ARG \
         --mode "$SERIALIZATION_MODE" \
-        --batch-size 8 \
+        --batch-size 32 \
+        --gpu "$GPU_ID" \
         2>&1 | tee "${OUTPUT_DIR}/logs/embedding_generation.log"
     if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
         log_error "Embedding generation failed!"

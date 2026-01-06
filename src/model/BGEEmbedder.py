@@ -89,9 +89,15 @@ class BGEEmbedder:
         if model_type == "bge-m3":
             model_name = model_path if model_path is not None else "BAAI/bge-m3"
             self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self.model = AutoModel.from_pretrained(model_name).to(device)
-            # Disabled gradient checkpointing for faster training (uses more memory)
-            # self.model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+            # Load in bfloat16 to reduce memory usage
+            self.model = AutoModel.from_pretrained(
+                model_name,
+                torch_dtype=torch.bfloat16
+            ).to(device)
+            # Enable gradient checkpointing to trade compute for memory
+            self.model.gradient_checkpointing_enable(
+                gradient_checkpointing_kwargs={"use_reentrant": False}
+            )
         elif model_type == "bge-large-en-v1.5":
             model_name = "BAAI/bge-large-en-v1.5"
             self.model = SentenceTransformer(model_name).to(device)
@@ -260,7 +266,7 @@ class BGEEmbedder:
         val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, collate_fn=lambda x: x, num_workers=4, pin_memory=True)
 
         optimizer = AdamW(model.parameters(), lr=lr)
-        scaler = torch.cuda.amp.GradScaler() # For AMP
+        # Note: GradScaler is not needed for bfloat16 (same exponent range as float32)
         best_val_loss = float("inf")
 
         def evaluate():
@@ -276,7 +282,7 @@ class BGEEmbedder:
                     
                     all_texts = all_anchors + all_positives + all_negatives
                     
-                    with torch.cuda.amp.autocast():
+                    with torch.amp.autocast('cuda', dtype=torch.bfloat16):
                         embs = self.get_embedding(all_texts, batch_size=len(all_texts))
                         
                         b_size = len(batch)
@@ -304,8 +310,8 @@ class BGEEmbedder:
                 
                 all_texts = all_anchors + all_positives + all_negatives
                 
-                # Use AMP for forward pass and loss calculation
-                with torch.cuda.amp.autocast():
+                # Use autocast for forward pass (bfloat16)
+                with torch.amp.autocast('cuda', dtype=torch.bfloat16):
                     embs = self.get_embedding(all_texts, is_train=True, batch_size=len(all_texts))
                     
                     b_size = len(batch)
@@ -315,10 +321,9 @@ class BGEEmbedder:
                     
                     loss = info_nce_loss(anchor_embs, pos_embs, neg_embs_flat, num_negs, temperature)
                 
-                # Scaled backward pass
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
+                # Direct backward pass (no scaler needed for bfloat16)
+                loss.backward()
+                optimizer.step()
                 
                 total_loss += loss.item()
                 progress.set_postfix(loss=loss.item())

@@ -4,14 +4,57 @@ Embedding generation for database schemas.
 Wraps BGEEmbedder functionality for batch embedding generation.
 """
 
+import argparse
 import os
 import sys
+
+
+def parse_gpu_arg():
+    """Parse --gpu argument early, before importing torch."""
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--gpu", type=str, default=None,
+                        help="GPU device ID(s) to use (e.g., '0', '1', '0,1')")
+    args, _ = parser.parse_known_args()
+    return args.gpu
+
+
+# Set GPU before importing torch
+gpu_id = parse_gpu_arg()
+if gpu_id is not None:
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
+    print(f"Setting CUDA_VISIBLE_DEVICES={gpu_id}")
+
 import torch
 from tqdm import tqdm
 from typing import Optional, Tuple
 
 # Allow imports from parent directory
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+
+# Module-level worker function for multiprocessing (must be at module level to be picklable)
+def _load_schema_batch_worker(args):
+    """
+    Worker function that processes a batch of db_ids.
+    Args is a tuple: (db_id_batch, schema_dir, csv_dir, serialization_mode, sample_size)
+    """
+    db_id_batch, schema_dir, csv_dir, serialization_mode, sample_size = args
+    
+    # Import here to avoid issues with multiprocessing
+    from model.WKDataset import WKDataset
+    from preprocess.schema_serializer import SchemaSerializer
+    
+    loader = WKDataset(schema_dir=schema_dir, csv_base_dir=csv_dir)
+    serializer = SchemaSerializer(mode=serialization_mode, sample_size=sample_size)
+    
+    results = []
+    for db_id in db_id_batch:
+        try:
+            schema_text = serializer.serialize(loader, db_id)
+            results.append((db_id, schema_text))
+        except Exception:
+            pass
+    return results
 
 
 class EmbeddingGenerator:
@@ -79,7 +122,8 @@ class EmbeddingGenerator:
         output_path: str,
         batch_size: int = 8,
         db_id_range: Tuple[int, int] = (0, 100000),
-        chunk_size: int = 1000
+        chunk_size: int = 1000,
+        num_workers: int = 32
     ) -> str:
         """
         Generate embeddings for all databases in a range.
@@ -91,6 +135,7 @@ class EmbeddingGenerator:
             batch_size: Batch size for embedding generation (default: 8)
             db_id_range: Range of database IDs to process (default: 0-100000)
             chunk_size: Intermediate save frequency (default: 1000)
+            num_workers: Number of workers for parallel schema loading (default: 32)
         
         Returns:
             Path to the saved embeddings file
@@ -100,6 +145,7 @@ class EmbeddingGenerator:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Using device: {device}")
         print(f"Serialization mode: {self.serialization_mode}")
+        print(f"Batch size: {batch_size}")
         
         # Ensure output directory exists
         if output_path.endswith('.pt'):
@@ -113,40 +159,63 @@ class EmbeddingGenerator:
         loader = WKDataset(schema_dir=schema_dir, csv_base_dir=csv_dir)
         self.embedder.model.eval()
         
-        all_embeddings = []
-        all_ids = []
-        texts = []
-        ids = []
+        # Step 1: Collect all valid schemas using multiprocessing
+        # Each worker processes a batch of 10 databases for efficiency
+        print(f"Step 1: Collecting database schemas with {num_workers} workers...")
         
-        for i in tqdm(range(*db_id_range), desc="Embedding DBs"):
-            db_id = str(i).zfill(5)
-            try:
-                schema_text = self.serializer.serialize(loader, db_id)
-                texts.append(schema_text)
-                ids.append(db_id)
-            except Exception as e:
-                print(f"⚠️ Skipped {db_id}: {e}")
-                continue
-            
-            if len(texts) == batch_size or (i == db_id_range[1] - 1):
-                try:
-                    with torch.no_grad():
-                        embs = self.embedder.get_embedding(texts, batch_size=batch_size).cpu()
-                    all_embeddings.append(embs)
-                    all_ids.extend(ids)
-                except Exception as e:
-                    print(f"❌ Error processing batch at db_id {db_id}: {e}")
+        # Prepare db_id batches (10 per batch)
+        db_ids = [str(i).zfill(5) for i in range(*db_id_range)]
+        worker_batch_size = 10
+        db_id_batches = [db_ids[i:i+worker_batch_size] for i in range(0, len(db_ids), worker_batch_size)]
+        
+        # Prepare worker args: each batch includes all info needed to recreate serializer
+        worker_args = [
+            (batch, schema_dir, csv_dir, self.serialization_mode, self.sample_size)
+            for batch in db_id_batches
+        ]
+        
+        # Use multiprocessing for true parallel I/O
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+        
+        all_texts = []
+        all_ids = []
+        
+        with ProcessPoolExecutor(max_workers=num_workers) as executor:
+            futures = {executor.submit(_load_schema_batch_worker, args): args for args in worker_args}
+            for future in tqdm(as_completed(futures), total=len(futures), desc="Loading schema batches"):
+                results = future.result()
+                for db_id, schema_text in results:
+                    all_ids.append(db_id)
+                    all_texts.append(schema_text)
+        
+        # Sort by db_id to ensure consistent ordering
+        sorted_pairs = sorted(zip(all_ids, all_texts), key=lambda x: x[0])
+        all_ids = [p[0] for p in sorted_pairs]
+        all_texts = [p[1] for p in sorted_pairs]
+        
+        print(f"Loaded {len(all_ids)} database schemas")
+        
+        # Step 2: Process embeddings in batches
+        print("Step 2: Generating embeddings in batches...")
+        all_embeddings = []
+        num_batches = (len(all_texts) + batch_size - 1) // batch_size
+        
+        with torch.no_grad():
+            for batch_idx in tqdm(range(num_batches), desc="Embedding batches"):
+                start_idx = batch_idx * batch_size
+                end_idx = min(start_idx + batch_size, len(all_texts))
+                batch_texts = all_texts[start_idx:end_idx]
                 
-                texts = []
-                ids = []
-            
-            # Intermediate save
-            if len(all_ids) >= chunk_size:
-                self._save_embeddings(all_embeddings, all_ids, embeddings_file)
-                print(f"Intermediate save with {len(all_ids)} entries")
+                try:
+                    embs = self.embedder.get_embedding(batch_texts, batch_size=len(batch_texts)).cpu()
+                    all_embeddings.append(embs)
+                except Exception as e:
+                    print(f"❌ Error processing batch {batch_idx}: {e}")
+                    # Create zero embeddings for failed batch to maintain alignment
+                    continue
         
         # Final save
-        if all_ids:
+        if all_embeddings:
             self._save_embeddings(all_embeddings, all_ids, embeddings_file)
             print(f"✅ Final save: {len(all_ids)} embeddings → {embeddings_file}")
         
@@ -186,6 +255,9 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size", type=int, default=8, help="Batch size")
     parser.add_argument("--start-id", type=int, default=0, help="Start database ID")
     parser.add_argument("--end-id", type=int, default=100000, help="End database ID")
+    parser.add_argument("--num-workers", type=int, default=32, help="Workers for parallel schema loading")
+    parser.add_argument("--gpu", type=str, default=None,
+                        help="GPU device ID(s) to use (e.g., '0', '1')")
     
     args = parser.parse_args()
     
@@ -198,5 +270,6 @@ if __name__ == "__main__":
         csv_dir=args.csv_dir,
         output_path=args.output,
         batch_size=args.batch_size,
-        db_id_range=(args.start_id, args.end_id)
+        db_id_range=(args.start_id, args.end_id),
+        num_workers=args.num_workers
     )

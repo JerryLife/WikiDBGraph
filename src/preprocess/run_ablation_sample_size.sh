@@ -18,6 +18,7 @@ SKIP_TRAINING=""
 LR="1e-05"
 EPOCHS=10
 BATCH_SIZE=32
+SEED=0
 
 # Colors
 GREEN='\033[0;32m'
@@ -35,6 +36,7 @@ while [[ $# -gt 0 ]]; do
         --lr) LR="$2"; shift 2 ;;
         --epochs) EPOCHS="$2"; shift 2 ;;
         --batch-size) BATCH_SIZE="$2"; shift 2 ;;
+        --seed) SEED="$2"; shift 2 ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
 done
@@ -42,7 +44,7 @@ done
 export PYTHONPATH="${BASE_DIR}/src:${PYTHONPATH}"
 
 # Sample sizes to test
-SAMPLE_SIZES=(1 3 5 10)
+SAMPLE_SIZES=(1 5 10)
 
 log "=========================================="
 log "ABLATION STUDY: Sample Size"
@@ -68,6 +70,7 @@ for size in "${SAMPLE_SIZES[@]}"; do
         --lr "$LR" \
         --epochs "$EPOCHS" \
         --batch-size "$BATCH_SIZE" \
+        --seed "$SEED" \
         $SKIP_TRAINING \
         2>&1 | tee "out/ablation_sample_size_${size}.log"
     

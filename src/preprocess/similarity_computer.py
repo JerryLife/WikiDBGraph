@@ -1,0 +1,172 @@
+"""
+All-pairs similarity computation using precomputed embeddings.
+
+Computes cosine similarity between all database pairs and saves results.
+"""
+
+import os
+import sys
+import csv
+import torch
+import torch.nn.functional as F
+from tqdm import tqdm
+from typing import Optional, Set, Tuple
+
+# Allow imports from parent directory
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+
+class SimilarityComputer:
+    """
+    Compute cosine similarity between all database pairs.
+    
+    Uses precomputed embeddings to efficiently compute all-pairs similarity
+    and optionally compares against ground truth labels.
+    
+    Args:
+        threshold: Similarity threshold for edge prediction (default: 0.6713)
+        batch_size: Batch size for similarity computation (default: 256)
+    
+    Example:
+        >>> computer = SimilarityComputer(threshold=0.6713)
+        >>> computer.compute_all_pairs(
+        ...     embedding_path="data/graph/all_embeddings.pt",
+        ...     output_path="data/graph/all_predictions.pt",
+        ...     qid_pairs_path="data/qid_pairs_fixed.csv"
+        ... )
+    """
+    
+    def __init__(
+        self,
+        threshold: float = 0.6713,
+        batch_size: int = 256
+    ):
+        """Initialize the similarity computer."""
+        self.threshold = threshold
+        self.batch_size = batch_size
+    
+    def load_qid_pairs(self, qid_pairs_path: str) -> Set[Tuple[str, str]]:
+        """
+        Load ground truth QID pairs.
+        
+        Args:
+            qid_pairs_path: Path to TSV file with ground truth pairs
+        
+        Returns:
+            Set of (db_1, db_2) tuples (sorted order)
+        """
+        qid_pairs = set()
+        with open(qid_pairs_path, "r") as f:
+            reader = csv.DictReader(f, delimiter="\t")
+            for row in reader:
+                a, b = row["db_1"], row["db_2"]
+                qid_pairs.add(tuple(sorted((a, b))))
+        print(f"Loaded {len(qid_pairs):,} labeled pairs from {qid_pairs_path}")
+        return qid_pairs
+    
+    def compute_all_pairs(
+        self,
+        embedding_path: str,
+        output_path: str,
+        qid_pairs_path: Optional[str] = None
+    ) -> str:
+        """
+        Compute similarity for all database pairs.
+        
+        Args:
+            embedding_path: Path to precomputed embeddings (.pt file)
+            output_path: Output path for predictions (.pt file)
+            qid_pairs_path: Optional path to ground truth pairs for labeling
+        
+        Returns:
+            Path to the saved predictions file
+        """
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+        # Load embeddings
+        print(f"Loading embeddings from {embedding_path}")
+        saved_data = torch.load(embedding_path, map_location=device)
+        db_id_to_index = saved_data["db_id_to_index"]
+        embedding_matrix = saved_data["embeddings"].to(device)
+        
+        # Load ground truth if provided
+        qid_pairs = set()
+        if qid_pairs_path and os.path.exists(qid_pairs_path):
+            qid_pairs = self.load_qid_pairs(qid_pairs_path)
+        
+        all_db_ids = sorted(db_id_to_index.keys())
+        num_ids = len(all_db_ids)
+        total_possible = num_ids * (num_ids - 1) // 2
+        
+        print(f"Total unique IDs: {num_ids}")
+        print(f"Total unordered pairs (C(n,2)): {total_possible:,}")
+        print(f"Similarity threshold: {self.threshold}")
+        
+        all_records = []
+        
+        with torch.no_grad():
+            for i in tqdm(range(0, num_ids), desc="Computing similarities"):
+                anchor_id = all_db_ids[i]
+                emb_anchor = embedding_matrix[db_id_to_index[anchor_id]].unsqueeze(0)
+                
+                for j_start in range(i + 1, num_ids, self.batch_size):
+                    j_end = min(j_start + self.batch_size, num_ids)
+                    batch_target_ids = all_db_ids[j_start:j_end]
+                    
+                    emb_targets = torch.stack([
+                        embedding_matrix[db_id_to_index[tid]]
+                        for tid in batch_target_ids
+                    ])
+                    
+                    emb_anchor_expanded = emb_anchor.expand(emb_targets.size(0), -1)
+                    sims = F.cosine_similarity(emb_anchor_expanded, emb_targets)
+                    
+                    for tid, sim_val in zip(batch_target_ids, sims):
+                        sim_val = sim_val.item()
+                        edge = 1 if sim_val > self.threshold else 0
+                        pair = tuple(sorted((anchor_id, tid)))
+                        label = 1 if pair in qid_pairs else 0
+                        all_records.append([anchor_id, tid, sim_val, label, edge])
+        
+        # Save results
+        os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+        torch.save(all_records, output_path)
+        
+        # Save summary
+        summary_path = output_path.replace(".pt", "_summary.txt")
+        with open(summary_path, "w") as f:
+            f.write(f"Total IDs: {num_ids}\n")
+            f.write(f"Total pairs: {len(all_records):,}\n")
+            f.write(f"Threshold: {self.threshold}\n")
+            f.write(f"Predicted edges: {sum(r[4] for r in all_records):,}\n")
+            if qid_pairs:
+                f.write(f"Ground truth pairs: {len(qid_pairs):,}\n")
+        
+        print(f"✅ Saved {len(all_records):,} predictions to {output_path}")
+        return output_path
+    
+    @classmethod
+    def from_config(cls, config: "PreprocessConfig") -> "SimilarityComputer":
+        """Create a SimilarityComputer from a PreprocessConfig."""
+        from .config import PreprocessConfig
+        return cls(threshold=config.similarity_threshold)
+
+
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Compute all-pairs similarity")
+    parser.add_argument("--embeddings", type=str, required=True, help="Path to embeddings .pt file")
+    parser.add_argument("--output", type=str, required=True, help="Output path for predictions")
+    parser.add_argument("--qid-pairs", type=str, default=None, help="Path to ground truth pairs")
+    parser.add_argument("--threshold", type=float, default=0.6713, help="Similarity threshold")
+    parser.add_argument("--batch-size", type=int, default=256, help="Batch size")
+    
+    args = parser.parse_args()
+    
+    computer = SimilarityComputer(threshold=args.threshold, batch_size=args.batch_size)
+    computer.compute_all_pairs(
+        embedding_path=args.embeddings,
+        output_path=args.output,
+        qid_pairs_path=args.qid_pairs
+    )

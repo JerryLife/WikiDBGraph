@@ -38,6 +38,8 @@ dependencies = [
     "cuvs-cu12==25.4.*",
     "xgboost",
     "pydot>=4.0.1",
+    "transformers==4.41.0",
+    "sentence-transformers",
 ]
 
 [[tool.poetry.source]]

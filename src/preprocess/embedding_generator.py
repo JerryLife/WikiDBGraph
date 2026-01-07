@@ -272,6 +272,9 @@ if __name__ == "__main__":
     parser.add_argument("--csv-dir", type=str, default="data/unzip", help="CSV directory")
     parser.add_argument("--output", type=str, required=True, help="Output path")
     parser.add_argument("--model-path", type=str, default=None, help="Finetuned model path")
+    parser.add_argument("--model-type", type=str, default="bge-m3",
+                        choices=["bge-m3", "bge-large-en-v1.5", "mpnet", "all-mpnet-base-v2"],
+                        help="Model type (default: bge-m3)")
     parser.add_argument("--mode", type=str, default="full",
                         choices=["schema_only", "data_only", "full"],
                         help="Schema serialization mode")
@@ -285,6 +288,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     generator = EmbeddingGenerator(
+        model_type=args.model_type,
         model_path=args.model_path,
         serialization_mode=args.mode
     )

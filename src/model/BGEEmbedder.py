@@ -102,8 +102,12 @@ class BGEEmbedder:
             model_name = "BAAI/bge-large-en-v1.5"
             self.model = SentenceTransformer(model_name).to(device)
             self.tokenizer = None
+        elif model_type == "mpnet" or model_type == "all-mpnet-base-v2":
+            model_name = model_path if model_path is not None else "sentence-transformers/all-mpnet-base-v2"
+            self.model = SentenceTransformer(model_name).to(device)
+            self.tokenizer = None
         else:
-            raise ValueError("Unsupported model_type. Choose 'bge-m3' or 'bge-large-en-v1.5'.")
+            raise ValueError(f"Unsupported model_type '{model_type}'. Choose 'bge-m3', 'bge-large-en-v1.5', or 'mpnet'.")
 
         self.model.eval()
         self.embeddings = None
@@ -159,8 +163,49 @@ class BGEEmbedder:
                     device=device
                 )
             return embedding
+        elif self.model_type in ["mpnet", "all-mpnet-base-v2"]:
+            # SentenceTransformer-based models
+            if is_train:
+                # For training, we need to use the underlying model directly for gradient tracking
+                # SentenceTransformer.encode() doesn't preserve gradients
+                tokenizer = self.model.tokenizer
+                transformer = self.model[0].auto_model  # First module is the transformer
+                
+                all_embeddings = []
+                for i in range(0, len(texts), batch_size):
+                    batch = texts[i:i + batch_size]
+                    inputs = tokenizer(
+                        batch,
+                        return_tensors="pt",
+                        padding=True,
+                        truncation=True,
+                        max_length=512  # mpnet max length
+                    ).to(device)
+                    
+                    # Forward pass with gradients
+                    outputs = transformer(**inputs)
+                    # Mean pooling
+                    attention_mask = inputs['attention_mask']
+                    token_embeddings = outputs.last_hidden_state
+                    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+                    sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
+                    sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+                    embedding = F.normalize(sum_embeddings / sum_mask, p=2, dim=-1)
+                    all_embeddings.append(embedding)
+                
+                return torch.cat(all_embeddings, dim=0)
+            else:
+                with torch.no_grad():
+                    embedding = self.model.encode(
+                        texts,
+                        convert_to_tensor=True,
+                        normalize_embeddings=True,
+                        batch_size=batch_size,
+                        device=device
+                    )
+                return embedding
         else:
-            raise ValueError("Unsupported model_type.")
+            raise ValueError(f"Unsupported model_type: {self.model_type}")
 
     def get_embedding_from_db_id(self, db_id, loader, show_wikidata_property_id: bool = False, sample: bool = True):
         schema = [format_schema_from_loader(loader, db_id, sample=sample, show_wikidata_property_id=show_wikidata_property_id)]

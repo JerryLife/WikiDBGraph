@@ -1,0 +1,17 @@
+\begin{table}[tb]
+    \centering
+    \caption{Performance comparison (1:1 balanced, optimal threshold, 5 seeds) (threshold: 0.6250).}
+    \label{tab:embedding-model-performance}
+    \resizebox{\columnwidth}{!}{
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{lcccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multicolumn{4}{c}{\textbf{Performance}} \\
+        \cmidrule(lr){2-5}
+        & \textbf{AUC-ROC} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
+        \midrule
+Original & 0.9663±0.0012 & 0.9005±0.0029 & 0.9107±0.0037 & 0.8905±0.0066 \\
+Fine-tuned & \textbf{0.9967±0.0004} & \textbf{0.9770±0.0007} & \textbf{0.9851±0.0029} & \textbf{0.9689±0.0027} \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

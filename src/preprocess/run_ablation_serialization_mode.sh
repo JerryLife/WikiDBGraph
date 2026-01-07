@@ -57,6 +57,49 @@ log "=========================================="
 
 mkdir -p out
 
+# Step 0: Evaluate original pretrained model as baseline (once)
+# Use a shared folder so all ablation studies reuse the same baseline
+ORIGINAL_OUTPUT_DIR="${BASE_DIR}/out/original_bge-m3"
+ORIGINAL_EMBEDDINGS="${ORIGINAL_OUTPUT_DIR}/database_embeddings.pt"
+ORIGINAL_TEST_RESULTS="${ORIGINAL_OUTPUT_DIR}/test_results"
+if [[ ! -f "${ORIGINAL_TEST_RESULTS}/summary.txt" ]]; then
+    log "Step 0: Evaluating ORIGINAL pretrained model as baseline..."
+    mkdir -p "${ORIGINAL_OUTPUT_DIR}/logs"
+    
+    # Generate embeddings with pretrained model (no model-path)
+    if [[ ! -f "$ORIGINAL_EMBEDDINGS" ]]; then
+        python -m preprocess.embedding_generator \
+            --schema-dir "data/schema" \
+            --csv-dir "data/unzip" \
+            --output "$ORIGINAL_EMBEDDINGS" \
+            --mode "full" \
+            --batch-size 32 \
+            --gpu "$GPU_ID" \
+            2>&1 | tee "${ORIGINAL_OUTPUT_DIR}/logs/embedding_generation.log"
+    fi
+    
+    # Use test triplets from first ablation config
+    TEST_TRIPLETS="${BASE_DIR}/out/graph_${MODES[0]}_ss3_neg6/triplets/triplets_test.jsonl"
+    if [[ ! -f "$TEST_TRIPLETS" ]]; then
+        TEST_TRIPLETS="${BASE_DIR}/out/graph_${MODES[0]}_ss3_neg6/triplets/triplets_test_seed0.jsonl"
+    fi
+    
+    if [[ -f "$ORIGINAL_EMBEDDINGS" ]] && [[ -f "$TEST_TRIPLETS" ]]; then
+        python -m preprocess.evaluator \
+            --embedding-path "$ORIGINAL_EMBEDDINGS" \
+            --test-triplets "$TEST_TRIPLETS" \
+            --output-dir "$ORIGINAL_TEST_RESULTS" \
+            --seeds 0 1 2 3 4 \
+            --gpu "$GPU_ID" \
+            2>&1 | tee "${ORIGINAL_OUTPUT_DIR}/logs/evaluation.log"
+        log_success "Original model baseline evaluation complete"
+    else
+        log_warning "Skipping original baseline: test triplets not found yet"
+    fi
+else
+    log "Step 0: Original model baseline already exists, skipping"
+fi
+
 for mode in "${MODES[@]}"; do
     log "Running mode: $mode"
     

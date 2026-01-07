@@ -12,8 +12,11 @@ import torch.nn.functional as F
 from tqdm import tqdm
 from typing import Optional, Set, Tuple
 
-# Allow imports from parent directory
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+def set_gpu_device(gpu_id: str):
+    """Set GPU device via CUDA_VISIBLE_DEVICES environment variable."""
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
+    print(f"Setting CUDA_VISIBLE_DEVICES={gpu_id}")
 
 
 class SimilarityComputer:
@@ -68,15 +71,17 @@ class SimilarityComputer:
         self,
         embedding_path: str,
         output_path: str,
-        qid_pairs_path: Optional[str] = None
+        qid_pairs_path: Optional[str] = None,
+        chunk_size: int = 1024
     ) -> str:
         """
-        Compute similarity for all database pairs.
+        Compute similarity for all database pairs using fast matrix multiplication.
         
         Args:
             embedding_path: Path to precomputed embeddings (.pt file)
             output_path: Output path for predictions (.pt file)
             qid_pairs_path: Optional path to ground truth pairs for labeling
+            chunk_size: Number of rows to process at once (controls memory usage)
         
         Returns:
             Path to the saved predictions file
@@ -87,13 +92,14 @@ class SimilarityComputer:
         print(f"Loading embeddings from {embedding_path}")
         saved_data = torch.load(embedding_path, map_location=device)
         db_id_to_index = saved_data["db_id_to_index"]
-        embedding_matrix = saved_data["embeddings"].to(device)
+        raw_embeddings = saved_data["embeddings"].to(device)
         
         # Load ground truth if provided
         qid_pairs = set()
         if qid_pairs_path and os.path.exists(qid_pairs_path):
             qid_pairs = self.load_qid_pairs(qid_pairs_path)
         
+        # Sort db_ids and reorder embeddings once upfront (no indexing in loop)
         all_db_ids = sorted(db_id_to_index.keys())
         num_ids = len(all_db_ids)
         total_possible = num_ids * (num_ids - 1) // 2
@@ -101,32 +107,52 @@ class SimilarityComputer:
         print(f"Total unique IDs: {num_ids}")
         print(f"Total unordered pairs (C(n,2)): {total_possible:,}")
         print(f"Similarity threshold: {self.threshold}")
+        print(f"Using fast matrix multiplication with chunk_size={chunk_size}")
+        
+        # Reorder embeddings to match sorted db_id order, then normalize
+        print("Reordering and normalizing embeddings...")
+        reorder_indices = torch.tensor([db_id_to_index[db_id] for db_id in all_db_ids], device=device)
+        embeddings = F.normalize(raw_embeddings[reorder_indices], p=2, dim=1)  # [num_ids, dim]
+        del raw_embeddings  # Free memory
+        
+        # Precompute transpose for matmul
+        embeddings_T = embeddings.T  # [dim, num_ids]
         
         all_records = []
         
+        print("Computing all-pairs similarity...")
         with torch.no_grad():
-            for i in tqdm(range(0, num_ids), desc="Computing similarities"):
-                anchor_id = all_db_ids[i]
-                emb_anchor = embedding_matrix[db_id_to_index[anchor_id]].unsqueeze(0)
+            # Process in chunks of rows
+            for chunk_start in tqdm(range(0, num_ids, chunk_size), desc="Computing similarities"):
+                chunk_end = min(chunk_start + chunk_size, num_ids)
                 
-                for j_start in range(i + 1, num_ids, self.batch_size):
-                    j_end = min(j_start + self.batch_size, num_ids)
-                    batch_target_ids = all_db_ids[j_start:j_end]
+                # Direct slice, no indexing
+                chunk_embeddings = embeddings[chunk_start:chunk_end]  # [chunk_size, dim]
+                
+                # Compute similarity: [chunk_size, dim] @ [dim, num_ids] -> [chunk_size, num_ids]
+                sim_matrix = chunk_embeddings @ embeddings_T
+                
+                # Extract upper triangular pairs (j > i) to avoid duplicates
+                for local_i in range(chunk_end - chunk_start):
+                    global_i = chunk_start + local_i
+                    anchor_id = all_db_ids[global_i]
                     
-                    emb_targets = torch.stack([
-                        embedding_matrix[db_id_to_index[tid]]
-                        for tid in batch_target_ids
-                    ])
+                    # Only consider j > global_i (upper triangle)
+                    start_j = global_i + 1
+                    if start_j >= num_ids:
+                        continue
                     
-                    emb_anchor_expanded = emb_anchor.expand(emb_targets.size(0), -1)
-                    sims = F.cosine_similarity(emb_anchor_expanded, emb_targets)
+                    sims = sim_matrix[local_i, start_j:]  # Similarities for j > global_i
                     
-                    for tid, sim_val in zip(batch_target_ids, sims):
+                    # Process all pairs for this anchor
+                    for offset, sim_val in enumerate(sims):
+                        global_j = start_j + offset
+                        target_id = all_db_ids[global_j]
                         sim_val = sim_val.item()
                         edge = 1 if sim_val > self.threshold else 0
-                        pair = tuple(sorted((anchor_id, tid)))
+                        pair = tuple(sorted((anchor_id, target_id)))
                         label = 1 if pair in qid_pairs else 0
-                        all_records.append([anchor_id, tid, sim_val, label, edge])
+                        all_records.append([anchor_id, target_id, sim_val, label, edge])
         
         # Save results
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
@@ -161,8 +187,12 @@ if __name__ == "__main__":
     parser.add_argument("--qid-pairs", type=str, default=None, help="Path to ground truth pairs")
     parser.add_argument("--threshold", type=float, default=0.6713, help="Similarity threshold")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size")
+    parser.add_argument("--gpu", type=str, default="0", help="GPU device ID to use")
     
     args = parser.parse_args()
+    
+    # Set GPU before any CUDA operations
+    set_gpu_device(args.gpu)
     
     computer = SimilarityComputer(threshold=args.threshold, batch_size=args.batch_size)
     computer.compute_all_pairs(

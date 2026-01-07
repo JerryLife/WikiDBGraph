@@ -247,7 +247,13 @@ class TripletGenerator:
         self.save_triplets(val_triplets, val_path)
         output_paths["val"] = val_path
         
-        # Generate test sets with multiple seeds
+        # Generate main test set (used by evaluator)
+        test_triplets = self.generate_triplets(test_pairs, negative_pool, self.seed)
+        test_path = os.path.join(output_dir, "triplets_test.jsonl")
+        self.save_triplets(test_triplets, test_path)
+        output_paths["test"] = test_path
+        
+        # Generate additional test sets with multiple seeds for robustness analysis
         for seed in test_seeds:
             test_triplets = self.generate_triplets(test_pairs, negative_pool, seed)
             test_path = os.path.join(output_dir, f"triplets_test_seed{seed}.jsonl")

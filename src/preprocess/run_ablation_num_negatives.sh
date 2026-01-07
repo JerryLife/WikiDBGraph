@@ -17,7 +17,7 @@ GPU_ID="0"
 SKIP_TRAINING=""
 LR="1e-05"
 EPOCHS=10
-BATCH_SIZE=32
+BATCH_SIZE=16
 SEED=0
 
 # Colors
@@ -44,7 +44,7 @@ done
 export PYTHONPATH="${BASE_DIR}/src:${PYTHONPATH}"
 
 # Number of negatives to test
-NUM_NEGATIVES=(2 4 10 15)
+NUM_NEGATIVES=(2 4 10)
 
 log "=========================================="
 log "ABLATION STUDY: Number of Negatives"
@@ -56,6 +56,49 @@ log "Output format: out/graph_full_ss3_neg{num}/"
 log "=========================================="
 
 mkdir -p out
+
+# Step 0: Evaluate original pretrained model as baseline (once)
+# Use a shared folder so all ablation studies reuse the same baseline
+ORIGINAL_OUTPUT_DIR="${BASE_DIR}/out/original_bge-m3"
+ORIGINAL_EMBEDDINGS="${ORIGINAL_OUTPUT_DIR}/database_embeddings.pt"
+ORIGINAL_TEST_RESULTS="${ORIGINAL_OUTPUT_DIR}/test_results"
+if [[ ! -f "${ORIGINAL_TEST_RESULTS}/summary.txt" ]]; then
+    log "Step 0: Evaluating ORIGINAL pretrained model as baseline..."
+    mkdir -p "${ORIGINAL_OUTPUT_DIR}/logs"
+    
+    # Generate embeddings with pretrained model (no model-path)
+    if [[ ! -f "$ORIGINAL_EMBEDDINGS" ]]; then
+        python -m preprocess.embedding_generator \
+            --schema-dir "data/schema" \
+            --csv-dir "data/unzip" \
+            --output "$ORIGINAL_EMBEDDINGS" \
+            --mode "full" \
+            --batch-size 32 \
+            --gpu "$GPU_ID" \
+            2>&1 | tee "${ORIGINAL_OUTPUT_DIR}/logs/embedding_generation.log"
+    fi
+    
+    # Use any test triplets from first ablation config
+    TEST_TRIPLETS="${BASE_DIR}/out/graph_full_ss3_neg${NUM_NEGATIVES[0]}/triplets/triplets_test.jsonl"
+    if [[ ! -f "$TEST_TRIPLETS" ]]; then
+        TEST_TRIPLETS="${BASE_DIR}/out/graph_full_ss3_neg${NUM_NEGATIVES[0]}/triplets/triplets_test_seed0.jsonl"
+    fi
+    
+    if [[ -f "$ORIGINAL_EMBEDDINGS" ]] && [[ -f "$TEST_TRIPLETS" ]]; then
+        python -m preprocess.evaluator \
+            --embedding-path "$ORIGINAL_EMBEDDINGS" \
+            --test-triplets "$TEST_TRIPLETS" \
+            --output-dir "$ORIGINAL_TEST_RESULTS" \
+            --seeds 0 1 2 3 4 \
+            --gpu "$GPU_ID" \
+            2>&1 | tee "${ORIGINAL_OUTPUT_DIR}/logs/evaluation.log"
+        log_success "Original model baseline evaluation complete"
+    else
+        log_warning "Skipping original baseline: test triplets not found yet"
+    fi
+else
+    log "Step 0: Original model baseline already exists, skipping"
+fi
 
 for num in "${NUM_NEGATIVES[@]}"; do
     OUTPUT_DIR="${BASE_DIR}/out/graph_full_ss3_neg${num}"

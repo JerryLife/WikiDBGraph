@@ -195,23 +195,46 @@ class EmbeddingGenerator:
         
         print(f"Loaded {len(all_ids)} database schemas")
         
-        # Step 2: Process embeddings in batches
-        print("Step 2: Generating embeddings in batches...")
+        # Step 2: Process embeddings in batches using DataLoader
+        print("Step 2: Generating embeddings in batches with DataLoader...")
         all_embeddings = []
-        num_batches = (len(all_texts) + batch_size - 1) // batch_size
+        
+        # Create DataLoader for efficient batch loading with prefetching
+        from torch.utils.data import DataLoader, Dataset
+        
+        class TextDataset(Dataset):
+            """Simple dataset wrapper for text data."""
+            def __init__(self, texts):
+                self.texts = texts
+            def __len__(self):
+                return len(self.texts)
+            def __getitem__(self, idx):
+                return self.texts[idx]
+        
+        # Custom collate function to return list of strings (not tensors)
+        def collate_texts(batch):
+            return batch
+        
+        dataset = TextDataset(all_texts)
+        # Use num_workers for parallel data loading and prefetch_factor for GPU pipeline
+        dataloader = DataLoader(
+            dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=min(4, num_workers),  # Use fewer workers for embedding since GPU-bound
+            prefetch_factor=2,
+            collate_fn=collate_texts,
+            pin_memory=True
+        )
         
         with torch.no_grad():
-            for batch_idx in tqdm(range(num_batches), desc="Embedding batches"):
-                start_idx = batch_idx * batch_size
-                end_idx = min(start_idx + batch_size, len(all_texts))
-                batch_texts = all_texts[start_idx:end_idx]
-                
+            for batch_idx, batch_texts in enumerate(tqdm(dataloader, desc="Embedding batches")):
                 try:
                     embs = self.embedder.get_embedding(batch_texts, batch_size=len(batch_texts)).cpu()
                     all_embeddings.append(embs)
                 except Exception as e:
                     print(f"❌ Error processing batch {batch_idx}: {e}")
-                    # Create zero embeddings for failed batch to maintain alignment
+                    # Skip failed batches
                     continue
         
         # Final save

@@ -9,7 +9,7 @@ import re
 import argparse
 import numpy as np
 from pathlib import Path
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, List
 
 
 def parse_summary(summary_path: str) -> Dict[str, float]:
@@ -93,6 +93,22 @@ def format_metric(metrics: Dict, key: str) -> str:
         return f"{mean:.4f}"
 
 
+def get_ranking(all_results: Dict, modes: List[str], metric: str) -> Tuple[Optional[str], Optional[str]]:
+    """Get best and second-best modes for a metric."""
+    values = []
+    for mode in modes:
+        if metric in all_results[mode]:
+            values.append((mode, all_results[mode][metric]))
+    
+    if not values:
+        return None, None
+    
+    values.sort(key=lambda x: x[1], reverse=True)
+    best = values[0][0] if values else None
+    second = values[1][0] if len(values) > 1 else None
+    return best, second
+
+
 def generate_ablation_table(
     results_dir: str,
     output_path: str
@@ -132,24 +148,16 @@ def generate_ablation_table(
     
     print("=" * 80)
     
-    # Find best mode for each metric
-    def get_best_mode(metric: str) -> Optional[str]:
-        best = None
-        best_val = -1
-        for mode in modes:
-            if metric in all_results[mode]:
-                val = all_results[mode][metric]
-                if val > best_val:
-                    best_val = val
-                    best = mode
-        return best
-    
-    def format_bold(mode: str, metric: str) -> str:
-        """Format metric, bold if best."""
+    def format_ranked(mode: str, metric: str) -> str:
+        """Format metric: bold if best, underline if second-best."""
         val = format_metric(all_results[mode], metric)
-        best = get_best_mode(metric)
-        if best == mode and val != "N/A":
+        if val == "N/A":
+            return val
+        best, second = get_ranking(all_results, modes, metric)
+        if mode == best:
             return f"\\textbf{{{val}}}"
+        elif mode == second:
+            return f"\\underline{{{val}}}"
         return val
     
     # Check if any results exist
@@ -181,10 +189,10 @@ def generate_ablation_table(
     for mode in modes:
         label = mode_labels[mode]
         
-        auc = format_bold(mode, 'auc')
-        f1 = format_bold(mode, 'f1')
-        prec = format_bold(mode, 'precision')
-        rec = format_bold(mode, 'recall')
+        auc = format_ranked(mode, 'auc')
+        f1 = format_ranked(mode, 'f1')
+        prec = format_ranked(mode, 'precision')
+        rec = format_ranked(mode, 'recall')
         
         latex += f"        {label} & {auc} & {f1} & {prec} & {rec} \\\\\n"
     

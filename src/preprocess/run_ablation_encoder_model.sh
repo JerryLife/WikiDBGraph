@@ -228,7 +228,7 @@ log "=========================================="
 mkdir -p fig
 
 # Generate comparison table
-python -m preprocess.summary.plot_ablation_encoder_model \
+python -m preprocess.summary.print_ablation_encoder_model \
     --results-dir "out" \
     --output "fig/ablation_encoder_model.tex"
 

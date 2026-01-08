@@ -9,7 +9,7 @@ import re
 import argparse
 import numpy as np
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Tuple
 
 
 def parse_summary(summary_path: str) -> Dict[str, float]:
@@ -95,6 +95,22 @@ def format_metric(metrics: Dict, key: str) -> str:
         return f"{mean:.4f}"
 
 
+def get_ranking(all_results: Dict, metric: str) -> Tuple[Optional[str], Optional[str]]:
+    """Get best and second-best keys for a metric."""
+    values = []
+    for key, results in all_results.items():
+        if metric in results:
+            values.append((key, results[metric]))
+    
+    if not values:
+        return None, None
+    
+    values.sort(key=lambda x: x[1], reverse=True)
+    best = values[0][0] if values else None
+    second = values[1][0] if len(values) > 1 else None
+    return best, second
+
+
 def generate_ablation_table(
     results_dir: str,
     output_path: str
@@ -131,24 +147,16 @@ def generate_ablation_table(
     
     print("=" * 100)
     
-    # Find best model for each metric (considering all variants)
-    def get_best(metric: str) -> Optional[str]:
-        best = None
-        best_val = -1
-        for key, results in all_results.items():
-            if metric in results:
-                val = results[metric]
-                if val > best_val:
-                    best_val = val
-                    best = key
-        return best
-    
-    def format_bold(key: str, metric: str) -> str:
-        """Format metric, bold if best."""
+    def format_ranked(key: str, metric: str) -> str:
+        """Format metric: bold if best, underline if second-best."""
         val = format_metric(all_results[key], metric)
-        best = get_best(metric)
-        if best == key and val != "N/A":
+        if val == "N/A":
+            return val
+        best, second = get_ranking(all_results, metric)
+        if key == best:
             return f"\\textbf{{{val}}}"
+        elif key == second:
+            return f"\\underline{{{val}}}"
         return val
     
     # Check if any results exist
@@ -173,11 +181,11 @@ def generate_ablation_table(
     for model_key, model_name in models.items():
         # Original
         orig_key = f"{model_key}_orig"
-        latex += f"        {model_name} & Original & {format_bold(orig_key, 'auc')} & {format_bold(orig_key, 'f1')} & {format_bold(orig_key, 'precision')} & {format_bold(orig_key, 'recall')} \\\\\n"
+        latex += f"        {model_name} & Original & {format_ranked(orig_key, 'auc')} & {format_ranked(orig_key, 'f1')} & {format_ranked(orig_key, 'precision')} & {format_ranked(orig_key, 'recall')} \\\\\n"
         
         # Fine-tuned
         ft_key = f"{model_key}_ft"
-        latex += f"         & Fine-tuned & {format_bold(ft_key, 'auc')} & {format_bold(ft_key, 'f1')} & {format_bold(ft_key, 'precision')} & {format_bold(ft_key, 'recall')} \\\\\n"
+        latex += f"         & Fine-tuned & {format_ranked(ft_key, 'auc')} & {format_ranked(ft_key, 'f1')} & {format_ranked(ft_key, 'precision')} & {format_ranked(ft_key, 'recall')} \\\\\n"
         latex += "        \\midrule\n"
     
     # Remove last midrule and add bottomrule

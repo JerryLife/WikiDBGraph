@@ -127,7 +127,7 @@ log "=========================================="
 mkdir -p fig
 
 # Generate comparison table
-python -m preprocess.summary.plot_ablation_serialization_mode \
+python -m preprocess.summary.print_ablation_serialization_mode \
     --results-dir "out" \
     --output "fig/ablation_serialization_mode.tex"
 

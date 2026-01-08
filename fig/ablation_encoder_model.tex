@@ -1,15 +1,18 @@
 \begin{table}[tb]
     \centering
-    \caption{Ablation study: Encoder model comparison (pretrained, optimal threshold).}
+    \caption{Ablation study: Encoder model comparison (optimal threshold, 5 seeds).}
     \label{tab:ablation-encoder-model}
     \resizebox{\columnwidth}{!}{
     \setlength{\tabcolsep}{3pt}
-    \begin{tabular}{lcccc}
+    \begin{tabular}{llcccc}
         \toprule
-        \textbf{Encoder Model} & \textbf{AUC-ROC} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
+        \textbf{Encoder Model} & \textbf{Type} & \textbf{AUC-ROC} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
         \midrule
-        BGE-M3 & \textbf{0.9663±0.0012} & \textbf{0.9005±0.0029} & \textbf{0.9107±0.0037} & \textbf{0.8905±0.0066} \\
-        all-mpnet-base-v2 & N/A & N/A & N/A & N/A \\
-        \bottomrule
+        BGE-M3 & Original & 0.9663±0.0012 & 0.9005±0.0029 & 0.9107±0.0037 & 0.8905±0.0066 \\
+         & Fine-tuned & \underline{0.9967±0.0004} & \underline{0.9770±0.0007} & \textbf{0.9851±0.0029} & \underline{0.9689±0.0027} \\
+        \midrule
+        all-mpnet-base-v2 & Original & 0.8667±0.0027 & 0.7855±0.0016 & 0.8369±0.0050 & 0.7401±0.0044 \\
+         & Fine-tuned & \textbf{0.9968±0.0004} & \textbf{0.9836±0.0011} & \underline{0.9846±0.0033} & \textbf{0.9827±0.0044} \\
+                \bottomrule
     \end{tabular}}
 \end{table}

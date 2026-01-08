@@ -1,0 +1,15 @@
+\begin{table}[tb]
+    \centering
+    \caption{Ablation study: Encoder model comparison (pretrained, optimal threshold).}
+    \label{tab:ablation-encoder-model}
+    \resizebox{\columnwidth}{!}{
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Encoder Model} & \textbf{AUC-ROC} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
+        \midrule
+        BGE-M3 & \textbf{0.9663±0.0012} & \textbf{0.9005±0.0029} & \textbf{0.9107±0.0037} & \textbf{0.8905±0.0066} \\
+        all-mpnet-base-v2 & N/A & N/A & N/A & N/A \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

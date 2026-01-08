@@ -159,41 +159,60 @@ class EmbeddingGenerator:
         loader = WKDataset(schema_dir=schema_dir, csv_base_dir=csv_dir)
         self.embedder.model.eval()
         
-        # Step 1: Collect all valid schemas using multiprocessing
-        # Each worker processes a batch of 10 databases for efficiency
-        print(f"Step 1: Collecting database schemas with {num_workers} workers...")
+        # Step 1: Collect all valid schemas using multiprocessing (with caching)
+        # Cache key based on serialization mode and sample size
+        cache_dir = os.path.join(output_dir, ".cache")
+        os.makedirs(cache_dir, exist_ok=True)
+        cache_file = os.path.join(cache_dir, f"schemas_{self.serialization_mode}_ss{self.sample_size}.pkl")
         
-        # Prepare db_id batches (10 per batch)
-        db_ids = [str(i).zfill(5) for i in range(*db_id_range)]
-        worker_batch_size = 10
-        db_id_batches = [db_ids[i:i+worker_batch_size] for i in range(0, len(db_ids), worker_batch_size)]
-        
-        # Prepare worker args: each batch includes all info needed to recreate serializer
-        worker_args = [
-            (batch, schema_dir, csv_dir, self.serialization_mode, self.sample_size)
-            for batch in db_id_batches
-        ]
-        
-        # Use multiprocessing for true parallel I/O
-        from concurrent.futures import ProcessPoolExecutor, as_completed
-        
-        all_texts = []
-        all_ids = []
-        
-        with ProcessPoolExecutor(max_workers=num_workers) as executor:
-            futures = {executor.submit(_load_schema_batch_worker, args): args for args in worker_args}
-            for future in tqdm(as_completed(futures), total=len(futures), desc="Loading schema batches"):
-                results = future.result()
-                for db_id, schema_text in results:
-                    all_ids.append(db_id)
-                    all_texts.append(schema_text)
-        
-        # Sort by db_id to ensure consistent ordering
-        sorted_pairs = sorted(zip(all_ids, all_texts), key=lambda x: x[0])
-        all_ids = [p[0] for p in sorted_pairs]
-        all_texts = [p[1] for p in sorted_pairs]
-        
-        print(f"Loaded {len(all_ids)} database schemas")
+        # Check if cache exists
+        if os.path.exists(cache_file):
+            print(f"Step 1: Loading cached schemas from {cache_file}...")
+            import pickle
+            with open(cache_file, "rb") as f:
+                cache_data = pickle.load(f)
+            all_ids = cache_data["ids"]
+            all_texts = cache_data["texts"]
+            print(f"Loaded {len(all_ids)} schemas from cache")
+        else:
+            print(f"Step 1: Collecting database schemas with {num_workers} workers...")
+            
+            # Prepare db_id batches (10 per batch)
+            db_ids = [str(i).zfill(5) for i in range(*db_id_range)]
+            worker_batch_size = 10
+            db_id_batches = [db_ids[i:i+worker_batch_size] for i in range(0, len(db_ids), worker_batch_size)]
+            
+            # Prepare worker args: each batch includes all info needed to recreate serializer
+            worker_args = [
+                (batch, schema_dir, csv_dir, self.serialization_mode, self.sample_size)
+                for batch in db_id_batches
+            ]
+            
+            # Use multiprocessing for true parallel I/O
+            from concurrent.futures import ProcessPoolExecutor, as_completed
+            
+            all_texts = []
+            all_ids = []
+            
+            with ProcessPoolExecutor(max_workers=num_workers) as executor:
+                futures = {executor.submit(_load_schema_batch_worker, args): args for args in worker_args}
+                for future in tqdm(as_completed(futures), total=len(futures), desc="Loading schema batches"):
+                    results = future.result()
+                    for db_id, schema_text in results:
+                        all_ids.append(db_id)
+                        all_texts.append(schema_text)
+            
+            # Sort by db_id to ensure consistent ordering
+            sorted_pairs = sorted(zip(all_ids, all_texts), key=lambda x: x[0])
+            all_ids = [p[0] for p in sorted_pairs]
+            all_texts = [p[1] for p in sorted_pairs]
+            
+            # Save to cache
+            print(f"Saving schema cache to {cache_file}...")
+            import pickle
+            with open(cache_file, "wb") as f:
+                pickle.dump({"ids": all_ids, "texts": all_texts}, f)
+            print(f"Loaded {len(all_ids)} database schemas (cached for next run)")
         
         # Step 2: Process embeddings in batches using DataLoader
         print("Step 2: Generating embeddings in batches with DataLoader...")

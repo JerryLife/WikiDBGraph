@@ -44,7 +44,7 @@ done
 export PYTHONPATH="${BASE_DIR}/src:${PYTHONPATH}"
 
 # Number of negatives to test
-NUM_NEGATIVES=(2 4 10)
+NUM_NEGATIVES=(2 4 6 10)
 
 log "=========================================="
 log "ABLATION STUDY: Number of Negatives"
@@ -105,9 +105,29 @@ for num in "${NUM_NEGATIVES[@]}"; do
     EMBEDDINGS_FILE="${OUTPUT_DIR}/database_embeddings.pt"
     MODEL_DIR="${OUTPUT_DIR}/weights/finetuned_bge_m3_softmax_lr${LR}/best"
     
-    # Auto-detect: skip if embeddings already exist (pipeline completed)
-    if [[ -f "$EMBEDDINGS_FILE" ]]; then
-        log "⏭️  Skipping num_negatives=$num (embeddings already exist: $EMBEDDINGS_FILE)"
+    # Auto-detect: skip if embeddings AND test results already exist (pipeline fully completed)
+    TEST_RESULTS_FILE="${OUTPUT_DIR}/test_results/summary.txt"
+    if [[ -f "$EMBEDDINGS_FILE" ]] && [[ -f "$TEST_RESULTS_FILE" ]]; then
+        log "⏭️  Skipping num_negatives=$num (complete: embeddings + test_results exist)"
+        continue
+    fi
+    
+    # If embeddings exist but no test results, just run evaluation
+    if [[ -f "$EMBEDDINGS_FILE" ]] && [[ ! -f "$TEST_RESULTS_FILE" ]]; then
+        log "🔄 Embeddings exist for num_negatives=$num but no test results, running evaluation only..."
+        TEST_TRIPLETS="${OUTPUT_DIR}/triplets/triplets_test.jsonl"
+        if [[ ! -f "$TEST_TRIPLETS" ]]; then
+            TEST_TRIPLETS="${OUTPUT_DIR}/triplets/triplets_test_seed0.jsonl"
+        fi
+        mkdir -p "${OUTPUT_DIR}/test_results"
+        python -m preprocess.evaluator \
+            --embedding-path "$EMBEDDINGS_FILE" \
+            --test-triplets "$TEST_TRIPLETS" \
+            --output-dir "${OUTPUT_DIR}/test_results" \
+            --seeds 0 1 2 3 4 \
+            --gpu "$GPU_ID" \
+            2>&1 | tee -a "out/ablation_num_negatives_${num}.log"
+        log_success "Evaluation completed for num_negatives=$num"
         continue
     fi
     

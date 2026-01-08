@@ -1,7 +1,7 @@
 """
 Generate professional plot for number of negatives ablation study.
 
-Shows AUC-ROC vs number of negatives with error bars.
+Shows both AUC-ROC and F1-Score vs number of negatives with error bars.
 """
 
 import os
@@ -14,121 +14,131 @@ from typing import Dict, List, Tuple, Optional
 
 
 def parse_summary(summary_path: str) -> Dict[str, float]:
-    """Parse summary file for AUC metric."""
+    """Parse summary file for F1 and AUC metrics with std."""
     metrics = {}
     with open(summary_path, 'r') as f:
         content = f.read()
     
+    # Parse F1 and F1_std
+    f1_match = re.search(r'F1:\s*([0-9.]+)', content)
+    if f1_match:
+        metrics['f1'] = float(f1_match.group(1))
+    
+    f1_std_match = re.search(r'F1_std:\s*([0-9.]+)', content)
+    if f1_std_match:
+        metrics['f1_std'] = float(f1_std_match.group(1))
+    
+    # Parse AUC and AUC_std
     auc_match = re.search(r'AUC:\s*([0-9.]+)', content)
     if auc_match:
         metrics['auc'] = float(auc_match.group(1))
     
-    thresh_match = re.search(r'Best Threshold:\s*([0-9.]+)', content)
-    if thresh_match:
-        metrics['threshold'] = float(thresh_match.group(1))
+    auc_std_match = re.search(r'AUC_std:\s*([0-9.]+)', content)
+    if auc_std_match:
+        metrics['auc_std'] = float(auc_std_match.group(1))
     
     return metrics
 
 
-def collect_neg_results(results_dir: str, num_neg: int) -> Tuple[Optional[float], Optional[float]]:
-    """Collect and aggregate results for a number of negatives across seeds."""
-    # Look for results in out/graph_full_ss3_neg{num}/ structure
+def collect_neg_results(results_dir: str, num_neg: int) -> Dict[str, Optional[float]]:
+    """Collect results for a number of negatives."""
     neg_dir = Path(results_dir) / f"graph_full_ss3_neg{num_neg}"
     
-    # Fallback to old structure if new one doesn't exist
     if not neg_dir.exists():
-        neg_dir = Path(results_dir) / f"neg_{num_neg}"
+        return {}
     
-    if not neg_dir.exists():
-        return None, None
-    
-    auc_values = []
-    
-    # Try new structure: test_results/summary.txt (single run)
     single_summary = neg_dir / "test_results" / "summary.txt"
     if single_summary.exists():
-        metrics = parse_summary(str(single_summary))
-        if 'auc' in metrics:
-            auc_values.append(metrics['auc'])
+        return parse_summary(str(single_summary))
     
-    # Also try old structure: test_results_seed*/summary.txt (multi-seed)
-    for seed_dir in sorted(neg_dir.glob("test_results_seed*")):
-        summary_path = seed_dir / "summary.txt"
-        if summary_path.exists():
-            metrics = parse_summary(str(summary_path))
-            if 'auc' in metrics:
-                auc_values.append(metrics['auc'])
-    
-    if auc_values:
-        return np.mean(auc_values), np.std(auc_values) if len(auc_values) > 1 else 0.0
-    return None, None
+    return {}
 
 
 def plot_ablation_num_negatives(
     results_dir: str,
     output_path: str,
     num_negatives: List[int] = None,
-    figsize: Tuple[float, float] = (8, 6)
+    figsize: Tuple[float, float] = (8, 6),
+    include_f1: bool = False
 ) -> Optional[str]:
-    """Generate professional plot for number of negatives ablation."""
+    """Generate professional plot for number of negatives ablation.
+    
+    Args:
+        include_f1: If True, plot both AUC and F1. If False (default), only plot AUC.
+    """
     
     if num_negatives is None:
-        num_negatives = [2, 4, 6, 10, 15]
+        num_negatives = [2, 4, 6, 10]
     
     # Collect results
-    means = []
-    stds = []
+    auc_means, auc_stds = [], []
+    f1_means, f1_stds = [], []
     valid_nums = []
     
-    print("=" * 60)
+    print("=" * 70)
     print("Number of Negatives Ablation Results")
-    print("=" * 60)
-    print(f"{'Num Negatives':<15} {'AUC':<12} {'Std':<12}")
-    print("-" * 40)
+    print("=" * 70)
+    print(f"{'Num Neg':<10} {'AUC':<10} {'AUC_std':<10} {'F1':<10} {'F1_std':<10}")
+    print("-" * 70)
     
     for num in num_negatives:
-        mean, std = collect_neg_results(results_dir, num)
-        if mean is not None:
-            means.append(mean)
-            stds.append(std)
+        metrics = collect_neg_results(results_dir, num)
+        if 'auc' in metrics:
+            auc_means.append(metrics['auc'])
+            auc_stds.append(metrics.get('auc_std', 0.0))
+            f1_means.append(metrics.get('f1', metrics['auc']))  # Fallback to AUC
+            f1_stds.append(metrics.get('f1_std', 0.0))
             valid_nums.append(num)
-            print(f"{num:<15} {mean:<12.4f} {std:<12.4f}")
+            print(f"{num:<10} {metrics['auc']:<10.4f} {metrics.get('auc_std', 0.0):<10.4f} "
+                  f"{metrics.get('f1', 'N/A'):<10} {metrics.get('f1_std', 0.0):<10.4f}")
         else:
-            print(f"{num:<15} {'N/A':<12} {'N/A':<12}")
+            print(f"{num:<10} {'N/A':<10} {'N/A':<10} {'N/A':<10} {'N/A':<10}")
     
-    print("=" * 60)
+    print("=" * 70)
     
     if not valid_nums:
         print("❌ No results found!")
         return None
     
+    # Load baseline (original pretrained model) results
+    baseline_path = Path(results_dir) / "original_bge-m3" / "test_results" / "summary.txt"
+    baseline_auc, baseline_f1 = None, None
+    if baseline_path.exists():
+        baseline_metrics = parse_summary(str(baseline_path))
+        baseline_auc = baseline_metrics.get('auc')
+        baseline_f1 = baseline_metrics.get('f1')
+        print(f"Baseline (original): AUC={baseline_auc:.4f}, F1={baseline_f1:.4f}" if baseline_f1 else f"Baseline: AUC={baseline_auc:.4f}")
+    
     # Create professional plot
     plt.style.use('seaborn-v0_8-whitegrid')
     fig, ax = plt.subplots(figsize=figsize)
     
-    # Main line with markers and error bars
-    line_color = '#28A745'
-    ax.errorbar(valid_nums, means, yerr=stds,
-                marker='s', markersize=10, capsize=6, capthick=2,
-                linewidth=2.5, color=line_color, ecolor=line_color,
+    # Baseline horizontal lines (dotted)
+    if baseline_auc is not None:
+        ax.axhline(y=baseline_auc, color='#666666', linestyle=':', linewidth=2, 
+                   label=f'Baseline AUC ({baseline_auc:.4f})', alpha=0.8)
+    if include_f1 and baseline_f1 is not None:
+        ax.axhline(y=baseline_f1, color='#999999', linestyle=':', linewidth=2,
+                   label=f'Baseline F1 ({baseline_f1:.4f})', alpha=0.8)
+    
+    # AUC line (green)
+    ax.errorbar(valid_nums, auc_means, yerr=auc_stds,
+                marker='o', markersize=10, capsize=6, capthick=2,
+                linewidth=2.5, color='#28A745', ecolor='#28A745',
                 markerfacecolor='white', markeredgewidth=2.5,
-                label='AUC-ROC')
+                label='AUC-ROC (finetuned)')
     
-    # Highlight default (6) with a different marker
-    if 6 in valid_nums:
-        idx = valid_nums.index(6)
-        ax.scatter([6], [means[idx]], s=200, c='#E94F37',
-                   marker='*', zorder=5, label='Default (6)',
-                   edgecolors='white', linewidths=1.5)
-    
-    # Find best result
-    best_idx = np.argmax(means)
-    best_num = valid_nums[best_idx]
-    best_auc = means[best_idx]
+    # F1 line (blue) - only if include_f1 is True
+    if include_f1:
+        ax.errorbar(valid_nums, f1_means, yerr=f1_stds,
+                    marker='s', markersize=9, capsize=6, capthick=2,
+                    linewidth=2.5, color='#2196F3', ecolor='#2196F3',
+                    markerfacecolor='white', markeredgewidth=2.5,
+                    label='F1-Score (finetuned)')
     
     # Labels and title
     ax.set_xlabel('Number of Negatives per Triplet', fontsize=14, fontweight='bold')
-    ax.set_ylabel('AUC-ROC', fontsize=14, fontweight='bold')
+    ax.set_ylabel('AUC-ROC' if not include_f1 else 'Score', fontsize=14, fontweight='bold')
     ax.set_title('Effect of Negative Samples on Contrastive Learning', fontsize=16, fontweight='bold', pad=15)
     
     # X-axis formatting
@@ -136,27 +146,16 @@ def plot_ablation_num_negatives(
     ax.set_xticklabels([str(n) for n in valid_nums], fontsize=12)
     ax.tick_params(axis='y', labelsize=12)
     
-    # Y-axis formatting - expand range slightly
-    if means:
-        y_min = min(means) - max(stds) * 1.5 if stds else min(means) - 0.02
-        y_max = max(means) + max(stds) * 1.5 if stds else max(means) + 0.02
-        y_margin = (y_max - y_min) * 0.1
-        ax.set_ylim([max(0, y_min - y_margin), min(1.0, y_max + y_margin)])
+    # Y-axis formatting - include baseline in range
+    y_min = 0.95 if baseline_auc and baseline_auc < 0.97 else 0.96
+    ax.set_ylim([y_min, 1.0])
     
     # Grid
     ax.grid(True, alpha=0.4, linestyle='--')
     ax.set_axisbelow(True)
     
-    # Legend
-    ax.legend(loc='lower right', fontsize=11, framealpha=0.95)
-    
-    # Add subtle annotations for best result
-    if len(valid_nums) > 1:
-        ax.annotate(f'Best: {best_auc:.4f}', 
-                    xy=(best_num, best_auc), 
-                    xytext=(best_num + 0.8, best_auc + 0.01),
-                    fontsize=10, color='#333333',
-                    arrowprops=dict(arrowstyle='->', color='#666666', lw=1))
+    # Legend (show baseline and optionally F1)
+    ax.legend(loc='lower right', fontsize=10, framealpha=0.95)
     
     # Tight layout and save
     os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
@@ -174,13 +173,16 @@ if __name__ == "__main__":
                         help="Directory with ablation results")
     parser.add_argument("--output", type=str, default="fig/ablation_num_negatives.png",
                         help="Output path for plot")
-    parser.add_argument("--nums", type=int, nargs='+', default=[2, 4, 6, 10, 15],
+    parser.add_argument("--nums", type=int, nargs='+', default=[2, 4, 6, 10],
                         help="Number of negatives to plot")
+    parser.add_argument("--include-f1", action="store_true",
+                        help="Include F1-Score in addition to AUC (default: AUC only)")
     
     args = parser.parse_args()
     
     plot_ablation_num_negatives(
         results_dir=args.results_dir,
         output_path=args.output,
-        num_negatives=args.nums
+        num_negatives=args.nums,
+        include_f1=args.include_f1
     )

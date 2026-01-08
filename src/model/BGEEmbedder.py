@@ -387,13 +387,21 @@ class BGEEmbedder:
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
                 os.makedirs(os.path.join(save_dir, "best"), exist_ok=True)
-                model.save_pretrained(os.path.join(save_dir, "best"))
-                tokenizer.save_pretrained(os.path.join(save_dir, "best"))
+                if tokenizer is not None:
+                    # HuggingFace model (bge-m3)
+                    model.save_pretrained(os.path.join(save_dir, "best"))
+                    tokenizer.save_pretrained(os.path.join(save_dir, "best"))
+                else:
+                    # SentenceTransformer model (mpnet, bge-large-en-v1.5)
+                    model.save(os.path.join(save_dir, "best"))
                 print(f"💾 Saved best model to {save_dir}/best")
 
             os.makedirs(os.path.join(save_dir, "last"), exist_ok=True)
-            model.save_pretrained(os.path.join(save_dir, "last"))
-            tokenizer.save_pretrained(os.path.join(save_dir, "last"))
+            if tokenizer is not None:
+                model.save_pretrained(os.path.join(save_dir, "last"))
+                tokenizer.save_pretrained(os.path.join(save_dir, "last"))
+            else:
+                model.save(os.path.join(save_dir, "last"))
             print(f"📝 Saved last model to {save_dir}/last")
 
     def test(self, test_path, loader, batch_size=32, save_dir="test_results"):

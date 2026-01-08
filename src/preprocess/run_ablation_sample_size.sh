@@ -44,7 +44,7 @@ done
 export PYTHONPATH="${BASE_DIR}/src:${PYTHONPATH}"
 
 # Sample sizes to test
-SAMPLE_SIZES=(1 5 10)
+SAMPLE_SIZES=(1 3 5 10)
 
 log "=========================================="
 log "ABLATION STUDY: Sample Size"
@@ -101,6 +101,43 @@ else
 fi
 
 for size in "${SAMPLE_SIZES[@]}"; do
+    OUTPUT_DIR="${BASE_DIR}/out/graph_full_ss${size}_neg6"
+    EMBEDDINGS_FILE="${OUTPUT_DIR}/database_embeddings.pt"
+    TEST_RESULTS_FILE="${OUTPUT_DIR}/test_results/summary.txt"
+    MODEL_DIR="${OUTPUT_DIR}/weights/finetuned_bge_m3_softmax_lr${LR}/best"
+    
+    # Auto-detect: skip if embeddings AND test results already exist (pipeline fully completed)
+    if [[ -f "$EMBEDDINGS_FILE" ]] && [[ -f "$TEST_RESULTS_FILE" ]]; then
+        log "⏭️  Skipping sample_size=$size (complete: embeddings + test_results exist)"
+        continue
+    fi
+    
+    # If embeddings exist but no test results, just run evaluation
+    if [[ -f "$EMBEDDINGS_FILE" ]] && [[ ! -f "$TEST_RESULTS_FILE" ]]; then
+        log "🔄 Embeddings exist for sample_size=$size but no test results, running evaluation only..."
+        TEST_TRIPLETS_SS="${OUTPUT_DIR}/triplets/triplets_test.jsonl"
+        if [[ ! -f "$TEST_TRIPLETS_SS" ]]; then
+            TEST_TRIPLETS_SS="${OUTPUT_DIR}/triplets/triplets_test_seed0.jsonl"
+        fi
+        mkdir -p "${OUTPUT_DIR}/test_results"
+        python -m preprocess.evaluator \
+            --embedding-path "$EMBEDDINGS_FILE" \
+            --test-triplets "$TEST_TRIPLETS_SS" \
+            --output-dir "${OUTPUT_DIR}/test_results" \
+            --seeds 0 1 2 3 4 \
+            --gpu "$GPU_ID" \
+            2>&1 | tee -a "out/ablation_sample_size_${size}.log"
+        log_success "Evaluation completed for sample_size=$size"
+        continue
+    fi
+
+    # Auto-detect: if model exists but no embeddings, skip training
+    SKIP_FLAG="$SKIP_TRAINING"
+    if [[ -d "$MODEL_DIR" ]]; then
+        log "🔄 Model exists for sample_size=$size, skipping training and continuing from embeddings..."
+        SKIP_FLAG="--skip-training --skip-triplets"
+    fi
+    
     log "Running sample_size: $size"
     
     # Run full pipeline with training for each sample size
@@ -114,7 +151,7 @@ for size in "${SAMPLE_SIZES[@]}"; do
         --epochs "$EPOCHS" \
         --batch-size "$BATCH_SIZE" \
         --seed "$SEED" \
-        $SKIP_TRAINING \
+        $SKIP_FLAG \
         2>&1 | tee "out/ablation_sample_size_${size}.log"
     
     log_success "Completed sample_size: $size"

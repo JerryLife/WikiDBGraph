@@ -40,7 +40,7 @@ if gpu_id is not None:
 import torch
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve, auc, f1_score, precision_score, recall_score
+from sklearn.metrics import roc_curve, auc, f1_score, precision_score, recall_score, accuracy_score
 from tqdm import tqdm
 
 
@@ -102,12 +102,13 @@ def evaluate_single_seed(
 
 
 def compute_metrics_at_threshold(y_true, y_scores, threshold):
-    """Compute precision, recall, f1 at a specific threshold."""
+    """Compute precision, recall, f1, accuracy at a specific threshold."""
     y_pred = (np.array(y_scores) >= threshold).astype(int)
     return {
         'precision': precision_score(y_true, y_pred, zero_division=0),
         'recall': recall_score(y_true, y_pred, zero_division=0),
-        'f1': f1_score(y_true, y_pred, zero_division=0)
+        'f1': f1_score(y_true, y_pred, zero_division=0),
+        'accuracy': accuracy_score(y_true, y_pred)
     }
 
 
@@ -197,7 +198,7 @@ def evaluate_embeddings(
     
     # Aggregate metrics across seeds
     aggregated = {}
-    metric_names = ['auc', 'precision', 'recall', 'f1', 'threshold']
+    metric_names = ['auc', 'accuracy', 'precision', 'recall', 'f1', 'threshold']
     for metric in metric_names:
         values = [m[metric] for m in all_seed_metrics]
         aggregated[metric] = {
@@ -237,6 +238,8 @@ def evaluate_embeddings(
         f.write(f"Recall_std: {aggregated['recall']['std']:.4f}\n")
         f.write(f"F1: {aggregated['f1']['mean']:.4f}\n")
         f.write(f"F1_std: {aggregated['f1']['std']:.4f}\n")
+        f.write(f"Accuracy: {aggregated['accuracy']['mean']:.4f}\n")
+        f.write(f"Accuracy_std: {aggregated['accuracy']['std']:.4f}\n")
         f.write(f"Total triplets: {len(triplets)}\n")
         f.write(f"Seeds used: {seeds}\n")
         f.write(f"Positive pairs: {num_positive} ({pos_ratio:.1f}%)\n")
@@ -251,6 +254,7 @@ def evaluate_embeddings(
     print(f"Precision:  {aggregated['precision']['mean']:.4f} ± {aggregated['precision']['std']:.4f}")
     print(f"Recall:     {aggregated['recall']['mean']:.4f} ± {aggregated['recall']['std']:.4f}")
     print(f"F1 Score:   {aggregated['f1']['mean']:.4f} ± {aggregated['f1']['std']:.4f}")
+    print(f"Accuracy:   {aggregated['accuracy']['mean']:.4f} ± {aggregated['accuracy']['std']:.4f}")
     print(f"Threshold:  {aggregated['threshold']['mean']:.4f} ± {aggregated['threshold']['std']:.4f}")
     print(f"{'='*60}")
     print(f"📊 Class distribution: {num_positive} positive (50%), {num_negative} negative (50%)")

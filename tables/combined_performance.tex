@@ -1,0 +1,21 @@
+\begin{table}[tb]
+    \centering
+    \caption{Performance comparison (1:1 balanced, optimal threshold, 5 seeds)}
+    \label{tab:embedding-model-performance}
+    \resizebox{\columnwidth}{!}{
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{llcccc}
+        \toprule
+        \textbf{Configuration} & \textbf{Type} & \textbf{AUC-ROC} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
+        \midrule
+        BGE-M3 & Original & 0.9663±0.0012 & 0.9005±0.0029 & 0.9107±0.0037 & 0.8905±0.0066 \\
+        all-mpnet-base-v2 & Original & 0.8667±0.0027 & 0.7855±0.0016 & 0.8369±0.0050 & 0.7401±0.0044 \\
+         & Fine-tuned & \textbf{0.9968±0.0004} & \textbf{0.9836±0.0011} & \underline{0.9846±0.0033} & \textbf{0.9827±0.0044} \\
+        \midrule
+        Schema Only & Fine-tuned & 0.9908±0.0006 & 0.9618±0.0014 & 0.9743±0.0054 & 0.9495±0.0035 \\
+        Data Only & Fine-tuned & 0.9964±0.0004 & 0.9765±0.0012 & 0.9828±0.0010 & \underline{0.9703±0.0016} \\
+        \midrule
+        BGE-M3 + Full (Default) & Fine-tuned & \underline{0.9967±0.0004} & \underline{0.9770±0.0007} & \textbf{0.9851±0.0029} & 0.9689±0.0027 \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

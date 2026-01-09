@@ -133,17 +133,17 @@ def generate_ablation_table(
     print("=" * 100)
     print("Encoder Model Ablation Results")
     print("=" * 100)
-    print(f"{'Model':<30} {'Type':<12} {'AUC':<18} {'F1':<18} {'Precision':<18} {'Recall':<18}")
+    print(f"{'Model':<30} {'Type':<12} {'AUC':<18} {'Precision':<18} {'Recall':<18}")
     print("-" * 100)
     
     for model_key, model_name in models.items():
         # Original
         orig = all_results[f"{model_key}_orig"]
-        print(f"{model_name:<30} {'Original':<12} {format_metric(orig, 'auc'):<18} {format_metric(orig, 'f1'):<18} {format_metric(orig, 'precision'):<18} {format_metric(orig, 'recall'):<18}")
+        print(f"{model_name:<30} {'Original':<12} {format_metric(orig, 'auc'):<18} {format_metric(orig, 'precision'):<18} {format_metric(orig, 'recall'):<18}")
         
-        # Fine-tuned
+        # Contrast.
         ft = all_results[f"{model_key}_ft"]
-        print(f"{'':<30} {'Fine-tuned':<12} {format_metric(ft, 'auc'):<18} {format_metric(ft, 'f1'):<18} {format_metric(ft, 'precision'):<18} {format_metric(ft, 'recall'):<18}")
+        print(f"{'':<30} {'Contrast.':<12} {format_metric(ft, 'auc'):<18} {format_metric(ft, 'precision'):<18} {format_metric(ft, 'recall'):<18}")
     
     print("=" * 100)
     
@@ -168,24 +168,24 @@ def generate_ablation_table(
     # Generate LaTeX
     latex = """\\begin{table}[tb]
     \\centering
-    \\caption{Ablation study: Encoder model comparison (optimal threshold, 5 seeds).}
+    \\caption{Ablation study: Encoder model comparison (optimal threshold, 5 seeds). Contrast.: contrastive learning.}
     \\label{tab:ablation-encoder-model}
     \\resizebox{\\columnwidth}{!}{
     \\setlength{\\tabcolsep}{3pt}
-    \\begin{tabular}{llcccc}
+    \\begin{tabular}{llccc}
         \\toprule
-        \\textbf{Encoder Model} & \\textbf{Type} & \\textbf{AUC-ROC} & \\textbf{F1} & \\textbf{Precision} & \\textbf{Recall} \\\\
+        \\textbf{Encoder Model} & \\textbf{Method} & \\textbf{AUC-ROC} & \\textbf{Precision} & \\textbf{Recall} \\\\
         \\midrule
 """
     
     for model_key, model_name in models.items():
         # Original
         orig_key = f"{model_key}_orig"
-        latex += f"        {model_name} & Original & {format_ranked(orig_key, 'auc')} & {format_ranked(orig_key, 'f1')} & {format_ranked(orig_key, 'precision')} & {format_ranked(orig_key, 'recall')} \\\\\n"
+        latex += f"        \\multirow{{2}}{{*}}{{{model_name}}} & Original & {format_ranked(orig_key, 'auc')} & {format_ranked(orig_key, 'precision')} & {format_ranked(orig_key, 'recall')} \\\\\n"
         
-        # Fine-tuned
+        # Contrast.
         ft_key = f"{model_key}_ft"
-        latex += f"         & Fine-tuned & {format_ranked(ft_key, 'auc')} & {format_ranked(ft_key, 'f1')} & {format_ranked(ft_key, 'precision')} & {format_ranked(ft_key, 'recall')} \\\\\n"
+        latex += f"         & Contrast. & {format_ranked(ft_key, 'auc')} & {format_ranked(ft_key, 'precision')} & {format_ranked(ft_key, 'recall')} \\\\\n"
         latex += "        \\midrule\n"
     
     # Remove last midrule and add bottomrule

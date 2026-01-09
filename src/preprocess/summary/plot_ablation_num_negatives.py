@@ -160,10 +160,14 @@ def plot_ablation_num_negatives(
     # Tight layout and save
     os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
+    
+    # Save both PNG and PDF
+    base_path = os.path.splitext(output_path)[0]
+    plt.savefig(f"{base_path}.png", dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
+    plt.savefig(f"{base_path}.pdf", dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
     plt.close()
     
-    print(f"✅ Saved num negatives ablation plot to {output_path}")
+    print(f"✅ Saved num negatives ablation plot to {base_path}.png and {base_path}.pdf")
     return output_path
 
 

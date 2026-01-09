@@ -184,10 +184,14 @@ def plot_roc_comparison(
     # Save figure
     os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    
+    # Save both PNG and PDF
+    base_path = os.path.splitext(output_path)[0]
+    plt.savefig(f"{base_path}.png", dpi=150, bbox_inches='tight')
+    plt.savefig(f"{base_path}.pdf", dpi=150, bbox_inches='tight')
     plt.close()
     
-    print(f"✅ Saved ROC comparison to {output_path}")
+    print(f"✅ Saved ROC comparison to {base_path}.png and {base_path}.pdf")
     return output_path
 
 

@@ -21,5 +21,6 @@ SYNTH_RELATION_INVERTED_INDEX_PATH = INDEX_DIR / "synth_relation_inverted_index.
 
 # Parameters
 SAMPLE_SIZE = 3 # Not used in synthesis directly but consistent with other parts
-NUM_WORKERS = max(1, os.cpu_count() - 2) # Leave some CPUs free
+NUM_WORKERS = int(os.environ.get("SANTOS_NUM_WORKERS", 32))  # Default 32 workers
 BATCH_SIZE = 1000 # Files per batch for parallel processing
+CHUNK_SIZE = int(os.environ.get("SANTOS_CHUNK_SIZE", 10))  # Files per chunk for Pass 2 parallelization

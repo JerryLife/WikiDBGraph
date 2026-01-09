@@ -44,7 +44,7 @@ done
 export PYTHONPATH="${BASE_DIR}/src:${PYTHONPATH}"
 
 # Number of negatives to test
-NUM_NEGATIVES=(2 4 6 10)
+NUM_NEGATIVES=(2 4 6 10 15)
 
 log "=========================================="
 log "ABLATION STUDY: Number of Negatives"

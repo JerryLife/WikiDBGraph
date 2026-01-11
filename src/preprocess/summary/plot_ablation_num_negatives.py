@@ -143,7 +143,7 @@ def plot_ablation_num_negatives(
     # Labels and title
     ax.set_xlabel('Number of Negatives per Triplet', fontsize=FONTSIZE['axis_label'], fontweight='bold')
     ax.set_ylabel('AUC-ROC' if not include_f1 else 'Score', fontsize=FONTSIZE['axis_label'], fontweight='bold')
-    ax.set_title('Effect of Negative Samples on Contrastive Learning', fontsize=FONTSIZE['title'], fontweight='bold', pad=15)
+    ax.set_title('Effect of Negative Samples', fontsize=FONTSIZE['title'], fontweight='bold', pad=15)
     
     # X-axis formatting
     ax.set_xticks(valid_nums)

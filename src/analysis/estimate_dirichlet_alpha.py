@@ -340,15 +340,15 @@ def plot_alpha_distribution(
     plt.rcParams.update({
         'font.family': 'serif',
         'font.serif': ['Times New Roman', 'DejaVu Serif', 'serif'],
-        'font.size': 11,
-        'axes.labelsize': 12,
-        'axes.titlesize': 13,
-        'xtick.labelsize': 10,
-        'ytick.labelsize': 10,
-        'legend.fontsize': 9,
-        'figure.dpi': 150,
+        'font.size': 16,
+        'axes.labelsize': 18,
+        'axes.titlesize': 24,
+        'xtick.labelsize': 16,
+        'ytick.labelsize': 16,
+        'legend.fontsize': 18,
+        'figure.dpi': 300,
         'savefig.dpi': 300,
-        'axes.linewidth': 0.8,
+        'axes.linewidth': 1.0,
         'axes.spines.top': False,
         'axes.spines.right': False,
     })
@@ -399,12 +399,12 @@ def plot_alpha_distribution(
     ax1.axvline(5.0, color=colors['mean'], linestyle='--', linewidth=2, 
                 label=fr'$\alpha<5.0$: {pct_mod_het:.1f}%')
     
-    ax1.set_xlabel(r'Dirichlet $\alpha$', fontsize=12)
-    ax1.set_ylabel('Density', fontsize=12)
-    ax1.set_title(r'(a) Non-IID Distribution ($\alpha < 10$)', fontsize=13, fontweight='bold', pad=10)
+    ax1.set_xlabel(r'Dirichlet $\alpha$', fontsize=16)
+    ax1.set_ylabel('Density', fontsize=16)
+    ax1.set_title(r'(a) Non-IID Distribution ($\alpha < 10$)', fontsize=16, fontweight='bold', pad=10)
     ax1.set_xlim(0, 10)
     ax1.set_ylim(0, None)
-    ax1.legend(loc='upper right', framealpha=0.95, edgecolor='gray', fontsize=9)
+    ax1.legend(loc='upper right', framealpha=0.95, edgecolor='gray', fontsize=14)
     
     # ==================== Panel (b): Cumulative Distribution ====================
     ax2 = axes[1]
@@ -435,14 +435,14 @@ def plot_alpha_distribution(
         r'$\alpha = 1$: High Heterogeneity' + '\n'
         r'$\alpha > 10$: Near-IID'
     )
-    ax2.text(0.97, 0.97, interp_text, transform=ax2.transAxes, fontsize=9,
+    ax2.text(0.97, 0.97, interp_text, transform=ax2.transAxes, fontsize=14,
              verticalalignment='top', horizontalalignment='right',
              bbox=dict(boxstyle='round,pad=0.4', facecolor='#f8f8f8',
                        edgecolor='gray', alpha=0.95))
     
-    ax2.set_xlabel(r'Dirichlet $\alpha$', fontsize=12)
-    ax2.set_ylabel('Cumulative Percentage (%)', fontsize=12)
-    ax2.set_title('(b) Cumulative Distribution', fontsize=13, fontweight='bold', pad=10)
+    ax2.set_xlabel(r'Dirichlet $\alpha$', fontsize=16)
+    ax2.set_ylabel('Cumulative Percentage (%)', fontsize=16)
+    ax2.set_title('(b) Cumulative Distribution', fontsize=16, fontweight='bold', pad=10)
     ax2.set_xlim(0, min(15, alphas.max() * 1.05))
     ax2.set_ylim(0, 105)
     ax2.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)

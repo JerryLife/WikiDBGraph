@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
+from .config import COLORS, MARKERS, FONTSIZE, LINEWIDTH, MARKERSIZE, STYLE, GRID, ERRORBAR, DPI
+
 
 def parse_summary(summary_path: str) -> Dict[str, float]:
     """Parse summary file for F1 and AUC metrics with std."""
@@ -110,52 +112,54 @@ def plot_ablation_sample_size(
         print(f"Baseline (original): AUC={baseline_auc:.4f}, F1={baseline_f1:.4f}" if baseline_f1 else f"Baseline: AUC={baseline_auc:.4f}")
     
     # Create professional plot
-    plt.style.use('seaborn-v0_8-whitegrid')
+    plt.style.use(STYLE)
     fig, ax = plt.subplots(figsize=figsize)
     
     # Baseline horizontal lines (dotted)
     if baseline_auc is not None:
-        ax.axhline(y=baseline_auc, color='#666666', linestyle=':', linewidth=2, 
+        ax.axhline(y=baseline_auc, color=COLORS['baseline'], linestyle=':', linewidth=LINEWIDTH['baseline'], 
                    label=f'Baseline AUC ({baseline_auc:.4f})', alpha=0.8)
     if include_f1 and baseline_f1 is not None:
-        ax.axhline(y=baseline_f1, color='#999999', linestyle=':', linewidth=2,
+        ax.axhline(y=baseline_f1, color=COLORS['baseline_secondary'], linestyle=':', linewidth=LINEWIDTH['baseline'],
                    label=f'Baseline F1 ({baseline_f1:.4f})', alpha=0.8)
     
     # AUC line (blue)
     ax.errorbar(valid_sizes, auc_means, yerr=auc_stds,
-                marker='o', markersize=10, capsize=6, capthick=2,
-                linewidth=2.5, color='#2E86AB', ecolor='#2E86AB',
+                marker=MARKERS['primary'], markersize=MARKERSIZE['main'], 
+                capsize=ERRORBAR['capsize'], capthick=ERRORBAR['capthick'],
+                linewidth=LINEWIDTH['main'], color=COLORS['auc'], ecolor=COLORS['auc'],
                 markerfacecolor='white', markeredgewidth=2.5,
                 label='AUC-ROC (finetuned)')
     
     # F1 line (orange) - only if include_f1 is True
     if include_f1:
         ax.errorbar(valid_sizes, f1_means, yerr=f1_stds,
-                    marker='s', markersize=9, capsize=6, capthick=2,
-                    linewidth=2.5, color='#E94F37', ecolor='#E94F37',
+                    marker=MARKERS['secondary'], markersize=MARKERSIZE['secondary'], 
+                    capsize=ERRORBAR['capsize'], capthick=ERRORBAR['capthick'],
+                    linewidth=LINEWIDTH['main'], color=COLORS['f1'], ecolor=COLORS['f1'],
                     markerfacecolor='white', markeredgewidth=2.5,
                     label='F1-Score (finetuned)')
     
     # Labels and title
-    ax.set_xlabel('Sample Size (values per column)', fontsize=14, fontweight='bold')
-    ax.set_ylabel('AUC-ROC' if not include_f1 else 'Score', fontsize=14, fontweight='bold')
-    ax.set_title('Effect of Sample Size on Embedding Quality', fontsize=16, fontweight='bold', pad=15)
+    ax.set_xlabel('Sample Size (values per column)', fontsize=FONTSIZE['axis_label'], fontweight='bold')
+    ax.set_ylabel('AUC-ROC' if not include_f1 else 'Score', fontsize=FONTSIZE['axis_label'], fontweight='bold')
+    ax.set_title('Effect of Sample Size on Embedding Quality', fontsize=FONTSIZE['title'], fontweight='bold', pad=15)
     
     # X-axis formatting
     ax.set_xticks(valid_sizes)
-    ax.set_xticklabels([str(s) for s in valid_sizes], fontsize=12)
-    ax.tick_params(axis='y', labelsize=12)
+    ax.set_xticklabels([str(s) for s in valid_sizes], fontsize=FONTSIZE['tick_label'])
+    ax.tick_params(axis='y', labelsize=FONTSIZE['tick_label'])
     
     # Y-axis formatting - include baseline in range
     y_min = 0.95 if baseline_auc and baseline_auc < 0.97 else 0.96
     ax.set_ylim([y_min, 1.0])
     
     # Grid
-    ax.grid(True, alpha=0.4, linestyle='--')
+    ax.grid(True, alpha=GRID['alpha'], linestyle=GRID['linestyle'])
     ax.set_axisbelow(True)
     
     # Legend (show baseline and optionally F1)
-    ax.legend(loc='lower right', fontsize=10, framealpha=0.95)
+    ax.legend(loc='lower right', fontsize=FONTSIZE['legend'], framealpha=0.95)
     
     # Tight layout and save
     os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
@@ -163,8 +167,8 @@ def plot_ablation_sample_size(
     
     # Save both PNG and PDF
     base_path = os.path.splitext(output_path)[0]
-    plt.savefig(f"{base_path}.png", dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
-    plt.savefig(f"{base_path}.pdf", dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
+    plt.savefig(f"{base_path}.png", dpi=DPI, bbox_inches='tight', facecolor='white', edgecolor='none')
+    plt.savefig(f"{base_path}.pdf", dpi=DPI, bbox_inches='tight', facecolor='white', edgecolor='none')
     plt.close()
     
     print(f"✅ Saved sample size ablation plot to {base_path}.png and {base_path}.pdf")

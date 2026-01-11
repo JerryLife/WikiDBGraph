@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
+from .config import COLORS, FONTSIZE, LINEWIDTH, STYLE, GRID, DPI
+
 
 def parse_roc_data(roc_data_path: str) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -149,6 +151,7 @@ def plot_roc_comparison(
     finetuned_metrics = aggregate_metrics(finetuned_results) if finetuned_results else {}
     
     # Create figure
+    plt.style.use(STYLE)
     fig, ax = plt.subplots(figsize=figsize)
     
     # Plot original model ROC (use first seed for curve, show mean AUC in legend)
@@ -156,7 +159,7 @@ def plot_roc_comparison(
         fpr = original_results[0]['fpr']
         tpr = original_results[0]['tpr']
         auc_mean = original_metrics.get('auc', (0, 0))[0]
-        ax.plot(fpr, tpr, color='#4f9d8e', linewidth=2,
+        ax.plot(fpr, tpr, color=COLORS['original'], linewidth=LINEWIDTH['main'],
                 label=f'Original (AUC={auc_mean:.4f})')
     
     # Plot finetuned model ROC
@@ -164,22 +167,23 @@ def plot_roc_comparison(
         fpr = finetuned_results[0]['fpr']
         tpr = finetuned_results[0]['tpr']
         auc_mean = finetuned_metrics.get('auc', (0, 0))[0]
-        ax.plot(fpr, tpr, color='#9d4f8e', linewidth=2,
+        ax.plot(fpr, tpr, color=COLORS['finetuned'], linewidth=LINEWIDTH['main'],
                 label=f'Fine-tuned (AUC={auc_mean:.4f})')
     
     # Plot diagonal
-    ax.plot([0, 1], [0, 1], 'k--', alpha=0.5, linewidth=1)
+    ax.plot([0, 1], [0, 1], 'k--', alpha=0.5, linewidth=LINEWIDTH['diagonal'])
     
     # Formatting
-    ax.set_xlabel('False Positive Rate', fontsize=12)
-    ax.set_ylabel('True Positive Rate', fontsize=12)
+    ax.set_xlabel('False Positive Rate', fontsize=FONTSIZE['axis_label'], fontweight='bold')
+    ax.set_ylabel('True Positive Rate', fontsize=FONTSIZE['axis_label'], fontweight='bold')
     ax.set_xlim([0.0, 1.0])
     ax.set_ylim([0.0, 1.05])
-    ax.legend(loc='lower right', fontsize=11)
-    ax.grid(True, alpha=0.3)
+    ax.tick_params(axis='both', labelsize=FONTSIZE['tick_label'])
+    ax.legend(loc='lower right', fontsize=FONTSIZE['legend'])
+    ax.grid(True, alpha=GRID['alpha'], linestyle=GRID['linestyle'])
     
     if title:
-        ax.set_title(title)
+        ax.set_title(title, fontsize=FONTSIZE['title'], fontweight='bold')
     
     # Save figure
     os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
@@ -187,8 +191,8 @@ def plot_roc_comparison(
     
     # Save both PNG and PDF
     base_path = os.path.splitext(output_path)[0]
-    plt.savefig(f"{base_path}.png", dpi=150, bbox_inches='tight')
-    plt.savefig(f"{base_path}.pdf", dpi=150, bbox_inches='tight')
+    plt.savefig(f"{base_path}.png", dpi=DPI, bbox_inches='tight')
+    plt.savefig(f"{base_path}.pdf", dpi=DPI, bbox_inches='tight')
     plt.close()
     
     print(f"✅ Saved ROC comparison to {base_path}.png and {base_path}.pdf")

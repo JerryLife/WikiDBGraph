@@ -166,7 +166,7 @@ mkdir -p fig
 # Generate professional comparison plot
 python -m preprocess.summary.plot_ablation_sample_size \
     --results-dir "out" \
-    --sizes ${SAMPLE_SIZES[*]} \
+    --sizes 0 ${SAMPLE_SIZES[*]} \
     --output "fig/ablation_sample_size.png"
 
 log_success "Ablation study complete!"

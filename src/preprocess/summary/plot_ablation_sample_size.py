@@ -43,8 +43,15 @@ def parse_summary(summary_path: str) -> Dict[str, float]:
 
 
 def collect_size_results(results_dir: str, size: int) -> Dict[str, Optional[float]]:
-    """Collect results for a sample size."""
-    size_dir = Path(results_dir) / f"graph_full_ss{size}_neg6"
+    """Collect results for a sample size.
+    
+    Special case: size=0 maps to schema_only baseline results.
+    """
+    if size == 0:
+        # Schema-only baseline serves as sample_size=0
+        size_dir = Path(results_dir) / "graph_schema_only_ss3_neg6"
+    else:
+        size_dir = Path(results_dir) / f"graph_full_ss{size}_neg6"
     
     if not size_dir.exists():
         return {}
@@ -70,7 +77,7 @@ def plot_ablation_sample_size(
     """
     
     if sizes is None:
-        sizes = [1, 3, 5, 10]
+        sizes = [0, 1, 3, 5, 10]
     
     # Collect results
     auc_means, auc_stds = [], []
@@ -181,8 +188,8 @@ if __name__ == "__main__":
                         help="Directory with ablation results")
     parser.add_argument("--output", type=str, default="fig/ablation_sample_size.png",
                         help="Output path for plot")
-    parser.add_argument("--sizes", type=int, nargs='+', default=[1, 3, 5, 10],
-                        help="Sample sizes to plot")
+    parser.add_argument("--sizes", type=int, nargs='+', default=[0, 1, 3, 5, 10],
+                        help="Sample sizes to plot (0 = schema_only baseline)")
     parser.add_argument("--include-f1", action="store_true",
                         help="Include F1-Score in addition to AUC (default: AUC only)")
     

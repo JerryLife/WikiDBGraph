@@ -1,0 +1,141 @@
+{
+  "pair_id": "08878_76163",
+  "db_id1": 8878,
+  "db_id2": 76163,
+  "similarity": 0.9976152,
+  "task_type": "classification",
+  "label_column": "main_category",
+  "label_metadata": {
+    "column": "main_category",
+    "task_type": "classification",
+    "n_classes": 37,
+    "missing_ratio": 0.4642857142857143,
+    "class_distribution": {
+      "Category:Drone Hopper\u2013Androni Giocattoli": 4,
+      "Category:EF Education\u2013EasyPost": 4,
+      "Category:Quick-Step Alpha Vinyl Team": 4,
+      "Category:Ineos Grenadiers": 3,
+      "Category:Team Jumbo\u2013Visma (men's team)": 3,
+      "Category:Slovenia": 3,
+      "Category:Colombia": 3,
+      "Category:Liquigas": 3,
+      "Category:Team BikeExchange\u2013Jayco (men's team)": 3,
+      "Category:Trek\u2013Segafredo (men's team)": 3,
+      "Category:Bora\u2013Hansgrohe": 3,
+      "Category:Intermarch\u00e9\u2013Wanty\u2013Gobert Mat\u00e9riaux": 3,
+      "Category:Astana Qazaqstan Team": 3,
+      "Category:Netherlands": 3,
+      "Category:France": 3,
+      "Category:Switzerland": 3,
+      "Category:Italy": 3,
+      "Category:Luxembourg": 3,
+      "Category:Denmark": 3,
+      "Category:Spain": 3,
+      "Category:Belgium": 3,
+      "Category:United Kingdom": 3,
+      "Category:Germany": 3,
+      "Category:United States": 2,
+      "Category:Australia": 2,
+      "Category:Katusha\u2013Alpecin": 2,
+      "Category:UAE Team Emirates": 2,
+      "Category:Tinkoff (cycling team)": 1,
+      "Category:Movistar Team (men's team)": 1,
+      "Category:Team Qhubeka NextHash": 1,
+      "Category:Cofidis (cycling team)": 1,
+      "Category:Lotto\u2013Soudal": 1,
+      "Category:IAM Cycling": 1,
+      "Category:AG2R Citro\u00ebn Team": 1,
+      "Category:Team DSM (men's team)": 1,
+      "Category:Republic of Ireland": 1,
+      "Category:Canada": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "main_category",
+    "n_classes": 37,
+    "class_names": [
+      "Category:AG2R Citro\u00ebn Team",
+      "Category:Astana Qazaqstan Team",
+      "Category:Australia",
+      "Category:Belgium",
+      "Category:Bora\u2013Hansgrohe",
+      "Category:Canada",
+      "Category:Cofidis (cycling team)",
+      "Category:Colombia",
+      "Category:Denmark",
+      "Category:Drone Hopper\u2013Androni Giocattoli",
+      "Category:EF Education\u2013EasyPost",
+      "Category:France",
+      "Category:Germany",
+      "Category:IAM Cycling",
+      "Category:Ineos Grenadiers",
+      "Category:Intermarch\u00e9\u2013Wanty\u2013Gobert Mat\u00e9riaux",
+      "Category:Italy",
+      "Category:Katusha\u2013Alpecin",
+      "Category:Liquigas",
+      "Category:Lotto\u2013Soudal",
+      "Category:Luxembourg",
+      "Category:Movistar Team (men's team)",
+      "Category:Netherlands",
+      "Category:Quick-Step Alpha Vinyl Team",
+      "Category:Republic of Ireland",
+      "Category:Slovenia",
+      "Category:Spain",
+      "Category:Switzerland",
+      "Category:Team BikeExchange\u2013Jayco (men's team)",
+      "Category:Team DSM (men's team)",
+      "Category:Team Jumbo\u2013Visma (men's team)",
+      "Category:Team Qhubeka NextHash",
+      "Category:Tinkoff (cycling team)",
+      "Category:Trek\u2013Segafredo (men's team)",
+      "Category:UAE Team Emirates",
+      "Category:United Kingdom",
+      "Category:United States"
+    ]
+  },
+  "common_columns": [
+    "main_category",
+    "freebase_id",
+    "official_website",
+    "commons_category"
+  ],
+  "num_common_columns": 4,
+  "data_shapes": {
+    "db1_train": [
+      38,
+      4
+    ],
+    "db1_test": [
+      10,
+      4
+    ],
+    "db2_train": [
+      33,
+      4
+    ],
+    "db2_test": [
+      9,
+      4
+    ]
+  },
+  "feature_columns": [
+    "freebase_id",
+    "official_website",
+    "commons_category"
+  ],
+  "column_types": {
+    "freebase_id": "categorical",
+    "official_website": "categorical",
+    "commons_category": "categorical",
+    "main_category": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

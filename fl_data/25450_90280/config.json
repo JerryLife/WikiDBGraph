@@ -1,0 +1,122 @@
+{
+  "pair_id": "25450_90280",
+  "db_id1": 25450,
+  "db_id2": 90280,
+  "similarity": 0.99782705,
+  "task_type": "classification",
+  "label_column": "CommonsCategory",
+  "label_metadata": {
+    "column": "CommonsCategory",
+    "task_type": "classification",
+    "n_classes": 29,
+    "missing_ratio": 0.30952380952380953,
+    "class_distribution": {
+      "Tour de France 2010": 1,
+      "Giro d'Italia 2005": 1,
+      "Giro d'Italia 2007": 1,
+      "Paris-Nice 2008": 1,
+      "Giro d'Italia 2008": 1,
+      "Giro d'Italia 2006": 1,
+      "2011 Ronde van Vlaanderen": 1,
+      "Milan-Sanremo 2008": 1,
+      "2010 Ronde van Vlaanderen": 1,
+      "Vuelta a Espa\u00f1a 2005": 1,
+      "Paris-Nice 2007": 1,
+      "2009 Ronde van Vlaanderen": 1,
+      "Stefan Schumacher": 1,
+      "\u00d3scar Freire (cyclist)": 1,
+      "Paolo Savoldelli": 1,
+      "Alexander Vinokourov": 1,
+      "Denis Menchov": 1,
+      "Alessandro Petacchi": 1,
+      "Levi Leipheimer": 1,
+      "Damiano Cunego": 1,
+      "Danilo Di Luca": 1,
+      "Davide Rebellin": 1,
+      "Michael Albasini": 1,
+      "J\u00f6rg Jaksche": 1,
+      "Philip Deignan": 1,
+      "AG2R La Mondiale in 2008": 1,
+      "AG2R Pr\u00e9voyance in 2007": 1,
+      "Rabo ProTeam in 2008": 1,
+      "Rabo ProTeam in 2006": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "CommonsCategory",
+    "n_classes": 29,
+    "class_names": [
+      "2009 Ronde van Vlaanderen",
+      "2010 Ronde van Vlaanderen",
+      "2011 Ronde van Vlaanderen",
+      "AG2R La Mondiale in 2008",
+      "AG2R Pr\u00e9voyance in 2007",
+      "Alessandro Petacchi",
+      "Alexander Vinokourov",
+      "Damiano Cunego",
+      "Danilo Di Luca",
+      "Davide Rebellin",
+      "Denis Menchov",
+      "Giro d'Italia 2005",
+      "Giro d'Italia 2006",
+      "Giro d'Italia 2007",
+      "Giro d'Italia 2008",
+      "J\u00f6rg Jaksche",
+      "Levi Leipheimer",
+      "Michael Albasini",
+      "Milan-Sanremo 2008",
+      "Paolo Savoldelli",
+      "Paris-Nice 2007",
+      "Paris-Nice 2008",
+      "Philip Deignan",
+      "Rabo ProTeam in 2006",
+      "Rabo ProTeam in 2008",
+      "Stefan Schumacher",
+      "Tour de France 2010",
+      "Vuelta a Espa\u00f1a 2005",
+      "\u00d3scar Freire (cyclist)"
+    ]
+  },
+  "common_columns": [
+    "CommonsCategory",
+    "FreebaseId",
+    "OfficialWebsite"
+  ],
+  "num_common_columns": 3,
+  "data_shapes": {
+    "db1_train": [
+      9,
+      3
+    ],
+    "db1_test": [
+      3,
+      3
+    ],
+    "db2_train": [
+      13,
+      3
+    ],
+    "db2_test": [
+      4,
+      3
+    ]
+  },
+  "feature_columns": [
+    "FreebaseId",
+    "OfficialWebsite"
+  ],
+  "column_types": {
+    "FreebaseId": "categorical",
+    "OfficialWebsite": "categorical",
+    "CommonsCategory": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

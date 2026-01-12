@@ -1,0 +1,86 @@
+{
+  "pair_id": "63270_83036",
+  "db_id1": 63270,
+  "db_id2": 83036,
+  "similarity": 0.99781597,
+  "task_type": "classification",
+  "label_column": "Sport_Type",
+  "label_metadata": {
+    "column": "Sport_Type",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.39080459770114945,
+    "class_distribution": {
+      "road bicycle racing": 103,
+      "cycle sport": 3
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Sport_Type",
+    "n_classes": 2,
+    "class_names": [
+      "cycle sport",
+      "road bicycle racing"
+    ]
+  },
+  "common_columns": [
+    "Sport_Type",
+    "Host_Country",
+    "Official_Website",
+    "Pro_Cycling_Stats_Race_Id",
+    "Edition_Number",
+    "Start_Location",
+    "Participating_Teams",
+    "Participant_Count",
+    "End_Location"
+  ],
+  "num_common_columns": 9,
+  "data_shapes": {
+    "db1_train": [
+      69,
+      9
+    ],
+    "db1_test": [
+      18,
+      9
+    ],
+    "db2_train": [
+      15,
+      9
+    ],
+    "db2_test": [
+      4,
+      9
+    ]
+  },
+  "feature_columns": [
+    "Host_Country",
+    "Official_Website",
+    "Pro_Cycling_Stats_Race_Id",
+    "Edition_Number",
+    "Start_Location",
+    "Participating_Teams",
+    "Participant_Count",
+    "End_Location"
+  ],
+  "column_types": {
+    "Host_Country": "categorical",
+    "Official_Website": "categorical",
+    "Pro_Cycling_Stats_Race_Id": "numeric",
+    "Edition_Number": "numeric",
+    "Start_Location": "categorical",
+    "Participating_Teams": "categorical",
+    "Participant_Count": "categorical",
+    "End_Location": "categorical",
+    "Sport_Type": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

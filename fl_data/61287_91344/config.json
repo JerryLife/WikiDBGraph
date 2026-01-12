@@ -1,0 +1,69 @@
+{
+  "pair_id": "61287_91344",
+  "db_id1": 61287,
+  "db_id2": 91344,
+  "similarity": 0.9978998,
+  "task_type": "regression",
+  "label_column": "Longitude",
+  "label_metadata": {
+    "column": "Longitude",
+    "task_type": "regression",
+    "variance": 1.9097811590334568,
+    "n_unique": 1110,
+    "mean": 15.066743469507893,
+    "std": 1.3819483199575362,
+    "missing_ratio": 0.016578749058025623,
+    "numeric_missing_ratio": 0.016578749058025623
+  },
+  "processing_params": {
+    "task_type": "regression",
+    "label_col": "Longitude"
+  },
+  "common_columns": [
+    "Longitude",
+    "Mapycz_Id",
+    "Latitude",
+    "Commons_Category",
+    "Nl_Cr_Aut_Id"
+  ],
+  "num_common_columns": 5,
+  "data_shapes": {
+    "db1_train": [
+      778,
+      5
+    ],
+    "db1_test": [
+      195,
+      5
+    ],
+    "db2_train": [
+      265,
+      5
+    ],
+    "db2_test": [
+      67,
+      5
+    ]
+  },
+  "feature_columns": [
+    "Mapycz_Id",
+    "Latitude",
+    "Commons_Category",
+    "Nl_Cr_Aut_Id"
+  ],
+  "column_types": {
+    "Mapycz_Id": "categorical",
+    "Latitude": "numeric",
+    "Commons_Category": "categorical",
+    "Nl_Cr_Aut_Id": "categorical",
+    "Longitude": "numeric_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

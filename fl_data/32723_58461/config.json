@@ -1,0 +1,124 @@
+{
+  "pair_id": "32723_58461",
+  "db_id1": 32723,
+  "db_id2": 58461,
+  "similarity": 0.99864274,
+  "task_type": "classification",
+  "label_column": "general_manager_name",
+  "label_metadata": {
+    "column": "general_manager_name",
+    "task_type": "classification",
+    "n_classes": 27,
+    "missing_ratio": 0.225,
+    "class_distribution": {
+      "Alexander Vinokourov": 2,
+      "Vincent Lavenu": 2,
+      "Brent Copeland": 2,
+      "Marc Sergeant": 2,
+      "Jean-Fran\u00e7ois Bourlart": 1,
+      "Eusebio Unzu\u00e9": 1,
+      "Merijn Zeeman": 1,
+      "Dave Brailsford": 1,
+      "St\u00e9phane Javalet": 1,
+      "Marc Madiot": 1,
+      "Philippe Raimbaud": 1,
+      "Jim Ochowicz": 1,
+      "Viatcheslav Ekimov": 1,
+      "Yvon Sanquer": 1,
+      "Yves Vanassche": 1,
+      "Fr\u00e9d\u00e9ric Rostaing": 1,
+      "Piet Rooijakkers": 1,
+      "Kjell Carlstr\u00f6m": 1,
+      "Stephen Moore": 1,
+      "J\u00e9r\u00f4me Pineau": 1,
+      "Patrick Lefevere": 1,
+      "Ran Margaliot": 1,
+      "Jean-Ren\u00e9 Bernaudeau": 1,
+      "Brian Smith": 1,
+      "Richard Plugge": 1,
+      "George Hincapie": 1,
+      "Axel Merckx": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "general_manager_name",
+    "n_classes": 27,
+    "class_names": [
+      "Alexander Vinokourov",
+      "Axel Merckx",
+      "Brent Copeland",
+      "Brian Smith",
+      "Dave Brailsford",
+      "Eusebio Unzu\u00e9",
+      "Fr\u00e9d\u00e9ric Rostaing",
+      "George Hincapie",
+      "Jean-Fran\u00e7ois Bourlart",
+      "Jean-Ren\u00e9 Bernaudeau",
+      "Jim Ochowicz",
+      "J\u00e9r\u00f4me Pineau",
+      "Kjell Carlstr\u00f6m",
+      "Marc Madiot",
+      "Marc Sergeant",
+      "Merijn Zeeman",
+      "Patrick Lefevere",
+      "Philippe Raimbaud",
+      "Piet Rooijakkers",
+      "Ran Margaliot",
+      "Richard Plugge",
+      "Stephen Moore",
+      "St\u00e9phane Javalet",
+      "Viatcheslav Ekimov",
+      "Vincent Lavenu",
+      "Yves Vanassche",
+      "Yvon Sanquer"
+    ]
+  },
+  "common_columns": [
+    "general_manager_name",
+    "commons_category",
+    "pro_cycling_stats_team_id",
+    "official_team_name",
+    "head_coach_name"
+  ],
+  "num_common_columns": 5,
+  "data_shapes": {
+    "db1_train": [
+      16,
+      5
+    ],
+    "db1_test": [
+      5,
+      5
+    ],
+    "db2_train": [
+      8,
+      5
+    ],
+    "db2_test": [
+      2,
+      5
+    ]
+  },
+  "feature_columns": [
+    "commons_category",
+    "pro_cycling_stats_team_id",
+    "official_team_name",
+    "head_coach_name"
+  ],
+  "column_types": {
+    "commons_category": "categorical",
+    "pro_cycling_stats_team_id": "numeric",
+    "official_team_name": "categorical",
+    "head_coach_name": "categorical",
+    "general_manager_name": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

@@ -1,0 +1,125 @@
+{
+  "pair_id": "14515_27706",
+  "db_id1": 14515,
+  "db_id2": 27706,
+  "similarity": 0.9977919,
+  "task_type": "classification",
+  "label_column": "RaceParticipation",
+  "label_metadata": {
+    "column": "RaceParticipation",
+    "task_type": "classification",
+    "n_classes": 14,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "2020 UCI World Ranking": 12,
+      "Vuelta a Espa\u00f1a": 5,
+      "2021 UCI World Ranking": 3,
+      "2016 UCI Road World Championships": 1,
+      "2017 Tour de l'Avenir": 1,
+      "2018 Vuelta a Espa\u00f1a": 1,
+      "2019 UEC European Track Championships": 1,
+      "2022 UCI World Ranking": 1,
+      "2016 Tour de France": 1,
+      "2012 Vuelta a Espa\u00f1a": 1,
+      "2016 La Fl\u00e8che Wallonne": 1,
+      "2018 Tour de France": 1,
+      "2014 Vuelta a Espa\u00f1a": 1,
+      "2020 Tour de France": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "RaceParticipation",
+    "n_classes": 14,
+    "class_names": [
+      "2012 Vuelta a Espa\u00f1a",
+      "2014 Vuelta a Espa\u00f1a",
+      "2016 La Fl\u00e8che Wallonne",
+      "2016 Tour de France",
+      "2016 UCI Road World Championships",
+      "2017 Tour de l'Avenir",
+      "2018 Tour de France",
+      "2018 Vuelta a Espa\u00f1a",
+      "2019 UEC European Track Championships",
+      "2020 Tour de France",
+      "2020 UCI World Ranking",
+      "2021 UCI World Ranking",
+      "2022 UCI World Ranking",
+      "Vuelta a Espa\u00f1a"
+    ]
+  },
+  "common_columns": [
+    "RaceParticipation",
+    "ProfileImage",
+    "BirthDate",
+    "CycleBaseCyclistId",
+    "CqRankingMaleCyclistId",
+    "LastName",
+    "FirstName",
+    "FirstCyclingRiderId",
+    "HeightCm",
+    "CommonsCategory",
+    "ProCyclingStatsCyclistId",
+    "BirthPlace",
+    "UciRiderId",
+    "CyclingArchivesCyclistId"
+  ],
+  "num_common_columns": 14,
+  "data_shapes": {
+    "db1_train": [
+      16,
+      14
+    ],
+    "db1_test": [
+      5,
+      14
+    ],
+    "db2_train": [
+      8,
+      14
+    ],
+    "db2_test": [
+      2,
+      14
+    ]
+  },
+  "feature_columns": [
+    "ProfileImage",
+    "BirthDate",
+    "CycleBaseCyclistId",
+    "CqRankingMaleCyclistId",
+    "LastName",
+    "FirstName",
+    "FirstCyclingRiderId",
+    "HeightCm",
+    "CommonsCategory",
+    "ProCyclingStatsCyclistId",
+    "BirthPlace",
+    "UciRiderId",
+    "CyclingArchivesCyclistId"
+  ],
+  "column_types": {
+    "ProfileImage": "categorical",
+    "BirthDate": "categorical",
+    "CycleBaseCyclistId": "numeric",
+    "CqRankingMaleCyclistId": "numeric",
+    "LastName": "categorical",
+    "FirstName": "categorical",
+    "FirstCyclingRiderId": "numeric",
+    "HeightCm": "numeric",
+    "CommonsCategory": "categorical",
+    "ProCyclingStatsCyclistId": "numeric",
+    "BirthPlace": "categorical",
+    "UciRiderId": "numeric",
+    "CyclingArchivesCyclistId": "numeric",
+    "RaceParticipation": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

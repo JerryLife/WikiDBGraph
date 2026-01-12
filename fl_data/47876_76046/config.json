@@ -1,0 +1,72 @@
+{
+  "pair_id": "47876_76046",
+  "db_id1": 47876,
+  "db_id2": 76046,
+  "similarity": 0.9984275,
+  "task_type": "regression",
+  "label_column": "NationalLibraryOfIsraelJ9uId",
+  "label_metadata": {
+    "column": "NationalLibraryOfIsraelJ9uId",
+    "task_type": "regression",
+    "variance": 5.32966288805485e+23,
+    "n_unique": 217,
+    "mean": 9.870076529281102e+17,
+    "std": 730045401879.5577,
+    "missing_ratio": 0.2549019607843137,
+    "numeric_missing_ratio": 0.2549019607843137
+  },
+  "processing_params": {
+    "task_type": "regression",
+    "label_col": "NationalLibraryOfIsraelJ9uId"
+  },
+  "common_columns": [
+    "NationalLibraryOfIsraelJ9uId",
+    "NlCrAutId",
+    "CommonsCategory",
+    "QuoraTopicId",
+    "FreebaseId",
+    "LibraryOfCongressAuthorityId"
+  ],
+  "num_common_columns": 6,
+  "data_shapes": {
+    "db1_train": [
+      79,
+      6
+    ],
+    "db1_test": [
+      20,
+      6
+    ],
+    "db2_train": [
+      164,
+      6
+    ],
+    "db2_test": [
+      41,
+      6
+    ]
+  },
+  "feature_columns": [
+    "NlCrAutId",
+    "CommonsCategory",
+    "QuoraTopicId",
+    "FreebaseId",
+    "LibraryOfCongressAuthorityId"
+  ],
+  "column_types": {
+    "NlCrAutId": "categorical",
+    "CommonsCategory": "categorical",
+    "QuoraTopicId": "categorical",
+    "FreebaseId": "categorical",
+    "LibraryOfCongressAuthorityId": "categorical",
+    "NationalLibraryOfIsraelJ9uId": "numeric_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

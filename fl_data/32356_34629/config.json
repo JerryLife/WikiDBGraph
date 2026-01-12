@@ -1,0 +1,92 @@
+{
+  "pair_id": "32356_34629",
+  "db_id1": 32356,
+  "db_id2": 34629,
+  "similarity": 0.9991284,
+  "task_type": "classification",
+  "label_column": "GENDER",
+  "label_metadata": {
+    "column": "GENDER",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "male": 122,
+      "female": 102
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "GENDER",
+    "n_classes": 2,
+    "class_names": [
+      "female",
+      "male"
+    ]
+  },
+  "common_columns": [
+    "GENDER",
+    "POSTHUMOUS_TITLE",
+    "GOOGLE_KNOWLEDGE_GRAPH_ID",
+    "FIRST_NAME",
+    "MOTHER_NAME",
+    "DEATH_DATE",
+    "SIBLING_NAME",
+    "FAMILY_SURNAME",
+    "FULL_NAME",
+    "BIOGRAPHICAL_NOTE",
+    "BIRTH_DATE"
+  ],
+  "num_common_columns": 11,
+  "data_shapes": {
+    "db1_train": [
+      89,
+      11
+    ],
+    "db1_test": [
+      23,
+      11
+    ],
+    "db2_train": [
+      89,
+      11
+    ],
+    "db2_test": [
+      23,
+      11
+    ]
+  },
+  "feature_columns": [
+    "POSTHUMOUS_TITLE",
+    "GOOGLE_KNOWLEDGE_GRAPH_ID",
+    "FIRST_NAME",
+    "MOTHER_NAME",
+    "DEATH_DATE",
+    "SIBLING_NAME",
+    "FAMILY_SURNAME",
+    "FULL_NAME",
+    "BIOGRAPHICAL_NOTE",
+    "BIRTH_DATE"
+  ],
+  "column_types": {
+    "POSTHUMOUS_TITLE": "categorical",
+    "GOOGLE_KNOWLEDGE_GRAPH_ID": "categorical",
+    "FIRST_NAME": "categorical",
+    "MOTHER_NAME": "categorical",
+    "DEATH_DATE": "categorical",
+    "SIBLING_NAME": "categorical",
+    "FAMILY_SURNAME": "categorical",
+    "FULL_NAME": "categorical",
+    "BIOGRAPHICAL_NOTE": "categorical",
+    "BIRTH_DATE": "categorical",
+    "GENDER": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

@@ -1,0 +1,95 @@
+{
+  "pair_id": "49737_96671",
+  "db_id1": 49737,
+  "db_id2": 96671,
+  "similarity": 0.9978974,
+  "task_type": "classification",
+  "label_column": "script_type",
+  "label_metadata": {
+    "column": "script_type",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "Latin script": 234,
+      "Cyrillic script": 13
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "script_type",
+    "n_classes": 2,
+    "class_names": [
+      "Cyrillic script",
+      "Latin script"
+    ]
+  },
+  "common_columns": [
+    "script_type",
+    "name_distinction",
+    "alternative_name",
+    "name_type",
+    "name_description",
+    "caverphone_code",
+    "language",
+    "commons_category",
+    "nederlandse_voornamenbank_id",
+    "nominis_given_name_id",
+    "native_name",
+    "soundex_code"
+  ],
+  "num_common_columns": 12,
+  "data_shapes": {
+    "db1_train": [
+      159,
+      12
+    ],
+    "db1_test": [
+      40,
+      12
+    ],
+    "db2_train": [
+      38,
+      12
+    ],
+    "db2_test": [
+      10,
+      12
+    ]
+  },
+  "feature_columns": [
+    "name_distinction",
+    "alternative_name",
+    "name_type",
+    "name_description",
+    "caverphone_code",
+    "language",
+    "commons_category",
+    "nederlandse_voornamenbank_id",
+    "nominis_given_name_id",
+    "native_name",
+    "soundex_code"
+  ],
+  "column_types": {
+    "name_distinction": "categorical",
+    "alternative_name": "categorical",
+    "name_type": "categorical",
+    "name_description": "categorical",
+    "caverphone_code": "categorical",
+    "language": "categorical",
+    "commons_category": "categorical",
+    "nederlandse_voornamenbank_id": "categorical",
+    "nominis_given_name_id": "categorical",
+    "native_name": "categorical",
+    "soundex_code": "categorical",
+    "script_type": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

@@ -1,0 +1,96 @@
+{
+  "pair_id": "02690_33890",
+  "db_id1": 2690,
+  "db_id2": 33890,
+  "similarity": 0.997525,
+  "task_type": "classification",
+  "label_column": "SocialMediaFollowers",
+  "label_metadata": {
+    "column": "SocialMediaFollowers",
+    "task_type": "classification",
+    "n_classes": 16,
+    "missing_ratio": 0.4262295081967213,
+    "class_distribution": {
+      "6660.0": 4,
+      "559808.0": 4,
+      "12000.0": 4,
+      "59360.0": 4,
+      "9552.0": 3,
+      "5300.0": 3,
+      "79400.0": 2,
+      "23756.0": 2,
+      "44987.0": 2,
+      "1008.0": 1,
+      "10093.0": 1,
+      "84000.0": 1,
+      "128269.0": 1,
+      "25109.0": 1,
+      "11722.0": 1,
+      "8603.0": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "SocialMediaFollowers",
+    "n_classes": 16,
+    "class_names": [
+      "1008.0",
+      "10093.0",
+      "11722.0",
+      "12000.0",
+      "128269.0",
+      "23756.0",
+      "25109.0",
+      "44987.0",
+      "5300.0",
+      "559808.0",
+      "59360.0",
+      "6660.0",
+      "79400.0",
+      "84000.0",
+      "8603.0",
+      "9552.0"
+    ]
+  },
+  "common_columns": [
+    "SocialMediaFollowers",
+    "FreebaseId",
+    "CommonsCategory"
+  ],
+  "num_common_columns": 3,
+  "data_shapes": {
+    "db1_train": [
+      5,
+      3
+    ],
+    "db1_test": [
+      2,
+      3
+    ],
+    "db2_train": [
+      22,
+      3
+    ],
+    "db2_test": [
+      6,
+      3
+    ]
+  },
+  "feature_columns": [
+    "FreebaseId",
+    "CommonsCategory"
+  ],
+  "column_types": {
+    "FreebaseId": "categorical",
+    "CommonsCategory": "categorical",
+    "SocialMediaFollowers": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

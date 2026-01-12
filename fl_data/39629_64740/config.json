@@ -1,0 +1,94 @@
+{
+  "pair_id": "39629_64740",
+  "db_id1": 39629,
+  "db_id2": 64740,
+  "similarity": 0.9980974,
+  "task_type": "classification",
+  "label_column": "ChromosomeId",
+  "label_metadata": {
+    "column": "ChromosomeId",
+    "task_type": "classification",
+    "n_classes": 12,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "PvP01_00_v2": 422,
+      "PvP01_07_v2": 34,
+      "PvP01_12_v2": 28,
+      "PvP01_02_v2": 22,
+      "PvP01_05_v2": 20,
+      "PvP01_04_v2": 20,
+      "PvP01_01_v2": 10,
+      "PvP01_08_v2": 10,
+      "PvP01_10_v2": 10,
+      "PvP01_09_v2": 8,
+      "PvP01_11_v2": 2,
+      "PvP01_14_v2": 2
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "ChromosomeId",
+    "n_classes": 12,
+    "class_names": [
+      "PvP01_00_v2",
+      "PvP01_01_v2",
+      "PvP01_02_v2",
+      "PvP01_04_v2",
+      "PvP01_05_v2",
+      "PvP01_07_v2",
+      "PvP01_08_v2",
+      "PvP01_09_v2",
+      "PvP01_10_v2",
+      "PvP01_11_v2",
+      "PvP01_12_v2",
+      "PvP01_14_v2"
+    ]
+  },
+  "common_columns": [
+    "ChromosomeId",
+    "OrthologId",
+    "GenomicEndPosition",
+    "GeneDbId",
+    "GenomicStartPosition"
+  ],
+  "num_common_columns": 5,
+  "data_shapes": {
+    "db1_train": [
+      235,
+      5
+    ],
+    "db1_test": [
+      59,
+      5
+    ],
+    "db2_train": [
+      235,
+      5
+    ],
+    "db2_test": [
+      59,
+      5
+    ]
+  },
+  "feature_columns": [
+    "OrthologId",
+    "GenomicEndPosition",
+    "GeneDbId",
+    "GenomicStartPosition"
+  ],
+  "column_types": {
+    "OrthologId": "categorical",
+    "GenomicEndPosition": "numeric",
+    "GeneDbId": "categorical",
+    "GenomicStartPosition": "numeric",
+    "ChromosomeId": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

@@ -1,0 +1,74 @@
+{
+  "pair_id": "07151_59964",
+  "db_id1": 7151,
+  "db_id2": 59964,
+  "similarity": 0.99776715,
+  "task_type": "classification",
+  "label_column": "SPORT_TYPE",
+  "label_metadata": {
+    "column": "SPORT_TYPE",
+    "task_type": "classification",
+    "n_classes": 5,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "road bicycle racing": 69,
+      "cycle sport": 4,
+      "track cycling": 4,
+      "cyclo-cross": 2,
+      "mountain biking": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "SPORT_TYPE",
+    "n_classes": 5,
+    "class_names": [
+      "cycle sport",
+      "cyclo-cross",
+      "mountain biking",
+      "road bicycle racing",
+      "track cycling"
+    ]
+  },
+  "common_columns": [
+    "SPORT_TYPE",
+    "FREEBASE_ID",
+    "COMMONS_CATEGORY"
+  ],
+  "num_common_columns": 3,
+  "data_shapes": {
+    "db1_train": [
+      50,
+      3
+    ],
+    "db1_test": [
+      13,
+      3
+    ],
+    "db2_train": [
+      13,
+      3
+    ],
+    "db2_test": [
+      4,
+      3
+    ]
+  },
+  "feature_columns": [
+    "FREEBASE_ID",
+    "COMMONS_CATEGORY"
+  ],
+  "column_types": {
+    "FREEBASE_ID": "categorical",
+    "COMMONS_CATEGORY": "categorical",
+    "SPORT_TYPE": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

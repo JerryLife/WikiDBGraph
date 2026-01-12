@@ -1,0 +1,94 @@
+{
+  "pair_id": "30982_84794",
+  "db_id1": 30982,
+  "db_id2": 84794,
+  "similarity": 0.99876726,
+  "task_type": "classification",
+  "label_column": "SportType",
+  "label_metadata": {
+    "column": "SportType",
+    "task_type": "classification",
+    "n_classes": 3,
+    "missing_ratio": 0.1906005221932115,
+    "class_distribution": {
+      "road bicycle racing": 306,
+      "track cycling": 2,
+      "cycle sport": 2
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "SportType",
+    "n_classes": 3,
+    "class_names": [
+      "cycle sport",
+      "road bicycle racing",
+      "track cycling"
+    ]
+  },
+  "common_columns": [
+    "SportType",
+    "StageWinner",
+    "StageDate",
+    "NextStage",
+    "StartLocation",
+    "PreviousStage",
+    "StageNumber",
+    "StageDescription",
+    "StageType",
+    "RaceEvent",
+    "ProCyclingStatsRaceId"
+  ],
+  "num_common_columns": 11,
+  "data_shapes": {
+    "db1_train": [
+      63,
+      11
+    ],
+    "db1_test": [
+      16,
+      11
+    ],
+    "db2_train": [
+      184,
+      11
+    ],
+    "db2_test": [
+      47,
+      11
+    ]
+  },
+  "feature_columns": [
+    "StageWinner",
+    "StageDate",
+    "NextStage",
+    "StartLocation",
+    "PreviousStage",
+    "StageNumber",
+    "StageDescription",
+    "StageType",
+    "RaceEvent",
+    "ProCyclingStatsRaceId"
+  ],
+  "column_types": {
+    "StageWinner": "categorical",
+    "StageDate": "categorical",
+    "NextStage": "categorical",
+    "StartLocation": "categorical",
+    "PreviousStage": "categorical",
+    "StageNumber": "numeric",
+    "StageDescription": "categorical",
+    "StageType": "categorical",
+    "RaceEvent": "categorical",
+    "ProCyclingStatsRaceId": "numeric",
+    "SportType": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

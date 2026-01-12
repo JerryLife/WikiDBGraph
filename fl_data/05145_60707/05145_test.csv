@@ -1,0 +1,4 @@
+SportType,StageLabel,StageDistanceKm,ProCyclingStatsRaceId,StartLocation,StageType,StageWinner,RaceEvent,NextStage,PreviousStage,StageNumber,StageClassificationLeader,GeneralClassificationLeader,StageDescription
+0,1,520.05,181338.0,0,1,1,1,1,1,1,0,0,0
+0,2,203.1,247272.0,2,2,2,2,2,2,0,1,2,1
+0,0,178.8,,1,0,0,0,0,0,1,0,1,1

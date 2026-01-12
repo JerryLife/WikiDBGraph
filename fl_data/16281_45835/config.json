@@ -1,0 +1,101 @@
+{
+  "pair_id": "16281_45835",
+  "db_id1": 16281,
+  "db_id2": 45835,
+  "similarity": 0.9976346,
+  "task_type": "classification",
+  "label_column": "MainTemplate",
+  "label_metadata": {
+    "column": "MainTemplate",
+    "task_type": "classification",
+    "n_classes": 17,
+    "missing_ratio": 0.5,
+    "class_distribution": {
+      "Template:Giro d'Italia": 3,
+      "Template:Vuelta a Espa\u00f1a": 3,
+      "Template Tour de France 2014": 3,
+      "Template:2020 Tour de France": 3,
+      "Template:2019 Tour de France": 3,
+      "Template:2021 Vuelta a Espa\u00f1a": 2,
+      "Template:Tour de France": 2,
+      "Template:Polish language": 2,
+      "Template:French language": 2,
+      "Template:Pt icon": 2,
+      "Template:Danish language": 2,
+      "Template:2018 Tour de France": 1,
+      "Template:CyclingAt2016SummerOlympics": 1,
+      "Template:Catalan language": 1,
+      "Template:Ref-mul": 1,
+      "Template:German language": 1,
+      "Template:-cs-": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "MainTemplate",
+    "n_classes": 17,
+    "class_names": [
+      "Template Tour de France 2014",
+      "Template:-cs-",
+      "Template:2018 Tour de France",
+      "Template:2019 Tour de France",
+      "Template:2020 Tour de France",
+      "Template:2021 Vuelta a Espa\u00f1a",
+      "Template:Catalan language",
+      "Template:CyclingAt2016SummerOlympics",
+      "Template:Danish language",
+      "Template:French language",
+      "Template:German language",
+      "Template:Giro d'Italia",
+      "Template:Polish language",
+      "Template:Pt icon",
+      "Template:Ref-mul",
+      "Template:Tour de France",
+      "Template:Vuelta a Espa\u00f1a"
+    ]
+  },
+  "common_columns": [
+    "MainTemplate",
+    "FreebaseId",
+    "MainCategory",
+    "CommonsCategory"
+  ],
+  "num_common_columns": 4,
+  "data_shapes": {
+    "db1_train": [
+      16,
+      4
+    ],
+    "db1_test": [
+      5,
+      4
+    ],
+    "db2_train": [
+      9,
+      4
+    ],
+    "db2_test": [
+      3,
+      4
+    ]
+  },
+  "feature_columns": [
+    "FreebaseId",
+    "MainCategory",
+    "CommonsCategory"
+  ],
+  "column_types": {
+    "FreebaseId": "categorical",
+    "MainCategory": "categorical",
+    "CommonsCategory": "categorical",
+    "MainTemplate": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

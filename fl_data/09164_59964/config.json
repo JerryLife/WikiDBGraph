@@ -1,0 +1,151 @@
+{
+  "pair_id": "09164_59964",
+  "db_id1": 9164,
+  "db_id2": 59964,
+  "similarity": 0.99764645,
+  "task_type": "classification",
+  "label_column": "SPORT_COUNTRY",
+  "label_metadata": {
+    "column": "SPORT_COUNTRY",
+    "task_type": "classification",
+    "n_classes": 12,
+    "missing_ratio": 0.4782608695652174,
+    "class_distribution": {
+      "Netherlands": 6,
+      "Italy": 6,
+      "Australia": 2,
+      "France": 2,
+      "Republic of Ireland": 1,
+      "Kazakhstan": 1,
+      "United Kingdom": 1,
+      "Colombia": 1,
+      "Switzerland": 1,
+      "Poland": 1,
+      "Czech Republic": 1,
+      "Denmark": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "SPORT_COUNTRY",
+    "n_classes": 12,
+    "class_names": [
+      "Australia",
+      "Colombia",
+      "Czech Republic",
+      "Denmark",
+      "France",
+      "Italy",
+      "Kazakhstan",
+      "Netherlands",
+      "Poland",
+      "Republic of Ireland",
+      "Switzerland",
+      "United Kingdom"
+    ]
+  },
+  "common_columns": [
+    "SPORT_COUNTRY",
+    "CYCLE_BASE_CYCLIST_ID",
+    "CQ_RANKING_MALE_CYCLIST_ID",
+    "INSTAGRAM_USERNAME",
+    "COMMONS_CATEGORY",
+    "SOCIAL_MEDIA_FOLLOWERS",
+    "PRO_CYCLING_STATS_CYCLIST_ID",
+    "MEMOIRE_DU_CYCLISME_CYCLIST_ID",
+    "TWITTER_USERNAME",
+    "BIRTH_PLACE",
+    "UCI_RIDER_ID",
+    "WEIGHT_KG",
+    "BIRTH_DATE",
+    "SPORTS_TEAM",
+    "OLYMPEDIA_PEOPLE_ID",
+    "LAST_NAME",
+    "FIRST_NAME",
+    "CITIZENSHIP_COUNTRY",
+    "CYCLING_ARCHIVES_CYCLIST_ID",
+    "LANGUAGES_SPOKEN",
+    "FIRST_CYCLING_RIDER_ID",
+    "EVENTS_PARTICIPATED",
+    "HEIGHT_CM",
+    "FREEBASE_ID"
+  ],
+  "num_common_columns": 24,
+  "data_shapes": {
+    "db1_train": [
+      9,
+      24
+    ],
+    "db1_test": [
+      3,
+      24
+    ],
+    "db2_train": [
+      9,
+      24
+    ],
+    "db2_test": [
+      3,
+      24
+    ]
+  },
+  "feature_columns": [
+    "CYCLE_BASE_CYCLIST_ID",
+    "CQ_RANKING_MALE_CYCLIST_ID",
+    "INSTAGRAM_USERNAME",
+    "COMMONS_CATEGORY",
+    "SOCIAL_MEDIA_FOLLOWERS",
+    "PRO_CYCLING_STATS_CYCLIST_ID",
+    "MEMOIRE_DU_CYCLISME_CYCLIST_ID",
+    "TWITTER_USERNAME",
+    "BIRTH_PLACE",
+    "UCI_RIDER_ID",
+    "WEIGHT_KG",
+    "BIRTH_DATE",
+    "SPORTS_TEAM",
+    "OLYMPEDIA_PEOPLE_ID",
+    "LAST_NAME",
+    "FIRST_NAME",
+    "CITIZENSHIP_COUNTRY",
+    "CYCLING_ARCHIVES_CYCLIST_ID",
+    "LANGUAGES_SPOKEN",
+    "FIRST_CYCLING_RIDER_ID",
+    "EVENTS_PARTICIPATED",
+    "HEIGHT_CM",
+    "FREEBASE_ID"
+  ],
+  "column_types": {
+    "CYCLE_BASE_CYCLIST_ID": "numeric",
+    "CQ_RANKING_MALE_CYCLIST_ID": "numeric",
+    "INSTAGRAM_USERNAME": "categorical",
+    "COMMONS_CATEGORY": "categorical",
+    "SOCIAL_MEDIA_FOLLOWERS": "numeric",
+    "PRO_CYCLING_STATS_CYCLIST_ID": "numeric",
+    "MEMOIRE_DU_CYCLISME_CYCLIST_ID": "numeric",
+    "TWITTER_USERNAME": "categorical",
+    "BIRTH_PLACE": "categorical",
+    "UCI_RIDER_ID": "numeric",
+    "WEIGHT_KG": "numeric",
+    "BIRTH_DATE": "categorical",
+    "SPORTS_TEAM": "categorical",
+    "OLYMPEDIA_PEOPLE_ID": "numeric",
+    "LAST_NAME": "categorical",
+    "FIRST_NAME": "categorical",
+    "CITIZENSHIP_COUNTRY": "categorical",
+    "CYCLING_ARCHIVES_CYCLIST_ID": "numeric",
+    "LANGUAGES_SPOKEN": "categorical",
+    "FIRST_CYCLING_RIDER_ID": "numeric",
+    "EVENTS_PARTICIPATED": "categorical",
+    "HEIGHT_CM": "numeric",
+    "FREEBASE_ID": "categorical",
+    "SPORT_COUNTRY": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

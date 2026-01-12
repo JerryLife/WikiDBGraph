@@ -1,0 +1,104 @@
+{
+  "pair_id": "48794_87810",
+  "db_id1": 48794,
+  "db_id2": 87810,
+  "similarity": 0.9977807,
+  "task_type": "classification",
+  "label_column": "SportType",
+  "label_metadata": {
+    "column": "SportType",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.4084507042253521,
+    "class_distribution": {
+      "road bicycle racing": 82,
+      "cycle sport": 2
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "SportType",
+    "n_classes": 2,
+    "class_names": [
+      "cycle sport",
+      "road bicycle racing"
+    ]
+  },
+  "common_columns": [
+    "SportType",
+    "StageLabel",
+    "StageDistanceKm",
+    "StartLocation",
+    "StageType",
+    "StageWinner",
+    "RaceEvent",
+    "NextStage",
+    "StageDate",
+    "PreviousStage",
+    "StageNumber",
+    "StageClassificationLeader",
+    "GeneralClassificationLeader",
+    "StageDescription",
+    "EndLocation"
+  ],
+  "num_common_columns": 15,
+  "data_shapes": {
+    "db1_train": [
+      53,
+      15
+    ],
+    "db1_test": [
+      14,
+      15
+    ],
+    "db2_train": [
+      13,
+      15
+    ],
+    "db2_test": [
+      4,
+      15
+    ]
+  },
+  "feature_columns": [
+    "StageLabel",
+    "StageDistanceKm",
+    "StartLocation",
+    "StageType",
+    "StageWinner",
+    "RaceEvent",
+    "NextStage",
+    "StageDate",
+    "PreviousStage",
+    "StageNumber",
+    "StageClassificationLeader",
+    "GeneralClassificationLeader",
+    "StageDescription",
+    "EndLocation"
+  ],
+  "column_types": {
+    "StageLabel": "categorical",
+    "StageDistanceKm": "numeric",
+    "StartLocation": "categorical",
+    "StageType": "categorical",
+    "StageWinner": "categorical",
+    "RaceEvent": "categorical",
+    "NextStage": "categorical",
+    "StageDate": "categorical",
+    "PreviousStage": "categorical",
+    "StageNumber": "numeric",
+    "StageClassificationLeader": "categorical",
+    "GeneralClassificationLeader": "categorical",
+    "StageDescription": "categorical",
+    "EndLocation": "categorical",
+    "SportType": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

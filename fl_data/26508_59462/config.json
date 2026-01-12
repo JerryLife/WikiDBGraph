@@ -1,0 +1,74 @@
+{
+  "pair_id": "26508_59462",
+  "db_id1": 26508,
+  "db_id2": 59462,
+  "similarity": 0.99791807,
+  "task_type": "classification",
+  "label_column": "SportType",
+  "label_metadata": {
+    "column": "SportType",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.08571428571428572,
+    "class_distribution": {
+      "road bicycle racing": 61,
+      "cycle sport": 3
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "SportType",
+    "n_classes": 2,
+    "class_names": [
+      "cycle sport",
+      "road bicycle racing"
+    ]
+  },
+  "common_columns": [
+    "SportType",
+    "RaceDescription",
+    "EditionNumber",
+    "RaceWinner",
+    "RaceName"
+  ],
+  "num_common_columns": 5,
+  "data_shapes": {
+    "db1_train": [
+      25,
+      5
+    ],
+    "db1_test": [
+      7,
+      5
+    ],
+    "db2_train": [
+      25,
+      5
+    ],
+    "db2_test": [
+      7,
+      5
+    ]
+  },
+  "feature_columns": [
+    "RaceDescription",
+    "EditionNumber",
+    "RaceWinner",
+    "RaceName"
+  ],
+  "column_types": {
+    "RaceDescription": "categorical",
+    "EditionNumber": "numeric",
+    "RaceWinner": "categorical",
+    "RaceName": "categorical",
+    "SportType": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

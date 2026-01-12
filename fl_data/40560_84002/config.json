@@ -1,0 +1,92 @@
+{
+  "pair_id": "40560_84002",
+  "db_id1": 40560,
+  "db_id2": 84002,
+  "similarity": 0.9977885,
+  "task_type": "classification",
+  "label_column": "SPORT_TYPE",
+  "label_metadata": {
+    "column": "SPORT_TYPE",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.06153846153846154,
+    "class_distribution": {
+      "road bicycle racing": 56,
+      "cycle sport": 5
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "SPORT_TYPE",
+    "n_classes": 2,
+    "class_names": [
+      "cycle sport",
+      "road bicycle racing"
+    ]
+  },
+  "common_columns": [
+    "SPORT_TYPE",
+    "HOST_COUNTRY",
+    "RACE_DESCRIPTION",
+    "PARTICIPANT_NAME",
+    "GENERAL_CLASSIFICATION_WINNER",
+    "EDITION_NUMBER",
+    "START_LOCATION",
+    "END_LOCATION",
+    "GOOGLE_KNOWLEDGE_GRAPH_ID",
+    "RACE_WINNER",
+    "RACE_NAME"
+  ],
+  "num_common_columns": 11,
+  "data_shapes": {
+    "db1_train": [
+      34,
+      11
+    ],
+    "db1_test": [
+      9,
+      11
+    ],
+    "db2_train": [
+      14,
+      11
+    ],
+    "db2_test": [
+      4,
+      11
+    ]
+  },
+  "feature_columns": [
+    "HOST_COUNTRY",
+    "RACE_DESCRIPTION",
+    "PARTICIPANT_NAME",
+    "GENERAL_CLASSIFICATION_WINNER",
+    "EDITION_NUMBER",
+    "START_LOCATION",
+    "END_LOCATION",
+    "GOOGLE_KNOWLEDGE_GRAPH_ID",
+    "RACE_WINNER",
+    "RACE_NAME"
+  ],
+  "column_types": {
+    "HOST_COUNTRY": "categorical",
+    "RACE_DESCRIPTION": "categorical",
+    "PARTICIPANT_NAME": "categorical",
+    "GENERAL_CLASSIFICATION_WINNER": "categorical",
+    "EDITION_NUMBER": "numeric",
+    "START_LOCATION": "categorical",
+    "END_LOCATION": "categorical",
+    "GOOGLE_KNOWLEDGE_GRAPH_ID": "categorical",
+    "RACE_WINNER": "categorical",
+    "RACE_NAME": "categorical",
+    "SPORT_TYPE": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

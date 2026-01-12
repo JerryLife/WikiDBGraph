@@ -1,0 +1,95 @@
+{
+  "pair_id": "25627_58152",
+  "db_id1": 25627,
+  "db_id2": 58152,
+  "similarity": 0.99755013,
+  "task_type": "classification",
+  "label_column": "GeneInstanceType",
+  "label_metadata": {
+    "column": "GeneInstanceType",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "gene": 530,
+      "pseudogene": 24
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "GeneInstanceType",
+    "n_classes": 2,
+    "class_names": [
+      "gene",
+      "pseudogene"
+    ]
+  },
+  "common_columns": [
+    "GeneInstanceType",
+    "GeneDescription",
+    "GenomicEndPosition",
+    "GeneLabel",
+    "GeneDbId",
+    "GeneSubclass",
+    "EncodedProtein",
+    "OrthologousGene",
+    "ChromosomeId",
+    "GenomicStartPosition",
+    "StrandOrientation",
+    "HostTaxon"
+  ],
+  "num_common_columns": 12,
+  "data_shapes": {
+    "db1_train": [
+      221,
+      12
+    ],
+    "db1_test": [
+      56,
+      12
+    ],
+    "db2_train": [
+      221,
+      12
+    ],
+    "db2_test": [
+      56,
+      12
+    ]
+  },
+  "feature_columns": [
+    "GeneDescription",
+    "GenomicEndPosition",
+    "GeneLabel",
+    "GeneDbId",
+    "GeneSubclass",
+    "EncodedProtein",
+    "OrthologousGene",
+    "ChromosomeId",
+    "GenomicStartPosition",
+    "StrandOrientation",
+    "HostTaxon"
+  ],
+  "column_types": {
+    "GeneDescription": "categorical",
+    "GenomicEndPosition": "numeric",
+    "GeneLabel": "categorical",
+    "GeneDbId": "categorical",
+    "GeneSubclass": "categorical",
+    "EncodedProtein": "categorical",
+    "OrthologousGene": "categorical",
+    "ChromosomeId": "categorical",
+    "GenomicStartPosition": "numeric",
+    "StrandOrientation": "categorical",
+    "HostTaxon": "categorical",
+    "GeneInstanceType": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

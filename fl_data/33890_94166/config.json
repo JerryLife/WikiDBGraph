@@ -1,0 +1,132 @@
+{
+  "pair_id": "33890_94166",
+  "db_id1": 33890,
+  "db_id2": 94166,
+  "similarity": 0.997461,
+  "task_type": "classification",
+  "label_column": "Freebase_Id",
+  "label_metadata": {
+    "column": "Freebase_Id",
+    "task_type": "classification",
+    "n_classes": 34,
+    "missing_ratio": 0.2261904761904762,
+    "class_distribution": {
+      "/m/06mkj": 4,
+      "/m/0154j": 4,
+      "/m/0k6nt": 4,
+      "/m/03rjj": 4,
+      "/m/06t8v": 4,
+      "/m/07ssc": 4,
+      "/m/01ls2": 4,
+      "/m/0chghy": 3,
+      "/m/0f8l9c": 3,
+      "/m/059j2": 3,
+      "/m/047lj": 2,
+      "/m/06mzp": 2,
+      "/m/03rt9": 2,
+      "/m/01mjq": 2,
+      "/m/05r4w": 1,
+      "/m/0345h": 1,
+      "/m/03gxdpy": 1,
+      "/m/06wwzg": 1,
+      "/m/0gkmk1": 1,
+      "/m/02r7y43": 1,
+      "/m/02pvcl4": 1,
+      "/m/02x83_m": 1,
+      "/m/0bwlrg9": 1,
+      "/m/0cz9n1x": 1,
+      "/m/0h64qlh": 1,
+      "/m/0gfgwds": 1,
+      "/m/0dgqhh_": 1,
+      "/m/0k9gz1h": 1,
+      "/m/0ynsxsr": 1,
+      "/m/010lt13d": 1,
+      "/m/0125gslg": 1,
+      "/m/0125kv3v": 1,
+      "/m/0_fmgj1": 1,
+      "/m/012str_f": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Freebase_Id",
+    "n_classes": 34,
+    "class_names": [
+      "/m/010lt13d",
+      "/m/0125gslg",
+      "/m/0125kv3v",
+      "/m/012str_f",
+      "/m/0154j",
+      "/m/01ls2",
+      "/m/01mjq",
+      "/m/02pvcl4",
+      "/m/02r7y43",
+      "/m/02x83_m",
+      "/m/0345h",
+      "/m/03gxdpy",
+      "/m/03rjj",
+      "/m/03rt9",
+      "/m/047lj",
+      "/m/059j2",
+      "/m/05r4w",
+      "/m/06mkj",
+      "/m/06mzp",
+      "/m/06t8v",
+      "/m/06wwzg",
+      "/m/07ssc",
+      "/m/0_fmgj1",
+      "/m/0bwlrg9",
+      "/m/0chghy",
+      "/m/0cz9n1x",
+      "/m/0dgqhh_",
+      "/m/0f8l9c",
+      "/m/0gfgwds",
+      "/m/0gkmk1",
+      "/m/0h64qlh",
+      "/m/0k6nt",
+      "/m/0k9gz1h",
+      "/m/0ynsxsr"
+    ]
+  },
+  "common_columns": [
+    "Freebase_Id",
+    "Social_Media_Followers",
+    "Commons_Category"
+  ],
+  "num_common_columns": 3,
+  "data_shapes": {
+    "db1_train": [
+      37,
+      3
+    ],
+    "db1_test": [
+      10,
+      3
+    ],
+    "db2_train": [
+      14,
+      3
+    ],
+    "db2_test": [
+      4,
+      3
+    ]
+  },
+  "feature_columns": [
+    "Social_Media_Followers",
+    "Commons_Category"
+  ],
+  "column_types": {
+    "Social_Media_Followers": "numeric",
+    "Commons_Category": "categorical",
+    "Freebase_Id": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

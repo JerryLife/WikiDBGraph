@@ -1,0 +1,106 @@
+{
+  "pair_id": "03727_60707",
+  "db_id1": 3727,
+  "db_id2": 60707,
+  "similarity": 0.9977216,
+  "task_type": "classification",
+  "label_column": "SportType",
+  "label_metadata": {
+    "column": "SportType",
+    "task_type": "classification",
+    "n_classes": 3,
+    "missing_ratio": 0.0975609756097561,
+    "class_distribution": {
+      "road bicycle racing": 143,
+      "cycling race": 4,
+      "gravel cycling": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "SportType",
+    "n_classes": 3,
+    "class_names": [
+      "cycling race",
+      "gravel cycling",
+      "road bicycle racing"
+    ]
+  },
+  "common_columns": [
+    "SportType",
+    "StageLabel",
+    "HostCountry",
+    "StageDistanceKm",
+    "ProCyclingStatsRaceId",
+    "StartLocation",
+    "StageType",
+    "StageWinner",
+    "RaceEvent",
+    "NextStage",
+    "StageDate",
+    "PreviousStage",
+    "StageNumber",
+    "GeneralClassificationLeader",
+    "StageDescription"
+  ],
+  "num_common_columns": 15,
+  "data_shapes": {
+    "db1_train": [
+      75,
+      15
+    ],
+    "db1_test": [
+      19,
+      15
+    ],
+    "db2_train": [
+      43,
+      15
+    ],
+    "db2_test": [
+      11,
+      15
+    ]
+  },
+  "feature_columns": [
+    "StageLabel",
+    "HostCountry",
+    "StageDistanceKm",
+    "ProCyclingStatsRaceId",
+    "StartLocation",
+    "StageType",
+    "StageWinner",
+    "RaceEvent",
+    "NextStage",
+    "StageDate",
+    "PreviousStage",
+    "StageNumber",
+    "GeneralClassificationLeader",
+    "StageDescription"
+  ],
+  "column_types": {
+    "StageLabel": "categorical",
+    "HostCountry": "categorical",
+    "StageDistanceKm": "numeric",
+    "ProCyclingStatsRaceId": "numeric",
+    "StartLocation": "categorical",
+    "StageType": "categorical",
+    "StageWinner": "categorical",
+    "RaceEvent": "categorical",
+    "NextStage": "categorical",
+    "StageDate": "categorical",
+    "PreviousStage": "categorical",
+    "StageNumber": "numeric",
+    "GeneralClassificationLeader": "categorical",
+    "StageDescription": "categorical",
+    "SportType": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

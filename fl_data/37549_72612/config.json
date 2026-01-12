@@ -1,0 +1,116 @@
+{
+  "pair_id": "37549_72612",
+  "db_id1": 37549,
+  "db_id2": 72612,
+  "similarity": 0.9975227,
+  "task_type": "classification",
+  "label_column": "host_country",
+  "label_metadata": {
+    "column": "host_country",
+    "task_type": "classification",
+    "n_classes": 14,
+    "missing_ratio": 0.027777777777777776,
+    "class_distribution": {
+      "France": 6,
+      "Spain": 6,
+      "Australia": 6,
+      "Italy": 4,
+      "Switzerland": 2,
+      "Belgium": 2,
+      "United Arab Emirates": 2,
+      "Canada": 1,
+      "People's Republic of China": 1,
+      "United Kingdom": 1,
+      "Czech Republic": 1,
+      "Norway": 1,
+      "Austria": 1,
+      "Japan": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "host_country",
+    "n_classes": 14,
+    "class_names": [
+      "Australia",
+      "Austria",
+      "Belgium",
+      "Canada",
+      "Czech Republic",
+      "France",
+      "Italy",
+      "Japan",
+      "Norway",
+      "People's Republic of China",
+      "Spain",
+      "Switzerland",
+      "United Arab Emirates",
+      "United Kingdom"
+    ]
+  },
+  "common_columns": [
+    "host_country",
+    "official_website",
+    "total_participants",
+    "pro_cycling_stats_race_id",
+    "edition_number",
+    "race_type",
+    "start_location",
+    "end_location",
+    "google_knowledge_graph_id",
+    "race_winner",
+    "race_name"
+  ],
+  "num_common_columns": 11,
+  "data_shapes": {
+    "db1_train": [
+      16,
+      11
+    ],
+    "db1_test": [
+      4,
+      11
+    ],
+    "db2_train": [
+      12,
+      11
+    ],
+    "db2_test": [
+      3,
+      11
+    ]
+  },
+  "feature_columns": [
+    "official_website",
+    "total_participants",
+    "pro_cycling_stats_race_id",
+    "edition_number",
+    "race_type",
+    "start_location",
+    "end_location",
+    "google_knowledge_graph_id",
+    "race_winner",
+    "race_name"
+  ],
+  "column_types": {
+    "official_website": "categorical",
+    "total_participants": "numeric",
+    "pro_cycling_stats_race_id": "numeric",
+    "edition_number": "numeric",
+    "race_type": "categorical",
+    "start_location": "categorical",
+    "end_location": "categorical",
+    "google_knowledge_graph_id": "categorical",
+    "race_winner": "categorical",
+    "race_name": "categorical",
+    "host_country": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

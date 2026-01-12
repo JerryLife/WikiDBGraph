@@ -1,0 +1,74 @@
+{
+  "pair_id": "49093_83262",
+  "db_id1": 49093,
+  "db_id2": 83262,
+  "similarity": 0.9974913,
+  "task_type": "classification",
+  "label_column": "Gender",
+  "label_metadata": {
+    "column": "Gender",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.03426791277258567,
+    "class_distribution": {
+      "male": 246,
+      "female": 64
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Gender",
+    "n_classes": 2,
+    "class_names": [
+      "female",
+      "male"
+    ]
+  },
+  "common_columns": [
+    "Gender",
+    "Birth_Date",
+    "First_Name",
+    "Citizenship_Country",
+    "Birthplace"
+  ],
+  "num_common_columns": 5,
+  "data_shapes": {
+    "db1_train": [
+      30,
+      5
+    ],
+    "db1_test": [
+      8,
+      5
+    ],
+    "db2_train": [
+      217,
+      5
+    ],
+    "db2_test": [
+      55,
+      5
+    ]
+  },
+  "feature_columns": [
+    "Birth_Date",
+    "First_Name",
+    "Citizenship_Country",
+    "Birthplace"
+  ],
+  "column_types": {
+    "Birth_Date": "categorical",
+    "First_Name": "categorical",
+    "Citizenship_Country": "categorical",
+    "Birthplace": "categorical",
+    "Gender": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

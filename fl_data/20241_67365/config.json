@@ -1,0 +1,76 @@
+{
+  "pair_id": "20241_67365",
+  "db_id1": 20241,
+  "db_id2": 67365,
+  "similarity": 0.9982446,
+  "task_type": "classification",
+  "label_column": "Country",
+  "label_metadata": {
+    "column": "Country",
+    "task_type": "classification",
+    "n_classes": 3,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "Moldova": 793,
+      "Transnistria": 4,
+      "Russian Empire": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Country",
+    "n_classes": 3,
+    "class_names": [
+      "Moldova",
+      "Russian Empire",
+      "Transnistria"
+    ]
+  },
+  "common_columns": [
+    "Country",
+    "Latitude",
+    "CommonsCategory",
+    "Longitude",
+    "CatalogCode"
+  ],
+  "num_common_columns": 5,
+  "data_shapes": {
+    "db1_train": [
+      109,
+      5
+    ],
+    "db1_test": [
+      28,
+      5
+    ],
+    "db2_train": [
+      528,
+      5
+    ],
+    "db2_test": [
+      133,
+      5
+    ]
+  },
+  "feature_columns": [
+    "Latitude",
+    "CommonsCategory",
+    "Longitude",
+    "CatalogCode"
+  ],
+  "column_types": {
+    "Latitude": "numeric",
+    "CommonsCategory": "categorical",
+    "Longitude": "numeric",
+    "CatalogCode": "categorical",
+    "Country": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

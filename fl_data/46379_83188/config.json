@@ -1,0 +1,92 @@
+{
+  "pair_id": "46379_83188",
+  "db_id1": 46379,
+  "db_id2": 83188,
+  "similarity": 0.99816376,
+  "task_type": "classification",
+  "label_column": "Gender",
+  "label_metadata": {
+    "column": "Gender",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "male": 121,
+      "female": 103
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Gender",
+    "n_classes": 2,
+    "class_names": [
+      "female",
+      "male"
+    ]
+  },
+  "common_columns": [
+    "Gender",
+    "SiblingName",
+    "FamilySurname",
+    "BirthDate",
+    "FirstName",
+    "DeathDate",
+    "FullName",
+    "GoogleKnowledgeGraphId",
+    "MiddleName",
+    "MotherName",
+    "PosthumousTitle"
+  ],
+  "num_common_columns": 11,
+  "data_shapes": {
+    "db1_train": [
+      89,
+      11
+    ],
+    "db1_test": [
+      23,
+      11
+    ],
+    "db2_train": [
+      89,
+      11
+    ],
+    "db2_test": [
+      23,
+      11
+    ]
+  },
+  "feature_columns": [
+    "SiblingName",
+    "FamilySurname",
+    "BirthDate",
+    "FirstName",
+    "DeathDate",
+    "FullName",
+    "GoogleKnowledgeGraphId",
+    "MiddleName",
+    "MotherName",
+    "PosthumousTitle"
+  ],
+  "column_types": {
+    "SiblingName": "categorical",
+    "FamilySurname": "categorical",
+    "BirthDate": "categorical",
+    "FirstName": "categorical",
+    "DeathDate": "categorical",
+    "FullName": "categorical",
+    "GoogleKnowledgeGraphId": "categorical",
+    "MiddleName": "categorical",
+    "MotherName": "categorical",
+    "PosthumousTitle": "categorical",
+    "Gender": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

@@ -1,0 +1,86 @@
+{
+  "pair_id": "00784_13728",
+  "db_id1": 784,
+  "db_id2": 13728,
+  "similarity": 0.99808806,
+  "task_type": "classification",
+  "label_column": "Gender",
+  "label_metadata": {
+    "column": "Gender",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.032961931290622096,
+    "class_distribution": {
+      "male": 1677,
+      "female": 406
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Gender",
+    "n_classes": 2,
+    "class_names": [
+      "female",
+      "male"
+    ]
+  },
+  "common_columns": [
+    "Gender",
+    "Biography",
+    "BirthDate",
+    "ViafId",
+    "FirstName",
+    "Citizenship",
+    "FullName",
+    "Birthplace",
+    "Profession"
+  ],
+  "num_common_columns": 9,
+  "data_shapes": {
+    "db1_train": [
+      500,
+      9
+    ],
+    "db1_test": [
+      126,
+      9
+    ],
+    "db2_train": [
+      1165,
+      9
+    ],
+    "db2_test": [
+      292,
+      9
+    ]
+  },
+  "feature_columns": [
+    "Biography",
+    "BirthDate",
+    "ViafId",
+    "FirstName",
+    "Citizenship",
+    "FullName",
+    "Birthplace",
+    "Profession"
+  ],
+  "column_types": {
+    "Biography": "categorical",
+    "BirthDate": "categorical",
+    "ViafId": "numeric",
+    "FirstName": "categorical",
+    "Citizenship": "categorical",
+    "FullName": "categorical",
+    "Birthplace": "categorical",
+    "Profession": "categorical",
+    "Gender": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

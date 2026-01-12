@@ -1,0 +1,86 @@
+{
+  "pair_id": "39143_56592",
+  "db_id1": 39143,
+  "db_id2": 56592,
+  "similarity": 0.9982728,
+  "task_type": "classification",
+  "label_column": "GeneInstanceType",
+  "label_metadata": {
+    "column": "GeneInstanceType",
+    "task_type": "classification",
+    "n_classes": 2,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "gene": 530,
+      "pseudogene": 58
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "GeneInstanceType",
+    "n_classes": 2,
+    "class_names": [
+      "gene",
+      "pseudogene"
+    ]
+  },
+  "common_columns": [
+    "GeneInstanceType",
+    "OrthologId",
+    "GenomicEndPosition",
+    "GeneLabel",
+    "GeneDbId",
+    "EncodedProtein",
+    "ChromosomeId",
+    "GenomicStartPosition",
+    "StrandOrientation"
+  ],
+  "num_common_columns": 9,
+  "data_shapes": {
+    "db1_train": [
+      235,
+      9
+    ],
+    "db1_test": [
+      59,
+      9
+    ],
+    "db2_train": [
+      235,
+      9
+    ],
+    "db2_test": [
+      59,
+      9
+    ]
+  },
+  "feature_columns": [
+    "OrthologId",
+    "GenomicEndPosition",
+    "GeneLabel",
+    "GeneDbId",
+    "EncodedProtein",
+    "ChromosomeId",
+    "GenomicStartPosition",
+    "StrandOrientation"
+  ],
+  "column_types": {
+    "OrthologId": "categorical",
+    "GenomicEndPosition": "numeric",
+    "GeneLabel": "categorical",
+    "GeneDbId": "categorical",
+    "EncodedProtein": "categorical",
+    "ChromosomeId": "categorical",
+    "GenomicStartPosition": "numeric",
+    "StrandOrientation": "categorical",
+    "GeneInstanceType": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

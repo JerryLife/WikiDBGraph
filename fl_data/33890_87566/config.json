@@ -1,0 +1,127 @@
+{
+  "pair_id": "33890_87566",
+  "db_id1": 33890,
+  "db_id2": 87566,
+  "similarity": 0.99758804,
+  "task_type": "classification",
+  "label_column": "Official_Website",
+  "label_metadata": {
+    "column": "Official_Website",
+    "task_type": "classification",
+    "n_classes": 30,
+    "missing_ratio": 0.12857142857142856,
+    "class_distribution": {
+      "https://administracion.gob.es/": 4,
+      "https://www.belgium.be/": 4,
+      "http://www.denmark.dk": 4,
+      "http://www.italia.it/": 4,
+      "http://www.gov.si/": 4,
+      "https://www.gov.uk/": 4,
+      "https://www.gov.co/": 4,
+      "https://www.rijksoverheid.nl/": 3,
+      "https://www.service-public.fr/": 3,
+      "https://www.australia.gov.au/": 3,
+      "https://www.admin.ch/gov/de/start.html": 2,
+      "https://www.gov.kz/": 2,
+      "http://www.gov.ie/": 2,
+      "https://www.czechia.eu/": 2,
+      "https://www.portugal.gov.pt/en/gc21": 1,
+      "https://www.deutschland.de/": 1,
+      "http://www.philippegilbert.com/": 1,
+      "http://www.wilcokeldermanofficial.com": 1,
+      "http://www.chris-froome.com/": 1,
+      "http://www.rohandennisofficial.com/": 1,
+      "http://matthias-braendle.com/": 1,
+      "http://www.giannimeersman.be/": 1,
+      "http://www.eliaviviani.com/": 1,
+      "http://kwiato.com": 1,
+      "http://www.tomdumoulinofficial.com/": 1,
+      "http://www.josvanemden.nl/": 1,
+      "http://www.littlebleeders.com": 1,
+      "http://www.stefankueng.ch/": 1,
+      "http://www.victorcampenaerts.be/": 1,
+      "http://www.martintoft.net/": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Official_Website",
+    "n_classes": 30,
+    "class_names": [
+      "http://kwiato.com",
+      "http://matthias-braendle.com/",
+      "http://www.chris-froome.com/",
+      "http://www.denmark.dk",
+      "http://www.eliaviviani.com/",
+      "http://www.giannimeersman.be/",
+      "http://www.gov.ie/",
+      "http://www.gov.si/",
+      "http://www.italia.it/",
+      "http://www.josvanemden.nl/",
+      "http://www.littlebleeders.com",
+      "http://www.martintoft.net/",
+      "http://www.philippegilbert.com/",
+      "http://www.rohandennisofficial.com/",
+      "http://www.stefankueng.ch/",
+      "http://www.tomdumoulinofficial.com/",
+      "http://www.victorcampenaerts.be/",
+      "http://www.wilcokeldermanofficial.com",
+      "https://administracion.gob.es/",
+      "https://www.admin.ch/gov/de/start.html",
+      "https://www.australia.gov.au/",
+      "https://www.belgium.be/",
+      "https://www.czechia.eu/",
+      "https://www.deutschland.de/",
+      "https://www.gov.co/",
+      "https://www.gov.kz/",
+      "https://www.gov.uk/",
+      "https://www.portugal.gov.pt/en/gc21",
+      "https://www.rijksoverheid.nl/",
+      "https://www.service-public.fr/"
+    ]
+  },
+  "common_columns": [
+    "Official_Website",
+    "Freebase_Id",
+    "Social_Media_Followers",
+    "Commons_Category"
+  ],
+  "num_common_columns": 4,
+  "data_shapes": {
+    "db1_train": [
+      37,
+      4
+    ],
+    "db1_test": [
+      10,
+      4
+    ],
+    "db2_train": [
+      11,
+      4
+    ],
+    "db2_test": [
+      3,
+      4
+    ]
+  },
+  "feature_columns": [
+    "Freebase_Id",
+    "Social_Media_Followers",
+    "Commons_Category"
+  ],
+  "column_types": {
+    "Freebase_Id": "categorical",
+    "Social_Media_Followers": "numeric",
+    "Commons_Category": "categorical",
+    "Official_Website": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

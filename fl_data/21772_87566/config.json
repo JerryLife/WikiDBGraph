@@ -1,0 +1,129 @@
+{
+  "pair_id": "21772_87566",
+  "db_id1": 21772,
+  "db_id2": 87566,
+  "similarity": 0.9975317,
+  "task_type": "classification",
+  "label_column": "Languages",
+  "label_metadata": {
+    "column": "Languages",
+    "task_type": "classification",
+    "n_classes": 7,
+    "missing_ratio": 0.5,
+    "class_distribution": {
+      "Italian": 4,
+      "English": 4,
+      "French": 3,
+      "Polish": 2,
+      "German": 2,
+      "Spanish": 1,
+      "Dutch": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Languages",
+    "n_classes": 7,
+    "class_names": [
+      "Dutch",
+      "English",
+      "French",
+      "German",
+      "Italian",
+      "Polish",
+      "Spanish"
+    ]
+  },
+  "common_columns": [
+    "Languages",
+    "ProfileImage",
+    "CycleBaseCyclistId",
+    "CqRankingMaleCyclistId",
+    "CommonsCategory",
+    "SocialMediaFollowers",
+    "ProCyclingStatsCyclistId",
+    "TwitterUsername",
+    "BirthPlace",
+    "UciRiderId",
+    "NativeName",
+    "WeightKg",
+    "BirthDate",
+    "LastName",
+    "FirstName",
+    "CyclingArchivesCyclistId",
+    "FirstCyclingRiderId",
+    "EventsParticipated",
+    "HeightCm",
+    "FreebaseId"
+  ],
+  "num_common_columns": 20,
+  "data_shapes": {
+    "db1_train": [
+      4,
+      20
+    ],
+    "db1_test": [
+      1,
+      20
+    ],
+    "db2_train": [
+      9,
+      20
+    ],
+    "db2_test": [
+      3,
+      20
+    ]
+  },
+  "feature_columns": [
+    "ProfileImage",
+    "CycleBaseCyclistId",
+    "CqRankingMaleCyclistId",
+    "CommonsCategory",
+    "SocialMediaFollowers",
+    "ProCyclingStatsCyclistId",
+    "TwitterUsername",
+    "BirthPlace",
+    "UciRiderId",
+    "NativeName",
+    "WeightKg",
+    "BirthDate",
+    "LastName",
+    "FirstName",
+    "CyclingArchivesCyclistId",
+    "FirstCyclingRiderId",
+    "EventsParticipated",
+    "HeightCm",
+    "FreebaseId"
+  ],
+  "column_types": {
+    "ProfileImage": "categorical",
+    "CycleBaseCyclistId": "numeric",
+    "CqRankingMaleCyclistId": "numeric",
+    "CommonsCategory": "categorical",
+    "SocialMediaFollowers": "numeric",
+    "ProCyclingStatsCyclistId": "numeric",
+    "TwitterUsername": "categorical",
+    "BirthPlace": "categorical",
+    "UciRiderId": "numeric",
+    "NativeName": "categorical",
+    "WeightKg": "numeric",
+    "BirthDate": "categorical",
+    "LastName": "categorical",
+    "FirstName": "categorical",
+    "CyclingArchivesCyclistId": "numeric",
+    "FirstCyclingRiderId": "numeric",
+    "EventsParticipated": "categorical",
+    "HeightCm": "numeric",
+    "FreebaseId": "categorical",
+    "Languages": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

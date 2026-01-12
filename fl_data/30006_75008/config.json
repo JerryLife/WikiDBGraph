@@ -1,0 +1,74 @@
+{
+  "pair_id": "30006_75008",
+  "db_id1": 30006,
+  "db_id2": 75008,
+  "similarity": 0.9974907,
+  "task_type": "classification",
+  "label_column": "SportType",
+  "label_metadata": {
+    "column": "SportType",
+    "task_type": "classification",
+    "n_classes": 5,
+    "missing_ratio": 0.028985507246376812,
+    "class_distribution": {
+      "road bicycle racing": 53,
+      "cycle sport": 6,
+      "track cycling": 4,
+      "long track speed skating": 2,
+      "ski jumping": 2
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "SportType",
+    "n_classes": 5,
+    "class_names": [
+      "cycle sport",
+      "long track speed skating",
+      "road bicycle racing",
+      "ski jumping",
+      "track cycling"
+    ]
+  },
+  "common_columns": [
+    "SportType",
+    "FreebaseId",
+    "CommonsCategory"
+  ],
+  "num_common_columns": 3,
+  "data_shapes": {
+    "db1_train": [
+      24,
+      3
+    ],
+    "db1_test": [
+      7,
+      3
+    ],
+    "db2_train": [
+      28,
+      3
+    ],
+    "db2_test": [
+      8,
+      3
+    ]
+  },
+  "feature_columns": [
+    "FreebaseId",
+    "CommonsCategory"
+  ],
+  "column_types": {
+    "FreebaseId": "categorical",
+    "CommonsCategory": "categorical",
+    "SportType": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

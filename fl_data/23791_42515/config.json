@@ -1,0 +1,102 @@
+{
+  "pair_id": "23791_42515",
+  "db_id1": 23791,
+  "db_id2": 42515,
+  "similarity": 0.99773043,
+  "task_type": "classification",
+  "label_column": "GoogleKnowledgeGraphId",
+  "label_metadata": {
+    "column": "GoogleKnowledgeGraphId",
+    "task_type": "classification",
+    "n_classes": 19,
+    "missing_ratio": 0.17391304347826086,
+    "class_distribution": {
+      "/g/11c5s4lyfc": 1,
+      "/g/11f6gj4sls": 1,
+      "/g/11f006bw_g": 1,
+      "/g/11gfnfcxsr": 1,
+      "/g/11hz77d5l1": 1,
+      "/g/11f57gvf3f": 1,
+      "/g/11g0g4s_yq": 1,
+      "/g/11f4_3s_f9": 1,
+      "/g/11fy_k9mhf": 1,
+      "/g/11j0hz6l38": 1,
+      "/g/11fpsdf3ns": 1,
+      "/g/11fqjwm456": 1,
+      "/g/11j4vbyps6": 1,
+      "/g/11h99mk4l6": 1,
+      "/g/11fqctpnhw": 1,
+      "/g/11fpcyv44q": 1,
+      "/g/11j1397293": 1,
+      "/g/11j19qcwl0": 1,
+      "/g/11qpxfn6k4": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "GoogleKnowledgeGraphId",
+    "n_classes": 19,
+    "class_names": [
+      "/g/11c5s4lyfc",
+      "/g/11f006bw_g",
+      "/g/11f4_3s_f9",
+      "/g/11f57gvf3f",
+      "/g/11f6gj4sls",
+      "/g/11fpcyv44q",
+      "/g/11fpsdf3ns",
+      "/g/11fqctpnhw",
+      "/g/11fqjwm456",
+      "/g/11fy_k9mhf",
+      "/g/11g0g4s_yq",
+      "/g/11gfnfcxsr",
+      "/g/11h99mk4l6",
+      "/g/11hz77d5l1",
+      "/g/11j0hz6l38",
+      "/g/11j1397293",
+      "/g/11j19qcwl0",
+      "/g/11j4vbyps6",
+      "/g/11qpxfn6k4"
+    ]
+  },
+  "common_columns": [
+    "GoogleKnowledgeGraphId",
+    "InstagramHandle",
+    "CommonsCategory"
+  ],
+  "num_common_columns": 3,
+  "data_shapes": {
+    "db1_train": [
+      8,
+      3
+    ],
+    "db1_test": [
+      2,
+      3
+    ],
+    "db2_train": [
+      7,
+      3
+    ],
+    "db2_test": [
+      2,
+      3
+    ]
+  },
+  "feature_columns": [
+    "InstagramHandle",
+    "CommonsCategory"
+  ],
+  "column_types": {
+    "InstagramHandle": "categorical",
+    "CommonsCategory": "categorical",
+    "GoogleKnowledgeGraphId": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

@@ -1,0 +1,76 @@
+{
+  "pair_id": "08178_14670",
+  "db_id1": 8178,
+  "db_id2": 14670,
+  "similarity": 0.9987025,
+  "task_type": "classification",
+  "label_column": "Maintaining_Authority",
+  "label_metadata": {
+    "column": "Maintaining_Authority",
+    "task_type": "classification",
+    "n_classes": 6,
+    "missing_ratio": 0.0022471910112359553,
+    "class_distribution": {
+      "Fukui Prefecture": 431,
+      "Ministry of Land, Infrastructure, Transport and Tourism": 6,
+      "Kyoto Prefecture": 3,
+      "Ishikawa Prefecture": 2,
+      "Gifu Prefecture": 1,
+      "Hokkaido": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Maintaining_Authority",
+    "n_classes": 6,
+    "class_names": [
+      "Fukui Prefecture",
+      "Gifu Prefecture",
+      "Hokkaido",
+      "Ishikawa Prefecture",
+      "Kyoto Prefecture",
+      "Ministry of Land, Infrastructure, Transport and Tourism"
+    ]
+  },
+  "common_columns": [
+    "Maintaining_Authority",
+    "Administrative_Area",
+    "Google_Knowledge_Graph_Id"
+  ],
+  "num_common_columns": 3,
+  "data_shapes": {
+    "db1_train": [
+      188,
+      3
+    ],
+    "db1_test": [
+      48,
+      3
+    ],
+    "db2_train": [
+      166,
+      3
+    ],
+    "db2_test": [
+      42,
+      3
+    ]
+  },
+  "feature_columns": [
+    "Administrative_Area",
+    "Google_Knowledge_Graph_Id"
+  ],
+  "column_types": {
+    "Administrative_Area": "categorical",
+    "Google_Knowledge_Graph_Id": "categorical",
+    "Maintaining_Authority": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

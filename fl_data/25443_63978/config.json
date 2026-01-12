@@ -1,0 +1,144 @@
+{
+  "pair_id": "25443_63978",
+  "db_id1": 25443,
+  "db_id2": 63978,
+  "similarity": 0.9975871,
+  "task_type": "classification",
+  "label_column": "NATIONALITY",
+  "label_metadata": {
+    "column": "NATIONALITY",
+    "task_type": "classification",
+    "n_classes": 16,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "Germany": 4,
+      "Slovenia": 3,
+      "Spain": 3,
+      "Italy": 3,
+      "Belgium": 3,
+      "France": 3,
+      "Australia": 2,
+      "Kingdom of the Netherlands": 2,
+      "Norway": 2,
+      "Portugal": 1,
+      "United Kingdom": 1,
+      "Russia": 1,
+      "Hungary": 1,
+      "United States of America": 1,
+      "Slovakia": 1,
+      "Poland": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "NATIONALITY",
+    "n_classes": 16,
+    "class_names": [
+      "Australia",
+      "Belgium",
+      "France",
+      "Germany",
+      "Hungary",
+      "Italy",
+      "Kingdom of the Netherlands",
+      "Norway",
+      "Poland",
+      "Portugal",
+      "Russia",
+      "Slovakia",
+      "Slovenia",
+      "Spain",
+      "United Kingdom",
+      "United States of America"
+    ]
+  },
+  "common_columns": [
+    "NATIONALITY",
+    "PROFILE_IMAGE",
+    "CYCLE_BASE_CYCLIST_ID",
+    "CQ_RANKING_MALE_CYCLIST_ID",
+    "COMMONS_CATEGORY",
+    "PRO_CYCLING_STATS_CYCLIST_ID",
+    "CYCLIST_NAME",
+    "MEMOIRE_DU_CYCLISME_CYCLIST_ID",
+    "BIRTHPLACE",
+    "UCI_RIDER_ID",
+    "NATIVE_NAME",
+    "WEIGHT_KG",
+    "BIRTH_DATE",
+    "LAST_NAME",
+    "FIRST_NAME",
+    "CYCLING_ARCHIVES_CYCLIST_ID",
+    "FIRST_CYCLING_RIDER_ID",
+    "HEIGHT_CM",
+    "FREEBASE_ID"
+  ],
+  "num_common_columns": 19,
+  "data_shapes": {
+    "db1_train": [
+      15,
+      19
+    ],
+    "db1_test": [
+      4,
+      19
+    ],
+    "db2_train": [
+      10,
+      19
+    ],
+    "db2_test": [
+      3,
+      19
+    ]
+  },
+  "feature_columns": [
+    "PROFILE_IMAGE",
+    "CYCLE_BASE_CYCLIST_ID",
+    "CQ_RANKING_MALE_CYCLIST_ID",
+    "COMMONS_CATEGORY",
+    "PRO_CYCLING_STATS_CYCLIST_ID",
+    "CYCLIST_NAME",
+    "MEMOIRE_DU_CYCLISME_CYCLIST_ID",
+    "BIRTHPLACE",
+    "UCI_RIDER_ID",
+    "NATIVE_NAME",
+    "WEIGHT_KG",
+    "BIRTH_DATE",
+    "LAST_NAME",
+    "FIRST_NAME",
+    "CYCLING_ARCHIVES_CYCLIST_ID",
+    "FIRST_CYCLING_RIDER_ID",
+    "HEIGHT_CM",
+    "FREEBASE_ID"
+  ],
+  "column_types": {
+    "PROFILE_IMAGE": "categorical",
+    "CYCLE_BASE_CYCLIST_ID": "numeric",
+    "CQ_RANKING_MALE_CYCLIST_ID": "numeric",
+    "COMMONS_CATEGORY": "categorical",
+    "PRO_CYCLING_STATS_CYCLIST_ID": "numeric",
+    "CYCLIST_NAME": "categorical",
+    "MEMOIRE_DU_CYCLISME_CYCLIST_ID": "numeric",
+    "BIRTHPLACE": "categorical",
+    "UCI_RIDER_ID": "numeric",
+    "NATIVE_NAME": "categorical",
+    "WEIGHT_KG": "numeric",
+    "BIRTH_DATE": "categorical",
+    "LAST_NAME": "categorical",
+    "FIRST_NAME": "categorical",
+    "CYCLING_ARCHIVES_CYCLIST_ID": "numeric",
+    "FIRST_CYCLING_RIDER_ID": "numeric",
+    "HEIGHT_CM": "numeric",
+    "FREEBASE_ID": "categorical",
+    "NATIONALITY": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

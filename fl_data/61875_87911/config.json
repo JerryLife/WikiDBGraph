@@ -1,0 +1,108 @@
+{
+  "pair_id": "61875_87911",
+  "db_id1": 61875,
+  "db_id2": 87911,
+  "similarity": 0.99766606,
+  "task_type": "regression",
+  "label_column": "ViafId",
+  "label_metadata": {
+    "column": "ViafId",
+    "task_type": "regression",
+    "variance": 1.2713547497203248e+42,
+    "n_unique": 500,
+    "mean": 2.3701535138148876e+20,
+    "std": 1.1275436797394258e+21,
+    "missing_ratio": 0.3537477148080439,
+    "numeric_missing_ratio": 0.3537477148080439
+  },
+  "processing_params": {
+    "task_type": "regression",
+    "label_col": "ViafId"
+  },
+  "common_columns": [
+    "ViafId",
+    "LocatorMapImage",
+    "MusicBrainzAreaId",
+    "AssociatedPeopleCategory",
+    "CapitalCity",
+    "OpenStreetMapRelationId",
+    "CommonsCategory",
+    "GeoNamesId",
+    "HeadOfGovernmentOffice",
+    "IsniIdentifier",
+    "MainCategory",
+    "CoatOfArmsImage",
+    "PopulationCount",
+    "FreebaseId",
+    "FandomArticleId",
+    "CountryName",
+    "StoreNorskeLeksikonId",
+    "INaturalistPlaceId"
+  ],
+  "num_common_columns": 18,
+  "data_shapes": {
+    "db1_train": [
+      12,
+      18
+    ],
+    "db1_test": [
+      3,
+      18
+    ],
+    "db2_train": [
+      553,
+      18
+    ],
+    "db2_test": [
+      139,
+      18
+    ]
+  },
+  "feature_columns": [
+    "LocatorMapImage",
+    "MusicBrainzAreaId",
+    "AssociatedPeopleCategory",
+    "CapitalCity",
+    "OpenStreetMapRelationId",
+    "CommonsCategory",
+    "GeoNamesId",
+    "HeadOfGovernmentOffice",
+    "IsniIdentifier",
+    "MainCategory",
+    "CoatOfArmsImage",
+    "PopulationCount",
+    "FreebaseId",
+    "FandomArticleId",
+    "CountryName",
+    "StoreNorskeLeksikonId",
+    "INaturalistPlaceId"
+  ],
+  "column_types": {
+    "LocatorMapImage": "categorical",
+    "MusicBrainzAreaId": "categorical",
+    "AssociatedPeopleCategory": "categorical",
+    "CapitalCity": "categorical",
+    "OpenStreetMapRelationId": "numeric",
+    "CommonsCategory": "categorical",
+    "GeoNamesId": "numeric",
+    "HeadOfGovernmentOffice": "categorical",
+    "IsniIdentifier": "categorical",
+    "MainCategory": "categorical",
+    "CoatOfArmsImage": "categorical",
+    "PopulationCount": "numeric",
+    "FreebaseId": "categorical",
+    "FandomArticleId": "categorical",
+    "CountryName": "categorical",
+    "StoreNorskeLeksikonId": "categorical",
+    "INaturalistPlaceId": "numeric",
+    "ViafId": "numeric_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

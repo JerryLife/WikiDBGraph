@@ -1,0 +1,100 @@
+{
+  "pair_id": "35040_79200",
+  "db_id1": 35040,
+  "db_id2": 79200,
+  "similarity": 0.9982942,
+  "task_type": "classification",
+  "label_column": "Profession",
+  "label_metadata": {
+    "column": "Profession",
+    "task_type": "classification",
+    "n_classes": 3,
+    "missing_ratio": 0.0,
+    "class_distribution": {
+      "sport cyclist": 71,
+      "cyclo-cross cyclist": 1,
+      "track cyclist": 1
+    }
+  },
+  "processing_params": {
+    "task_type": "classification",
+    "label_col": "Profession",
+    "n_classes": 3,
+    "class_names": [
+      "cyclo-cross cyclist",
+      "sport cyclist",
+      "track cyclist"
+    ]
+  },
+  "common_columns": [
+    "Profession",
+    "Biography",
+    "ProfileImage",
+    "Nationality",
+    "BirthDate",
+    "FirstName",
+    "CommonsCategory",
+    "Birthplace",
+    "CurrentTeam",
+    "CyclistName",
+    "ProCyclingStatsCyclistId",
+    "UciRiderId",
+    "CyclingArchivesCyclistId"
+  ],
+  "num_common_columns": 13,
+  "data_shapes": {
+    "db1_train": [
+      13,
+      13
+    ],
+    "db1_test": [
+      4,
+      13
+    ],
+    "db2_train": [
+      44,
+      13
+    ],
+    "db2_test": [
+      12,
+      13
+    ]
+  },
+  "feature_columns": [
+    "Biography",
+    "ProfileImage",
+    "Nationality",
+    "BirthDate",
+    "FirstName",
+    "CommonsCategory",
+    "Birthplace",
+    "CurrentTeam",
+    "CyclistName",
+    "ProCyclingStatsCyclistId",
+    "UciRiderId",
+    "CyclingArchivesCyclistId"
+  ],
+  "column_types": {
+    "Biography": "categorical",
+    "ProfileImage": "categorical",
+    "Nationality": "categorical",
+    "BirthDate": "categorical",
+    "FirstName": "categorical",
+    "CommonsCategory": "categorical",
+    "Birthplace": "categorical",
+    "CurrentTeam": "categorical",
+    "CyclistName": "categorical",
+    "ProCyclingStatsCyclistId": "numeric",
+    "UciRiderId": "numeric",
+    "CyclingArchivesCyclistId": "numeric",
+    "Profession": "categorical_label"
+  },
+  "preprocessing_config": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "min_label_variance": 0.01,
+    "max_missing_ratio": 0.5,
+    "max_rows": 1000000
+  },
+  "status": "success"
+}

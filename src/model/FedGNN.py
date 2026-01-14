@@ -34,19 +34,30 @@ class LocalModel(nn.Module):
     Supports masked forward pass for union schema.
     """
     
-    def __init__(self, input_dim: int, hidden_dim: int = 64, output_dim: int = 1):
+    def __init__(self, input_dim: int, hidden_dim: int = 64, output_dim: int = 1, use_batchnorm: bool = False):
         super().__init__()
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
+        self.use_batchnorm = use_batchnorm
         
-        self.net = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, output_dim)
-        )
+        layers = []
+        # Layer 1
+        layers.append(nn.Linear(input_dim, hidden_dim))
+        if use_batchnorm:
+            layers.append(nn.BatchNorm1d(hidden_dim))
+        layers.append(nn.ReLU())
+        
+        # Layer 2
+        layers.append(nn.Linear(hidden_dim, hidden_dim))
+        if use_batchnorm:
+            layers.append(nn.BatchNorm1d(hidden_dim))
+        layers.append(nn.ReLU())
+        
+        # Output
+        layers.append(nn.Linear(hidden_dim, output_dim))
+        
+        self.net = nn.Sequential(*layers)
     
     def forward(self, x: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
         """
@@ -59,19 +70,34 @@ class LocalModel(nn.Module):
         if mask is not None:
             # Apply mask to zero out missing features
             x = x * mask.unsqueeze(0)
+        
+        # BatchNorm requires at least 2 samples during training
+        if self.use_batchnorm and self.training and x.size(0) < 2:
+            self.eval()
+            out = self.net(x)
+            self.train()
+            return out
+            
         return self.net(x)
 
 
 class EdgeAttentionNet(nn.Module):
     """
-    Computes attention scores based on edge properties.
+    Computes attention scores based on edge properties using a robust MLP.
+    
+    Edge features (Similarity, Jaccard) have non-linear interactions. 
+    Using an MLP allows the model to project these metrics into a 
+    higher-dimensional space and learn complex thresholds.
     """
     
-    def __init__(self, edge_feat_dim: int, hidden_dim: int = 16):
+    def __init__(self, edge_feat_dim: int, hidden_dim: int = 32):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(edge_feat_dim, hidden_dim),
-            nn.Tanh(),
+            nn.LayerNorm(hidden_dim),
+            nn.LeakyReLU(0.2),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LeakyReLU(0.2),
             nn.Linear(hidden_dim, 1)
         )
     
@@ -80,7 +106,7 @@ class EdgeAttentionNet(nn.Module):
         Args:
             edge_features: [num_edges, edge_feat_dim]
         Returns:
-            Attention scores [num_edges, 1]
+            Attention scores [num_edges, 1] (Unbounded logits)
         """
         return self.net(edge_features)
 
@@ -232,31 +258,39 @@ class MaskedGraphAttentionAggregator(nn.Module):
             param = target_state[key]
             
             # Check if this is the input layer (needs masking)
-            if "net.0.weight" in key:
-                # Shape: [hidden_dim, input_dim]
+            if "net.0.weight" in key or "net.0.bias" in key:
+                # Shape: [hidden_dim, input_dim] for weight, [hidden_dim] for bias
                 weighted_sum = torch.zeros_like(param)
                 norm_factor = torch.zeros_like(param) + 1e-8
                 
-                # Add target's own weights (with its mask)
-                mask_matrix = target_mask.unsqueeze(0).expand_as(param)
-                weighted_sum += self_weight * param * mask_matrix
-                norm_factor += self_weight * mask_matrix
+                # Expand mask for coordinate-wise normalization
+                if "net.0.weight" in key:
+                    m_expanded = target_mask.unsqueeze(0).expand_as(param)
+                else:
+                    m_expanded = torch.ones_like(param) if target_mask.sum() > 0 else torch.zeros_like(param)
+                
+                weighted_sum += self_weight * param * m_expanded
+                norm_factor += self_weight * m_expanded
                 
                 # Add neighbor contributions (masked)
                 for i, n_id in enumerate(neighbors):
                     n_param = client_models[n_id].state_dict()[key]
                     n_mask = client_masks[n_id].float()
-                    n_mask_matrix = n_mask.unsqueeze(0).expand_as(n_param)
+                    
+                    if "net.0.weight" in key:
+                        n_m_expanded = n_mask.unsqueeze(0).expand_as(n_param)
+                    else:
+                        n_m_expanded = torch.ones_like(n_param) if n_mask.sum() > 0 else torch.zeros_like(n_param)
                     
                     weight = neighbor_weight * attention_weights[i]
-                    weighted_sum += weight * n_param * n_mask_matrix
-                    norm_factor += weight * n_mask_matrix
+                    weighted_sum += weight * n_param * n_m_expanded
+                    norm_factor += weight * n_m_expanded
                 
                 # Coordinate-wise normalization
                 new_state[key] = weighted_sum / norm_factor
                 
             else:
-                # Standard weighted aggregation for other layers
+                # Standard weighted aggregation for other layers (BatchNorm, ReLU, Output)
                 weighted_param = self_weight * param
                 
                 for i, n_id in enumerate(neighbors):
@@ -300,7 +334,8 @@ class MaskedFedAvg:
             raise ValueError("No clients to aggregate")
         
         # Get reference state dict
-        ref_state = client_models[client_ids[0]].state_dict()
+        ref_model = client_models[client_ids[0]]
+        ref_state = ref_model.state_dict()
         n_clients = len(client_ids)
         
         global_state = OrderedDict()
@@ -308,9 +343,10 @@ class MaskedFedAvg:
         for key in ref_state:
             ref_param = ref_state[key]
             
-            if "net.0.weight" in key:
+            # Use masking for the first linear layer weights and bias
+            # In our LocalModel, this is net.0
+            if "net.0.weight" in key or "net.0.bias" in key:
                 # Coordinate-wise aggregation for input layer
-                # Shape: [hidden_dim, input_dim]
                 sum_weights = torch.zeros_like(ref_param)
                 sum_counts = torch.zeros_like(ref_param) + 1e-8
                 
@@ -318,17 +354,24 @@ class MaskedFedAvg:
                     w = client_models[cid].state_dict()[key]
                     m = client_masks[cid].float()  # [input_dim]
                     
-                    # Expand mask to [hidden_dim, input_dim]
-                    m_expanded = m.unsqueeze(0).expand_as(w)
+                    if "net.0.weight" in key:
+                        # Expand mask to [hidden_dim, input_dim]
+                        m_expanded = m.unsqueeze(0).expand_as(w)
+                    else:
+                        # For bias, it depends on input features
+                        # Actually bias in nn.Linear doesn't depend on input features directly in terms of shape,
+                        # but if all input features are 0, should we update bias?
+                        # Usually bias is handled normally or if any feature is present.
+                        # Let's assume if ANY feature is present, we count the client.
+                        m_expanded = torch.ones_like(w) if m.sum() > 0 else torch.zeros_like(w)
                     
-                    sum_weights += w
-                    sum_counts += m_expanded  # Count contributing clients
+                    sum_weights += w * m_expanded
+                    sum_counts += m_expanded
                 
-                # Divide by contributing count (not N)
                 global_state[key] = sum_weights / sum_counts
                 
             else:
-                # Standard averaging for other layers
+                # Standard averaging for all other layers (ReLU, Linear 2, Output, BatchNorm)
                 sum_weights = torch.zeros_like(ref_param)
                 for cid in client_ids:
                     sum_weights += client_models[cid].state_dict()[key]
@@ -354,7 +397,8 @@ class FedGNN:
         node_feat_dim: int = 8,
         property_mode: str = "both",
         self_weight: float = 0.7,
-        device: str = "cpu"
+        device: str = "cpu",
+        use_batchnorm: bool = False
     ):
         """
         Args:
@@ -366,6 +410,7 @@ class FedGNN:
             property_mode: 'none', 'edge_only', 'node_only', 'both'
             self_weight: Weight for self in aggregation (residual)
             device: 'cpu' or 'cuda'
+            use_batchnorm: Whether to use BatchNorm in client models
         """
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
@@ -373,6 +418,7 @@ class FedGNN:
         self.property_mode = property_mode
         self.self_weight = self_weight
         self.device = device
+        self.use_batchnorm = use_batchnorm
         
         # GNN aggregator
         self.aggregator = MaskedGraphAttentionAggregator(
@@ -406,7 +452,8 @@ class FedGNN:
         init_model = LocalModel(
             self.input_dim, 
             self.hidden_dim, 
-            self.output_dim
+            self.output_dim,
+            use_batchnorm=self.use_batchnorm
         )
         init_state = init_model.state_dict()
         
@@ -415,7 +462,8 @@ class FedGNN:
             model = LocalModel(
                 self.input_dim,
                 self.hidden_dim,
-                self.output_dim
+                self.output_dim,
+                use_batchnorm=self.use_batchnorm
             ).to(self.device)
             model.load_state_dict(copy.deepcopy(init_state))
             
@@ -467,7 +515,12 @@ class FedGNN:
         
         model.train()
         optimizer = torch.optim.SGD(model.parameters(), lr=lr)
-        criterion = nn.BCEWithLogitsLoss()
+        
+        # Use CrossEntropyLoss for multi-class, BCEWithLogitsLoss for binary
+        if self.output_dim == 1:
+            criterion = nn.BCEWithLogitsLoss()
+        else:
+            criterion = nn.CrossEntropyLoss()
         
         X, y = train_data
         X = X.to(self.device)
@@ -476,7 +529,10 @@ class FedGNN:
         for _ in range(epochs):
             optimizer.zero_grad()
             pred = model(X, mask)
-            loss = criterion(pred.squeeze(), y.float())
+            if self.output_dim == 1:
+                loss = criterion(pred.squeeze(), y.float())
+            else:
+                loss = criterion(pred, y.long())
             loss.backward()
             optimizer.step()
         
@@ -534,12 +590,19 @@ class FedGNN:
         
         with torch.no_grad():
             logits = model(X, mask)
-            preds = (torch.sigmoid(logits.squeeze()) > 0.5).float()
             
-            accuracy = (preds == y).float().mean().item()
-            loss = F.binary_cross_entropy_with_logits(
-                logits.squeeze(), y.float()
-            ).item()
+            if self.output_dim == 1:
+                # Binary classification
+                preds = (torch.sigmoid(logits.squeeze()) > 0.5).float()
+                accuracy = (preds == y).float().mean().item()
+                loss = F.binary_cross_entropy_with_logits(
+                    logits.squeeze(), y.float()
+                ).item()
+            else:
+                # Multi-class classification
+                preds = torch.argmax(logits, dim=1)
+                accuracy = (preds == y.long()).float().mean().item()
+                loss = F.cross_entropy(logits, y.long()).item()
         
         return {'accuracy': accuracy, 'loss': loss}
 

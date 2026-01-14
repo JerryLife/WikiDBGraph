@@ -1,0 +1,397 @@
+{
+  "config": {
+    "db_ids": "01318,15832,26192,34036,52953,67222,79114,84208",
+    "target_col": "Characteristic",
+    "positive_token": "free country",
+    "property_mode": "all",
+    "global_rounds": 10,
+    "local_epochs": 2,
+    "hidden_dim": 64,
+    "lr": 0.01,
+    "output_dir": "results/fedgnn",
+    "cache_dir": "results/cache/raw_data",
+    "subgraph_cache_dir": "results/subgraph_cache",
+    "use_batchnorm": true,
+    "num_classes": 4,
+    "drop_other": false,
+    "metrics": "accuracy,f1,auc",
+    "seeds": "0,1,2,3,4"
+  },
+  "seed": 4,
+  "db_ids": [
+    "01318",
+    "15832",
+    "26192",
+    "34036",
+    "52953",
+    "67222",
+    "79114",
+    "84208"
+  ],
+  "union_schema_size": 1223,
+  "n_edges": 20,
+  "property_modes": [
+    "both",
+    "node_only",
+    "edge_only",
+    "none"
+  ],
+  "metrics_reported": [
+    "accuracy",
+    "f1",
+    "auc"
+  ],
+  "per_database": {
+    "01318": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.001826763735152781
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8916428089141846
+      },
+      "fedgnn_both": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8590987324714661
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.7511910796165466
+      },
+      "fedgnn_edge_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8184220790863037
+      },
+      "fedgnn_none": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.7908962368965149
+      }
+    },
+    "15832": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.0012566065415740013
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.7853525280952454
+      },
+      "fedgnn_both": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.841799259185791
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.7436124682426453
+      },
+      "fedgnn_edge_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8050859570503235
+      },
+      "fedgnn_none": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.7973155975341797
+      }
+    },
+    "26192": {
+      "solo": {
+        "accuracy": 0.7142857142857143,
+        "f1": 0.30303030303030304,
+        "auc": null,
+        "loss": 1.2437150478363037
+      },
+      "fedavg": {
+        "accuracy": 0.7142857142857143,
+        "f1": 0.30303030303030304,
+        "auc": null,
+        "loss": 1.0489648580551147
+      },
+      "fedgnn_both": {
+        "accuracy": 0.7142857142857143,
+        "f1": 0.4166666666666667,
+        "auc": null,
+        "loss": 1.0635625123977661
+      },
+      "fedgnn_node_only": {
+        "accuracy": 0.7142857142857143,
+        "f1": 0.30303030303030304,
+        "auc": null,
+        "loss": 0.9838957190513611
+      },
+      "fedgnn_edge_only": {
+        "accuracy": 0.8571428571428571,
+        "f1": 0.5555555555555555,
+        "auc": null,
+        "loss": 1.0006898641586304
+      },
+      "fedgnn_none": {
+        "accuracy": 0.7142857142857143,
+        "f1": 0.30303030303030304,
+        "auc": null,
+        "loss": 1.0000073909759521
+      }
+    },
+    "34036": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.060796935111284256
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8750594854354858
+      },
+      "fedgnn_both": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8565929532051086
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8749920725822449
+      },
+      "fedgnn_edge_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.7919636964797974
+      },
+      "fedgnn_none": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8243991136550903
+      }
+    },
+    "52953": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.16185611486434937
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.9939238429069519
+      },
+      "fedgnn_both": {
+        "accuracy": 0.8888888888888888,
+        "f1": 0.8,
+        "auc": null,
+        "loss": 0.9781694412231445
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.839396595954895
+      },
+      "fedgnn_edge_only": {
+        "accuracy": 0.8888888888888888,
+        "f1": 0.8,
+        "auc": null,
+        "loss": 0.9544851779937744
+      },
+      "fedgnn_none": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 1.0060453414916992
+      }
+    },
+    "67222": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.03627989441156387
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8657568097114563
+      },
+      "fedgnn_both": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8648449778556824
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8694534301757812
+      },
+      "fedgnn_edge_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8786363005638123
+      },
+      "fedgnn_none": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": null,
+        "loss": 0.8297293186187744
+      }
+    },
+    "79114": {
+      "solo": {
+        "accuracy": 0.9911504424778761,
+        "f1": 0.7487113402061856,
+        "auc": 1.0,
+        "loss": 0.017839234322309494
+      },
+      "fedavg": {
+        "accuracy": 0.9911504424778761,
+        "f1": 0.8333333333333333,
+        "auc": 0.9988738738738738,
+        "loss": 0.7150517702102661
+      },
+      "fedgnn_both": {
+        "accuracy": 0.9734513274336283,
+        "f1": 0.4968030690537084,
+        "auc": 1.0,
+        "loss": 0.6698445677757263
+      },
+      "fedgnn_node_only": {
+        "accuracy": 0.9823008849557522,
+        "f1": 0.7474358974358974,
+        "auc": 0.9983208655083655,
+        "loss": 0.6222115755081177
+      },
+      "fedgnn_edge_only": {
+        "accuracy": 0.995575221238938,
+        "f1": 0.9160206718346253,
+        "auc": 0.9999607473700738,
+        "loss": 0.7009297609329224
+      },
+      "fedgnn_none": {
+        "accuracy": 0.9867256637168141,
+        "f1": 0.800595238095238,
+        "auc": 0.9994369369369369,
+        "loss": 0.7437276244163513
+      }
+    },
+    "84208": {
+      "solo": {
+        "accuracy": 0.6666666666666666,
+        "f1": 0.26666666666666666,
+        "auc": null,
+        "loss": 0.9134544730186462
+      },
+      "fedavg": {
+        "accuracy": 0.8888888888888888,
+        "f1": 0.8632478632478633,
+        "auc": null,
+        "loss": 1.017755389213562
+      },
+      "fedgnn_both": {
+        "accuracy": 0.6666666666666666,
+        "f1": 0.26666666666666666,
+        "auc": null,
+        "loss": 1.0401384830474854
+      },
+      "fedgnn_node_only": {
+        "accuracy": 0.7777777777777778,
+        "f1": 0.6190476190476191,
+        "auc": null,
+        "loss": 1.004408359527588
+      },
+      "fedgnn_edge_only": {
+        "accuracy": 0.7777777777777778,
+        "f1": 0.6190476190476191,
+        "auc": null,
+        "loss": 1.0512975454330444
+      },
+      "fedgnn_none": {
+        "accuracy": 0.7777777777777778,
+        "f1": 0.4807692307692308,
+        "auc": null,
+        "loss": 1.0535153150558472
+      }
+    }
+  },
+  "averages": {
+    "solo": {
+      "accuracy": 0.9215128529287822,
+      "f1": 0.7898010387378944,
+      "auc": 1.0,
+      "loss": 0.30462813373014797
+    },
+    "fedavg": {
+      "accuracy": 0.94929063070656,
+      "f1": 0.8749514374514374,
+      "auc": 0.9988738738738738,
+      "loss": 0.8991884365677834
+    },
+    "fedgnn_both": {
+      "accuracy": 0.9054115746593623,
+      "f1": 0.7475170502983802,
+      "auc": 1.0,
+      "loss": 0.8967563658952713
+    },
+    "fedgnn_node_only": {
+      "accuracy": 0.9342955471274055,
+      "f1": 0.8336892274392274,
+      "auc": 0.9983208655083655,
+      "loss": 0.8361451625823975
+    },
+    "fedgnn_edge_only": {
+      "accuracy": 0.9399230931310578,
+      "f1": 0.861327980804725,
+      "auc": 0.9999607473700738,
+      "loss": 0.875188797712326
+    },
+    "fedgnn_none": {
+      "accuracy": 0.9348486444725383,
+      "f1": 0.8230493464868465,
+      "auc": 0.9994369369369369,
+      "loss": 0.8807044923305511
+    }
+  },
+  "predictions": {
+    "solo": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/predictions_solo_seed4_r10_e2_h64_lr0p01_c4_pmall_drop0.csv",
+    "fedavg": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/predictions_fedavg_seed4_r10_e2_h64_lr0p01_c4_pmall_drop0.csv",
+    "fedgnn_both": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/predictions_fedgnn_both_seed4_r10_e2_h64_lr0p01_c4_pmall_drop0.csv",
+    "fedgnn_node_only": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/predictions_fedgnn_node_only_seed4_r10_e2_h64_lr0p01_c4_pmall_drop0.csv",
+    "fedgnn_edge_only": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/predictions_fedgnn_edge_only_seed4_r10_e2_h64_lr0p01_c4_pmall_drop0.csv",
+    "fedgnn_none": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/predictions_fedgnn_none_seed4_r10_e2_h64_lr0p01_c4_pmall_drop0.csv"
+  },
+  "metrics_csv": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/metrics_seed4_r10_e2_h64_lr0p01_c4_pmall_drop0.csv"
+}

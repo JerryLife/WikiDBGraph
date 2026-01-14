@@ -1,0 +1,21 @@
+\begin{table}[tb]
+    \centering
+    \caption{FedGNN experiment results (per-DB averaged across seeds). Best in \textbf{bold}, second-best \underline{underlined}. Gain(\%) = percentage of DBs where method outperforms Solo.}
+    \label{tab:fedgnn-results}
+    \resizebox{\columnwidth}{!}{
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{lcccc}
+        \toprule
+        & \multicolumn{2}{c}{\textbf{Accuracy}} & \multicolumn{2}{c}{\textbf{F1}} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+        \textbf{Method} & Mean$\pm$Std & Gain(\%) & Mean$\pm$Std & Gain(\%) \\
+        \midrule
+        Solo (No Federation) & 0.9068±0.0253 & N/A & 0.7875±0.0338 & N/A \\
+        FedAvg & 0.9353±0.0365 & 22.5\% & 0.8453±0.0572 & 32.5\% \\
+        FedGNN (No Properties) & 0.9218±0.0439 & 20.0\% & 0.8292±0.0854 & \textbf{37.5\%} \\
+        FedGNN (Node Only) & \textbf{0.9512±0.0136} & \underline{27.5\%} & \textbf{0.8685±0.0268} & \underline{35.0\%} \\
+        FedGNN (Edge Only) & \underline{0.9424±0.0426} & \textbf{35.0\%} & \underline{0.8620±0.0702} & 35.0\% \\
+        FedGNN (Both) & 0.9393±0.0250 & 27.5\% & 0.8409±0.0708 & 30.0\% \\
+        \bottomrule
+    \end{tabular}}
+\end{table}

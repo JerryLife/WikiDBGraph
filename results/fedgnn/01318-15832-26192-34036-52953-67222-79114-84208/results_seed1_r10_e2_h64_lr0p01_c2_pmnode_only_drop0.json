@@ -1,0 +1,229 @@
+{
+  "config": {
+    "db_ids": "01318,15832,26192,34036,52953,67222,79114,84208",
+    "target_col": "RailwayTrafficSide",
+    "positive_token": "right",
+    "property_mode": "node_only",
+    "global_rounds": 10,
+    "local_epochs": 2,
+    "hidden_dim": 64,
+    "lr": 0.01,
+    "output_dir": "results/fedgnn",
+    "cache_dir": "results/cache/raw_data",
+    "subgraph_cache_dir": "results/subgraph_cache",
+    "use_batchnorm": true,
+    "num_classes": 2,
+    "drop_other": false,
+    "metrics": "accuracy,f1,auc",
+    "seeds": "0,1,2,3,4"
+  },
+  "seed": 1,
+  "db_ids": [
+    "01318",
+    "15832",
+    "26192",
+    "34036",
+    "52953",
+    "67222",
+    "79114",
+    "84208"
+  ],
+  "union_schema_size": 1223,
+  "n_edges": 20,
+  "property_modes": [
+    "node_only"
+  ],
+  "metrics_reported": [
+    "accuracy",
+    "f1",
+    "auc"
+  ],
+  "per_database": {
+    "01318": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.0006625972455367446
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.43119916319847107
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.4319549798965454
+      }
+    },
+    "15832": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.03863096982240677
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.4540095627307892
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.4262450933456421
+      }
+    },
+    "26192": {
+      "solo": {
+        "accuracy": 0.7142857142857143,
+        "f1": 0.75,
+        "auc": 0.8333333333333334,
+        "loss": 0.6239346265792847
+      },
+      "fedavg": {
+        "accuracy": 0.8571428571428571,
+        "f1": 0.8888888888888888,
+        "auc": 1.0,
+        "loss": 0.5158425569534302
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.47648927569389343
+      }
+    },
+    "34036": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.03862190246582031
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.4470316469669342
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.4948408007621765
+      }
+    },
+    "52953": {
+      "solo": {
+        "accuracy": 0.7777777777777778,
+        "f1": 0.8,
+        "auc": 0.8,
+        "loss": 0.7558709383010864
+      },
+      "fedavg": {
+        "accuracy": 0.8888888888888888,
+        "f1": 0.9090909090909091,
+        "auc": 0.9,
+        "loss": 0.5880701541900635
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.56972336769104
+      }
+    },
+    "67222": {
+      "solo": {
+        "accuracy": 0.6666666666666666,
+        "f1": 0.8,
+        "auc": 1.0,
+        "loss": 0.3646794557571411
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.5323312878608704
+      },
+      "fedgnn_node_only": {
+        "accuracy": 0.5,
+        "f1": 0.5714285714285714,
+        "auc": 0.75,
+        "loss": 0.6249977946281433
+      }
+    },
+    "79114": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.00020990395569242537
+      },
+      "fedavg": {
+        "accuracy": 0.995575221238938,
+        "f1": 0.9957446808510638,
+        "auc": 1.0,
+        "loss": 0.39710351824760437
+      },
+      "fedgnn_node_only": {
+        "accuracy": 0.995575221238938,
+        "f1": 0.9957446808510638,
+        "auc": 1.0,
+        "loss": 0.40549135208129883
+      }
+    },
+    "84208": {
+      "solo": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.09136321395635605
+      },
+      "fedavg": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.5300193428993225
+      },
+      "fedgnn_node_only": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "auc": 1.0,
+        "loss": 0.5116037130355835
+      }
+    }
+  },
+  "averages": {
+    "solo": {
+      "accuracy": 0.8948412698412699,
+      "f1": 0.91875,
+      "auc": 0.9541666666666666,
+      "loss": 0.23924670101041556
+    },
+    "fedavg": {
+      "accuracy": 0.9677008709088355,
+      "f1": 0.9742155598538578,
+      "auc": 0.9875,
+      "loss": 0.48695090413093567
+    },
+    "fedgnn_node_only": {
+      "accuracy": 0.9369469026548672,
+      "f1": 0.9458966565349544,
+      "auc": 0.96875,
+      "loss": 0.4926682971417904
+    }
+  },
+  "predictions": {
+    "solo": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/predictions_solo_seed1_r10_e2_h64_lr0p01_c2_pmnode_only_drop0.csv",
+    "fedavg": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/predictions_fedavg_seed1_r10_e2_h64_lr0p01_c2_pmnode_only_drop0.csv",
+    "fedgnn_node_only": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/predictions_fedgnn_node_only_seed1_r10_e2_h64_lr0p01_c2_pmnode_only_drop0.csv"
+  },
+  "metrics_csv": "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208/metrics_seed1_r10_e2_h64_lr0p01_c2_pmnode_only_drop0.csv"
+}

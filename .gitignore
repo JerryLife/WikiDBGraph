@@ -38,3 +38,6 @@ database_stats.json
 
 # huggingface
 /hf
+
+
+*.pkl

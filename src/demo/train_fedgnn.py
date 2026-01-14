@@ -698,118 +698,6 @@ def train_fedavg(
     return results, preds_by_db
 
 
-def train_fedprox(
-    client_data: Dict[str, Dict],
-    input_dim: int,
-    hidden_dim: int = 64,
-    global_rounds: int = 10,
-    local_epochs: int = 3,
-    lr: float = 0.01,
-    mu: float = 0.01,
-    device: str = 'cpu',
-    use_batchnorm: bool = False,
-    num_classes: int = 2
-) -> Tuple[Dict[str, Dict], Dict[str, Dict]]:
-    """
-    Train with FedProx (Federated Optimization with Proximal Term).
-    
-    FedProx adds a proximal term to the local objective to limit how far
-    local models can drift from the global model.
-    
-    Args:
-        mu: Proximal regularization parameter (default: 0.01)
-    
-    Returns:
-        Tuple: (metrics_by_db, preds_by_db)
-    """
-    # Initialize models
-    models = {}
-    masks = {}
-    output_dim = 1 if num_classes == 2 else num_classes
-    
-    init_model = LocalModel(input_dim, hidden_dim, output_dim=output_dim, use_batchnorm=use_batchnorm).to(device)
-    init_state = init_model.state_dict()
-    
-    for db_id, data in client_data.items():
-        model = LocalModel(input_dim, hidden_dim, output_dim=output_dim, use_batchnorm=use_batchnorm).to(device)
-        model.load_state_dict(copy.deepcopy(init_state))
-        models[db_id] = model
-        masks[db_id] = torch.tensor(data['mask'], dtype=torch.float32).to(device)
-    
-    if num_classes == 2:
-        criterion = torch.nn.BCEWithLogitsLoss()
-    else:
-        criterion = torch.nn.CrossEntropyLoss()
-    
-    # Global model state (for proximal term)
-    global_state = copy.deepcopy(init_state)
-    
-    # Training loop
-    for round_idx in range(global_rounds):
-        # Local training with proximal term
-        for db_id, data in client_data.items():
-            model = models[db_id].to(device)
-            mask = masks[db_id].to(device)
-            X_train = data['X_train'].to(device)
-            y_train = data['y_train'].to(device)
-            
-            optimizer = torch.optim.SGD(model.parameters(), lr=lr)
-            
-            model.train()
-            for _ in range(local_epochs):
-                optimizer.zero_grad()
-                pred = model(X_train, mask)
-                if num_classes == 2:
-                    loss = criterion(pred.squeeze(), y_train.float())
-                else:
-                    loss = criterion(pred, y_train.long())
-                
-                # Add proximal term: (mu/2) * ||w - w_global||^2
-                prox_term = 0.0
-                for name, param in model.named_parameters():
-                    if name in global_state:
-                        prox_term += ((param - global_state[name].to(device)) ** 2).sum()
-                loss = loss + (mu / 2) * prox_term
-                
-                loss.backward()
-                optimizer.step()
-        
-        # Masked FedAvg aggregation (same as FedAvg)
-        global_state = MaskedFedAvg.aggregate(models, masks)
-        
-        # Distribute global model
-        for db_id in models:
-            models[db_id].load_state_dict(copy.deepcopy(global_state))
-    
-    # Evaluate
-    results = {}
-    preds_by_db = {}
-    for db_id, data in client_data.items():
-        model = models[db_id]
-        mask = masks[db_id]
-        X_test = data['X_test'].to(device)
-        y_test = data['y_test'].to(device)
-        
-        model.eval()
-        with torch.no_grad():
-            pred = model(X_test, mask)
-            if num_classes == 2:
-                test_loss = criterion(pred.squeeze(), y_test.float()).item()
-            else:
-                test_loss = criterion(pred, y_test.long()).item()
-            metrics, y_pred, y_score = _compute_metrics_and_preds(pred, y_test, num_classes)
-        
-        metrics['loss'] = test_loss
-        results[db_id] = metrics
-        preds_by_db[db_id] = {
-            'y_true': y_test.detach().cpu().numpy(),
-            'y_pred': y_pred,
-            'y_score': y_score
-        }
-    
-    return results, preds_by_db
-
-
 def train_fedgnn(
     client_data: Dict[str, Dict],
     subgraph_data: Dict,
@@ -1077,18 +965,6 @@ def main():
         default="0,1,2,3,4",
         help="Comma-separated random seeds to run"
     )
-    parser.add_argument(
-        "--baselines",
-        type=str,
-        default="fedavg,fedprox",
-        help="Comma-separated baseline methods to run (fedavg,fedprox)"
-    )
-    parser.add_argument(
-        "--mu",
-        type=float,
-        default=0.01,
-        help="Proximal regularization parameter for FedProx (default: 0.01)"
-    )
     
     args = parser.parse_args()
     # Parse database IDs
@@ -1194,36 +1070,12 @@ def main():
             use_batchnorm=args.use_batchnorm, num_classes=args.num_classes
         )
 
-        # Parse baselines
-        baseline_list = [b.strip().lower() for b in args.baselines.split(",") if b.strip()]
-        
-        method_metrics = {"solo": solo_results}
-        method_preds = {"solo": solo_preds}
-        methods_order = ["solo"]
-        
-        # Run FedAvg if requested
-        if "fedavg" in baseline_list:
-            print("\n>>> Training Masked FedAvg...")
-            fedavg_results, fedavg_preds = train_fedavg(
-                client_data, actual_input_dim, args.hidden_dim,
-                args.global_rounds, args.local_epochs, args.lr, device=device,
-                use_batchnorm=args.use_batchnorm, num_classes=args.num_classes
-            )
-            method_metrics["fedavg"] = fedavg_results
-            method_preds["fedavg"] = fedavg_preds
-            methods_order.append("fedavg")
-        
-        # Run FedProx if requested
-        if "fedprox" in baseline_list:
-            print(f"\n>>> Training FedProx (mu={args.mu})...")
-            fedprox_results, fedprox_preds = train_fedprox(
-                client_data, actual_input_dim, args.hidden_dim,
-                args.global_rounds, args.local_epochs, args.lr, mu=args.mu, device=device,
-                use_batchnorm=args.use_batchnorm, num_classes=args.num_classes
-            )
-            method_metrics["fedprox"] = fedprox_results
-            method_preds["fedprox"] = fedprox_preds
-            methods_order.append("fedprox")
+        print("\n>>> Training Masked FedAvg...")
+        fedavg_results, fedavg_preds = train_fedavg(
+            client_data, actual_input_dim, args.hidden_dim,
+            args.global_rounds, args.local_epochs, args.lr, device=device,
+            use_batchnorm=args.use_batchnorm, num_classes=args.num_classes
+        )
 
         fedgnn_results_by_mode = {}
         fedgnn_preds_by_mode = {}
@@ -1241,7 +1093,15 @@ def main():
             fedgnn_results_by_mode[mode] = fedgnn_results
             fedgnn_preds_by_mode[mode] = fedgnn_preds
 
-        methods_order += [f"fedgnn_{mode}" for mode in property_modes]
+        methods_order = ["solo", "fedavg"] + [f"fedgnn_{mode}" for mode in property_modes]
+        method_metrics = {
+            "solo": solo_results,
+            "fedavg": fedavg_results,
+        }
+        method_preds = {
+            "solo": solo_preds,
+            "fedavg": fedavg_preds,
+        }
         for mode in property_modes:
             method_metrics[f"fedgnn_{mode}"] = fedgnn_results_by_mode[mode]
             method_preds[f"fedgnn_{mode}"] = fedgnn_preds_by_mode[mode]

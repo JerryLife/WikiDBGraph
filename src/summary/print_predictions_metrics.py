@@ -212,11 +212,10 @@ def _generate_latex_table(
 ) -> str:
     """Generate LaTeX table with Accuracy, F1, and Gain% columns."""
     
-    method_order = ["solo", "fedavg", "fedprox", "fedgnn_none", "fedgnn_node_only", "fedgnn_edge_only", "fedgnn_both"]
+    method_order = ["solo", "fedavg", "fedgnn_none", "fedgnn_node_only", "fedgnn_edge_only", "fedgnn_both"]
     method_names = {
         "solo": "Solo (No Federation)",
         "fedavg": "FedAvg",
-        "fedprox": "FedProx",
         "fedgnn_none": "FedGNN (No Properties)",
         "fedgnn_node_only": "FedGNN (Node Only)",
         "fedgnn_edge_only": "FedGNN (Edge Only)",
@@ -422,7 +421,7 @@ def main() -> None:
         print(f"{'Method':<30} {'Accuracy':<20} {'Acc Gain(%)':<15} {'F1':<20} {'F1 Gain(%)':<15}")
         print("-" * 120)
         
-        method_order = ["solo", "fedavg", "fedprox", "fedgnn_none", "fedgnn_node_only", "fedgnn_edge_only", "fedgnn_both"]
+        method_order = ["solo", "fedavg", "fedgnn_none", "fedgnn_node_only", "fedgnn_edge_only", "fedgnn_both"]
         for method in method_order:
             if method not in all_results:
                 continue

@@ -5,7 +5,7 @@ This script trains and evaluates the FedGNN model on horizontally-partitioned
 WikiDB databases, comparing against Solo and FedAvg baselines.
 
 Usage:
-    python src/demo/train_fedgnn.py --db_ids 54379,37176,85770,50469
+    python src/demo/train_fedgnn.py
 """
 
 import os
@@ -14,7 +14,7 @@ import json
 import argparse
 import hashlib
 import pickle
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 import torch
 import numpy as np
@@ -31,6 +31,8 @@ from model.FedGNN import FedGNN, MaskedFedAvg, LocalModel
 from model.WKDataset import WKDataset
 from analysis.WikiDBSubgraph import WikiDBSubgraph
 from analysis.semantic_column_matcher import match_columns_across_databases
+
+CACHE_VERSION = "v2"
 
 
 def normalize_col_name(name: str) -> str:
@@ -55,13 +57,14 @@ def load_database_data(
         wk: WKDataset instance
         db_id: Database ID
         union_columns: Union column mapping from semantic_column_matcher
-        target_candidates: List of target column names (lowercase) to find base table
+        target_candidates: List of target column names to find base table
         
     Returns:
         Tuple of (aligned DataFrame, feature mask)
     """
     if target_candidates is None:
         target_candidates = ['entitytype', 'placetype', 'citytype']
+    normalized_targets = [normalize_col_name(cand) for cand in target_candidates]
     
     # Load schema to get foreign key relationships
     schema = wk.load_database(db_id)
@@ -76,10 +79,10 @@ def load_database_data(
     base_table_name = None
     base_target_col = None
     
-    for candidate in target_candidates:
+    for candidate in normalized_targets:
         for table_name, df in table_dfs.items():
             for col in df.columns:
-                if col.lower() == candidate:
+                if normalize_col_name(col) == candidate:
                     base_table_name = table_name
                     base_target_col = col
                     break
@@ -186,7 +189,10 @@ def prepare_client_data(
     random_state: int = 42,
     num_classes: int = 2,
     cache_dir: str = "data/cache/raw_data",
-    drop_other: bool = False
+    drop_other: bool = False,
+    numeric_bins: Optional[List[float]] = None,
+    numeric_drop_above: bool = False,
+    force_rebuild_cache: bool = False
 ) -> Dict[str, Dict]:
     """
     Prepare training and test data for all clients.
@@ -203,7 +209,8 @@ def prepare_client_data(
     cache_params = {
         'db_ids': sorted(db_ids),
         'target_candidates': sorted(target_candidates) if target_candidates else None,
-        'union_columns_hash': hashlib.md5(json.dumps(sorted(union_columns.items()), sort_keys=True).encode()).hexdigest()
+        'union_columns_hash': hashlib.md5(json.dumps(sorted(union_columns.items()), sort_keys=True).encode()).hexdigest(),
+        'cache_version': CACHE_VERSION
     }
     param_str = json.dumps(cache_params, sort_keys=True)
     param_hash = hashlib.md5(param_str.encode()).hexdigest()[:12]
@@ -212,7 +219,7 @@ def prepare_client_data(
     cache_path = os.path.join(cache_dir, f"raw_data_{param_hash}.pkl")
     
     raw_target_data = None
-    if os.path.exists(cache_path):
+    if os.path.exists(cache_path) and not force_rebuild_cache:
         print(f"  Loading cached raw data from {cache_path}")
         try:
             with open(cache_path, 'rb') as f:
@@ -220,6 +227,8 @@ def prepare_client_data(
         except Exception as e:
             print(f"    Warning: Failed to load cache: {e}. Recomputing...")
             raw_target_data = None
+    elif force_rebuild_cache and os.path.exists(cache_path):
+        print(f"  Rebuilding raw data cache (force_rebuild_cache=True)")
     
     # If cache miss, load from database
     if raw_target_data is None:
@@ -243,15 +252,15 @@ def prepare_client_data(
                 active_target_candidates = ['entitytype', 'placetype', 'citytype']
             else:
                 active_target_candidates = target_candidates
+            normalized_candidates = [normalize_col_name(cand) for cand in active_target_candidates]
                 
             target_col = None
             target_idx = None
             
             # Iterate by priority order (not alphabetical column order)
-            for candidate in active_target_candidates:
-                # Try exact match first, then try normalized match
+            for candidate in normalized_candidates:
                 for i, col in enumerate(cols):
-                    if col.lower() == candidate.lower() or normalize_col_name(col) == normalize_col_name(candidate):
+                    if normalize_col_name(col) == candidate:
                         col_present = feature_mask[i] if i < len(feature_mask) else False
                         if col_present:
                             target_col = col
@@ -281,9 +290,28 @@ def prepare_client_data(
             print(f"    Warning: Failed to save cache: {e}")
     
     client_data = {}
-    
+
+    def _format_numeric_label(value: float) -> str:
+        if abs(value - round(value)) < 1e-6:
+            return str(int(round(value)))
+        return f"{value:g}"
+
+    numeric_bins = sorted(set(numeric_bins or [])) or None
+    numeric_label_map = None
+    numeric_label_order = None
+
+    if numeric_bins:
+        min_bin = numeric_bins[0]
+        max_bin = numeric_bins[-1]
+        numeric_label_order = [f"<{_format_numeric_label(min_bin)}"] + [
+            _format_numeric_label(v) for v in numeric_bins
+        ]
+        if not numeric_drop_above:
+            numeric_label_order.append(f">{_format_numeric_label(max_bin)}")
+        numeric_label_map = {label: i for i, label in enumerate(numeric_label_order)}
+        global_label_map = None
     # Multi-class global label encoding
-    if num_classes > 2:
+    elif num_classes > 2:
         from collections import Counter
         all_labels = Counter()
         for db_id, data in raw_target_data.items():
@@ -321,8 +349,10 @@ def prepare_client_data(
             active_target_candidates = ['entitytype', 'placetype', 'citytype']
         else:
             active_target_candidates = target_candidates
+        normalized_target_candidates = [normalize_col_name(cand) for cand in active_target_candidates]
+        normalized_target_set = set(normalized_target_candidates)
         
-        if num_classes == 2:
+        if num_classes == 2 and not numeric_bins:
             # Binary labels based on positive_token
             def is_positive(val):
                 if pd.isna(val): return False
@@ -337,6 +367,35 @@ def prepare_client_data(
                 print(f"    Warning: All labels same, adding variation")
                 if len(y) > 1:
                     y[0] = 1 - y[0]
+        elif numeric_bins:
+            min_bin = numeric_bins[0]
+            max_bin = numeric_bins[-1]
+
+            def map_numeric(val):
+                if pd.isna(val):
+                    return None
+                try:
+                    num = float(val)
+                except Exception:
+                    return None
+                if num < min_bin:
+                    label = f"<{_format_numeric_label(min_bin)}"
+                elif num > max_bin:
+                    if numeric_drop_above:
+                        return None
+                    label = f">{_format_numeric_label(max_bin)}"
+                else:
+                    nearest = min(numeric_bins, key=lambda b: abs(b - num))
+                    label = _format_numeric_label(nearest)
+                return numeric_label_map.get(label)
+
+            y = np.array([map_numeric(val) if pd.notna(val) else -1 for val in y_raw])
+            keep_mask = y >= 0
+            if keep_mask.sum() == 0:
+                print(f"    Warning: No valid numeric labels for DB{db_id}, skipping")
+                continue
+            aligned_df = aligned_df.loc[keep_mask].reset_index(drop=True)
+            y = y[keep_mask]
         else:
             # Multi-class encoding using global_label_map
             if drop_other:
@@ -361,8 +420,7 @@ def prepare_client_data(
         # LEAKAGE PREVENTION: Drop target candidates from features
         # and drop any columns that have zero variance
         X_df = aligned_df.copy()
-        for candidate in active_target_candidates:
-            norm_cand = normalize_col_name(candidate)
+        for norm_cand in normalized_target_candidates:
             cols_to_drop = [c for c in X_df.columns if normalize_col_name(c) == norm_cand]
             X_df = X_df.drop(columns=cols_to_drop, errors='ignore') # Use errors='ignore' if column not found
         
@@ -370,7 +428,10 @@ def prepare_client_data(
         # and convert categorical to numerical
         processed_X_list = []
         feature_mask_final = []
-        original_cols_after_target_removal = [col for col in aligned_df.columns if col not in [c for cand in active_target_candidates for c in aligned_df.columns if normalize_col_name(c) == normalize_col_name(cand)]]
+        original_cols_after_target_removal = [
+            col for col in aligned_df.columns
+            if normalize_col_name(col) not in normalized_target_set
+        ]
 
         for i, col in enumerate(original_cols_after_target_removal):
             col_data = aligned_df[col] # Use original aligned_df for feature mask
@@ -412,7 +473,11 @@ def prepare_client_data(
             print(f"    Warning: All labels same, adding variation")
             n_flip = max(1, int(len(y) * 0.2))
             flip_idx = np.random.choice(len(y), n_flip, replace=False)
-            y[flip_idx] = 1 - y[flip_idx]
+            if num_classes == 2:
+                y[flip_idx] = 1 - y[flip_idx]
+            else:
+                alt_class = (int(y[0]) + 1) % num_classes
+                y[flip_idx] = alt_class
         
         # Scale features
         scaler = StandardScaler()
@@ -869,13 +934,13 @@ def main():
     parser.add_argument(
         "--db_ids",
         type=str,
-        default="01318,15832,26192,34036,52953,67222,79114,84208",  # Candidate #26 (Figure Skating)
+        default="10626,13841,17587,57240,73136",
         help="Comma-separated database IDs"
     )
     parser.add_argument(
         "--target_col",
         type=str,
-        default="RailwayTrafficSide",
+        default="MinimumCompulsoryEducationAge,CompulsoryEducationMinAge",
         help="Target column name(s), comma-separated"
     )
     parser.add_argument(
@@ -894,7 +959,7 @@ def main():
     parser.add_argument(
         "--global_rounds",
         type=int,
-        default=10,
+        default=20,
         help="Number of global communication rounds"
     )
     parser.add_argument(
@@ -906,13 +971,13 @@ def main():
     parser.add_argument(
         "--hidden_dim",
         type=int,
-        default=64,
+        default=128,
         help="Hidden layer dimension"
     )
     parser.add_argument(
         "--lr",
         type=float,
-        default=0.01,
+        default=0.005,
         help="Learning rate"
     )
     parser.add_argument(
@@ -945,13 +1010,30 @@ def main():
     parser.add_argument(
         "--num_classes",
         type=int,
-        default=2,
+        default=4,
         help="Number of classes for classification (2 for binary, >2 for multi-class)"
+    )
+    parser.add_argument(
+        "--numeric_bins",
+        type=str,
+        default="5,6,7",
+        help="Comma-separated numeric bin centers to keep as classes; values <min map to '<min' (values >max dropped when --numeric_drop_above is set)"
+    )
+    parser.add_argument(
+        "--numeric_drop_above",
+        action="store_true",
+        default=True,
+        help="When using --numeric_bins, drop values above the max bin instead of adding a '>max' class (default: True)"
     )
     parser.add_argument(
         "--drop_other",
         action="store_true",
         help="For multi-class, drop labels outside the top-K instead of using an '__OTHER__' class"
+    )
+    parser.add_argument(
+        "--force_rebuild_cache",
+        action="store_true",
+        help="Ignore cached raw data and rebuild alignment cache"
     )
     parser.add_argument(
         "--metrics",
@@ -972,6 +1054,21 @@ def main():
     if not db_ids:
         print("Error: No database IDs provided. Exiting.")
         return
+
+    numeric_bins = None
+    if args.numeric_bins:
+        try:
+            numeric_bins = [float(x.strip()) for x in args.numeric_bins.split(",") if x.strip()]
+        except ValueError:
+            print(f"Error: Invalid --numeric_bins value: {args.numeric_bins}")
+            return
+        if not numeric_bins:
+            print("Error: --numeric_bins provided but no valid values parsed.")
+            return
+        expected_classes = len(set(numeric_bins)) + (1 if args.numeric_drop_above else 2)
+        if args.num_classes != expected_classes:
+            print(f"Warning: overriding num_classes to {expected_classes} to match numeric_bins.")
+            args.num_classes = expected_classes
 
     # Parse metrics to report
     requested_metrics = [m.strip().lower() for m in args.metrics.split(",") if m.strip()]
@@ -1047,6 +1144,9 @@ def main():
             num_classes=args.num_classes,
             cache_dir=args.cache_dir,
             drop_other=args.drop_other,
+            numeric_bins=numeric_bins,
+            numeric_drop_above=args.numeric_drop_above,
+            force_rebuild_cache=args.force_rebuild_cache,
             random_state=seed
         )
 

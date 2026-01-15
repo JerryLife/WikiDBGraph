@@ -4,8 +4,8 @@ Compute accuracy, F1, and AUC from prediction CSVs and generate LaTeX table.
 
 Usage:
     python src/summary/print_predictions_metrics.py --predictions path/to/pred.csv
-    python src/summary/print_predictions_metrics.py --pred_dir results/fedgnn/01318-15832
-    python src/summary/print_predictions_metrics.py --pred_dir results/fedgnn/01318-15832 --latex
+    python src/summary/print_predictions_metrics.py --pred_dir results/fedgnn/10626-13841-17587-57240-73136
+    python src/summary/print_predictions_metrics.py --pred_dir results/fedgnn/10626-13841-17587-57240-73136 --latex
 """
 
 import argparse
@@ -20,7 +20,7 @@ from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 
 
 # Default prediction directory (matches train_fedgnn.py default db_ids)
-DEFAULT_PRED_DIR = "results/fedgnn/01318-15832-26192-34036-52953-67222-79114-84208"
+DEFAULT_PRED_DIR = "results/fedgnn/10626-13841-17587-57240-73136"
 
 
 def _infer_scores(df: pd.DataFrame) -> Tuple[Optional[np.ndarray], Optional[int]]:

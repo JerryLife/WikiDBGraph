@@ -414,12 +414,8 @@ def plot_alpha_distribution(
     alphas_sorted = np.sort(alphas_positive)
     cdf = np.arange(1, len(alphas_sorted) + 1) / len(alphas_sorted)
     
-    # Extend to ensure we reach 100%
-    alphas_extended = np.append(alphas_sorted, alphas_sorted[-1] * 1.5)
-    cdf_extended = np.append(cdf, 1.0)
-    
-    ax2.plot(alphas_extended, cdf_extended * 100, color=colors['hist'], linewidth=2.5)
-    ax2.fill_between(alphas_extended, 0, cdf_extended * 100, alpha=0.2, color=colors['hist'])
+    ax2.plot(alphas_sorted, cdf * 100, color=colors['hist'], linewidth=2.5)
+    ax2.fill_between(alphas_sorted, 0, cdf * 100, alpha=0.2, color=colors['hist'])
     
     # Set log scale for x-axis
     ax2.set_xscale('log')
@@ -439,9 +435,9 @@ def plot_alpha_distribution(
     
     # # Interpretation guide (upper right)
     # interp_text = (
-    #     r'$\alpha \to 0$: Extreme Non-IID' + '\n'
-    #     r'$\alpha = 1$: High Heterogeneity' + '\n'
-    #     r'$\alpha > 10$: Near-IID'
+    #     r'$\\alpha \\to 0$: Extreme Non-IID' + '\\n'
+    #     r'$\\alpha = 1$: High Heterogeneity' + '\\n'
+    #     r'$\\alpha > 10$: Near-IID'
     # )
     # ax2.text(0.97, 0.97, interp_text, transform=ax2.transAxes, fontsize=14,
     #          verticalalignment='top', horizontalalignment='right',
@@ -451,8 +447,8 @@ def plot_alpha_distribution(
     ax2.set_xlabel(r'Dirichlet $\alpha$ (log scale)', fontsize=16)
     ax2.set_ylabel('Cumulative Percentage (%)', fontsize=16)
     ax2.set_title('(b) Cumulative Distribution', fontsize=16, fontweight='bold', pad=10)
-    ax2.set_xlim(0.1, alphas_sorted.max() * 2)  # Log scale limits
-    ax2.set_ylim(0, 105)
+    ax2.set_xlim(0.1, min(alphas_sorted.max(), 100))  # Stop at max alpha or 100
+    ax2.set_ylim(0, 100)
     ax2.grid(True, alpha=0.3, linestyle='-', linewidth=0.5, which='both')
     
     # Tight layout

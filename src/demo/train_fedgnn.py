@@ -888,7 +888,7 @@ def main():
         "--property_mode",
         type=str,
         choices=["none", "edge_only", "node_only", "both", "all"],
-        default="both",
+        default="all",
         help="Property mode for GNN aggregation ('all' runs ablation with all modes)"
     )
     parser.add_argument(

@@ -409,12 +409,20 @@ def plot_alpha_distribution(
     # ==================== Panel (b): Cumulative Distribution ====================
     ax2 = axes[1]
     
-    # Sort alphas for CDF
-    alphas_sorted = np.sort(alphas)
-    cdf = np.arange(1, len(alphas) + 1) / len(alphas)
+    # Sort alphas for CDF (use log scale, filter out zero/negative)
+    alphas_positive = alphas[alphas > 0]
+    alphas_sorted = np.sort(alphas_positive)
+    cdf = np.arange(1, len(alphas_sorted) + 1) / len(alphas_sorted)
     
-    ax2.plot(alphas_sorted, cdf * 100, color=colors['hist'], linewidth=2.5)
-    ax2.fill_between(alphas_sorted, 0, cdf * 100, alpha=0.2, color=colors['hist'])
+    # Extend to ensure we reach 100%
+    alphas_extended = np.append(alphas_sorted, alphas_sorted[-1] * 1.5)
+    cdf_extended = np.append(cdf, 1.0)
+    
+    ax2.plot(alphas_extended, cdf_extended * 100, color=colors['hist'], linewidth=2.5)
+    ax2.fill_between(alphas_extended, 0, cdf_extended * 100, alpha=0.2, color=colors['hist'])
+    
+    # Set log scale for x-axis
+    ax2.set_xscale('log')
     
     # Add threshold markers (same colors and line styles as panel a)
     thresholds = [
@@ -429,23 +437,23 @@ def plot_alpha_distribution(
         ax2.axhline(pct, color=color, linestyle=':', linewidth=1, alpha=0.4)
         ax2.plot(threshold, pct, 'o', color=color, markersize=7, zorder=5)
     
-    # Interpretation guide (upper right)
-    interp_text = (
-        r'$\alpha \to 0$: Extreme Non-IID' + '\n'
-        r'$\alpha = 1$: High Heterogeneity' + '\n'
-        r'$\alpha > 10$: Near-IID'
-    )
-    ax2.text(0.97, 0.97, interp_text, transform=ax2.transAxes, fontsize=14,
-             verticalalignment='top', horizontalalignment='right',
-             bbox=dict(boxstyle='round,pad=0.4', facecolor='#f8f8f8',
-                       edgecolor='gray', alpha=0.95))
+    # # Interpretation guide (upper right)
+    # interp_text = (
+    #     r'$\alpha \to 0$: Extreme Non-IID' + '\n'
+    #     r'$\alpha = 1$: High Heterogeneity' + '\n'
+    #     r'$\alpha > 10$: Near-IID'
+    # )
+    # ax2.text(0.97, 0.97, interp_text, transform=ax2.transAxes, fontsize=14,
+    #          verticalalignment='top', horizontalalignment='right',
+    #          bbox=dict(boxstyle='round,pad=0.4', facecolor='#f8f8f8',
+    #                    edgecolor='gray', alpha=0.95))
     
-    ax2.set_xlabel(r'Dirichlet $\alpha$', fontsize=16)
+    ax2.set_xlabel(r'Dirichlet $\alpha$ (log scale)', fontsize=16)
     ax2.set_ylabel('Cumulative Percentage (%)', fontsize=16)
     ax2.set_title('(b) Cumulative Distribution', fontsize=16, fontweight='bold', pad=10)
-    ax2.set_xlim(0, min(15, alphas.max() * 1.05))
+    ax2.set_xlim(0.1, alphas_sorted.max() * 2)  # Log scale limits
     ax2.set_ylim(0, 105)
-    ax2.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
+    ax2.grid(True, alpha=0.3, linestyle='-', linewidth=0.5, which='both')
     
     # Tight layout
     plt.tight_layout()

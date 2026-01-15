@@ -103,7 +103,7 @@ def visualize_graph(
     subgraph_data: Dict,
     output_path: str = "graph_visualization.png",
     label_info: str = None,
-    figsize: tuple = (14, 10)
+    figsize: tuple = (10, 10)
 ):
     """Create a professional visualization of the database graph."""
     
@@ -139,7 +139,6 @@ def visualize_graph(
     # Draw edges with varying thickness based on similarity
     idx_to_db = {v: k for k, v in node_id_map.items()}
     labeled_pairs = set()
-    edge_texts = []
     
     for edge_idx, (s, d) in enumerate(zip(edges_src, edges_dst)):
         src_db = idx_to_db.get(s)
@@ -167,21 +166,9 @@ def visualize_graph(
                 zorder=1
             )
             
-            # Add similarity label (avoiding duplicates for undirected edges)
+            # Track edges to avoid duplicates
             pair_key = tuple(sorted([src_db, dst_db]))
-            if pair_key not in labeled_pairs and sim_val is not None:
-                mid_x, mid_y = (x1 + x2) / 2, (y1 + y2) / 2
-                sim_label = f"{sim_val:.2f}"
-                txt = ax.text(
-                    mid_x, mid_y, sim_label,
-                    fontsize=8, color='#333333',
-                    ha='center', va='center',
-                    bbox=dict(boxstyle='round,pad=0.15', facecolor='white', 
-                             edgecolor='#cccccc', alpha=0.9),
-                    zorder=5
-                )
-                edge_texts.append(txt)
-                labeled_pairs.add(pair_key)
+            labeled_pairs.add(pair_key)
     
     # Draw nodes as circles with IDs
     node_size = 0.6
@@ -199,44 +186,19 @@ def visualize_graph(
         # Add ID inside node
         ax.text(
             x, y, db_id,
-            fontsize=9, fontweight='bold',
+            fontsize=14, fontweight='bold',
             color='white',
             ha='center', va='center',
             zorder=11
         )
     
-    # Adjust text to prevent overlap (if available)
-    if HAS_ADJUSTTEXT and edge_texts:
-        adjust_text(
-            edge_texts,
-            ax=ax,
-            force_text=(0.5, 0.5),
-            force_points=(0.3, 0.3),
-            expand_text=(1.2, 1.2),
-            arrowprops=dict(arrowstyle='-', color='#aaaaaa', lw=0.5)
-        )
-    
-    # Set axis properties
-    ax.set_xlim(-6.5, 6.5)
-    ax.set_ylim(-6.5, 6.5)
+    # Set axis properties - tighter bounds
+    ax.set_xlim(-5.5, 5.5)
+    ax.set_ylim(-5.5, 5.5)
     ax.set_aspect('equal')
     ax.axis('off')
     
-    # Title
-    title = f"FedGNN Database Graph"
-    subtitle = f"{n_nodes} databases, {len(set(zip(edges_src, edges_dst)))} connections"
-    if label_info:
-        subtitle += f" | Label: {label_info}"
-    
-    ax.set_title(title, fontsize=16, fontweight='bold', pad=20)
-    ax.text(
-        0.5, 1.02, subtitle,
-        transform=ax.transAxes,
-        fontsize=11, color='#666666',
-        ha='center', va='bottom'
-    )
-    
-    # Legend with full database names
+    # Add legend below the graph with full database names
     legend_handles = []
     for i, db_id in enumerate(db_ids):
         display_name = get_db_display_name(db_id)
@@ -248,14 +210,15 @@ def visualize_graph(
     
     legend = ax.legend(
         handles=legend_handles,
-        loc='center left',
-        bbox_to_anchor=(1.02, 0.5),
-        fontsize=9,
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.02),
+        ncol=2,  # Two columns for compact layout
+        fontsize=11,
         frameon=True,
         fancybox=True,
-        shadow=True,
-        title="Databases",
-        title_fontsize=10
+        handlelength=1.5,
+        handleheight=1.0,
+        columnspacing=1.0,
     )
     legend.get_frame().set_facecolor('white')
     legend.get_frame().set_edgecolor('#cccccc')
@@ -267,15 +230,34 @@ def visualize_graph(
     
     # PNG (high resolution)
     png_path = f"{base_path}.png"
-    plt.savefig(png_path, dpi=200, bbox_inches='tight', facecolor='white')
+    plt.savefig(png_path, dpi=300, bbox_inches='tight', facecolor='white', pad_inches=0.05)
     print(f"Saved PNG visualization to: {png_path}")
     
     # PDF (vector format)
     pdf_path = f"{base_path}.pdf"
-    plt.savefig(pdf_path, format='pdf', bbox_inches='tight', facecolor='white')
+    plt.savefig(pdf_path, format='pdf', bbox_inches='tight', facecolor='white', pad_inches=0.05)
     print(f"Saved PDF visualization to: {pdf_path}")
     
     plt.close()
+    
+    # Print LaTeX include script
+    print("\n" + "="*60)
+    print("LaTeX code to include this figure:")
+    print("="*60)
+    
+    # Generate a more meaningful caption based on metadata if possible
+    caption = f"Network graph of {len(db_ids)} databases. Nodes represent local databases, and edges denote schema similarity."
+    if label_info:
+        caption += f" The graph highlights connections relevant to the task: {label_info}."
+        
+    latex_code = f'''\\begin{{figure}}[htbp]
+    \\centering
+    \\includegraphics[width=1.0\\linewidth]{{{pdf_path}}}
+    \\caption{{{caption}}}
+    \\label{{fig:database_network_graph}}
+\\end{{figure}}'''
+    print(latex_code)
+    print("="*60)
 
 
 def main():

@@ -103,7 +103,7 @@ def visualize_graph(
     subgraph_data: Dict,
     output_path: str = "graph_visualization.png",
     label_info: str = None,
-    figsize: tuple = (10, 10)
+    figsize: tuple = (12, 8)
 ):
     """Create a professional visualization of the database graph."""
     
@@ -120,11 +120,12 @@ def visualize_graph(
     edge_props = subgraph_data.get('edge_props', {})
     edge_sims = edge_props.get('similarity', None)
     
-    # Create position layout (circular with more spacing)
+    # Create position layout (elliptical - flatter shape)
     angles = np.linspace(0, 2 * np.pi, n_nodes, endpoint=False) - np.pi / 2
-    radius = 4
+    radius_x = 5.5  # Wider horizontal spread
+    radius_y = 3.0  # Shorter vertical spread
     positions = {
-        db_id: (radius * np.cos(angles[i]), radius * np.sin(angles[i]))
+        db_id: (radius_x * np.cos(angles[i]), radius_y * np.sin(angles[i]))
         for i, db_id in enumerate(db_ids)
     }
     
@@ -192,9 +193,9 @@ def visualize_graph(
             zorder=11
         )
     
-    # Set axis properties - tighter bounds
-    ax.set_xlim(-5.5, 5.5)
-    ax.set_ylim(-5.5, 5.5)
+    # Set axis properties - adjusted for elliptical layout
+    ax.set_xlim(-7.0, 7.0)
+    ax.set_ylim(-4.5, 4.5)
     ax.set_aspect('equal')
     ax.axis('off')
     
@@ -211,7 +212,7 @@ def visualize_graph(
     legend = ax.legend(
         handles=legend_handles,
         loc='upper center',
-        bbox_to_anchor=(0.5, -0.02),
+        bbox_to_anchor=(0.5, 0.02),
         ncol=2,  # Two columns for compact layout
         fontsize=11,
         frameon=True,

@@ -103,7 +103,7 @@ def visualize_graph(
     subgraph_data: Dict,
     output_path: str = "graph_visualization.png",
     label_info: str = None,
-    figsize: tuple = (12, 8)
+    figsize: tuple = (10, 6)
 ):
     """Create a professional visualization of the database graph."""
     
@@ -120,10 +120,10 @@ def visualize_graph(
     edge_props = subgraph_data.get('edge_props', {})
     edge_sims = edge_props.get('similarity', None)
     
-    # Create position layout (elliptical - flatter shape)
+    # Create position layout (elliptical - flatter, more compact)
     angles = np.linspace(0, 2 * np.pi, n_nodes, endpoint=False) - np.pi / 2
-    radius_x = 5.5  # Wider horizontal spread
-    radius_y = 3.0  # Shorter vertical spread
+    radius_x = 4.0  # Compact horizontal spread
+    radius_y = 2.2  # Compact vertical spread
     positions = {
         db_id: (radius_x * np.cos(angles[i]), radius_y * np.sin(angles[i]))
         for i, db_id in enumerate(db_ids)
@@ -172,7 +172,7 @@ def visualize_graph(
             labeled_pairs.add(pair_key)
     
     # Draw nodes as circles with IDs
-    node_size = 0.6
+    node_size = 0.5
     for i, db_id in enumerate(db_ids):
         x, y = positions[db_id]
         circle = plt.Circle(
@@ -193,9 +193,9 @@ def visualize_graph(
             zorder=11
         )
     
-    # Set axis properties - adjusted for elliptical layout
-    ax.set_xlim(-7.0, 7.0)
-    ax.set_ylim(-4.5, 4.5)
+    # Set axis properties - tight bounds for compact layout
+    ax.set_xlim(-5.0, 5.0)
+    ax.set_ylim(-3.0, 3.0)
     ax.set_aspect('equal')
     ax.axis('off')
     
@@ -231,12 +231,12 @@ def visualize_graph(
     
     # PNG (high resolution)
     png_path = f"{base_path}.png"
-    plt.savefig(png_path, dpi=300, bbox_inches='tight', facecolor='white', pad_inches=0.05)
+    plt.savefig(png_path, dpi=300, bbox_inches='tight', facecolor='white', pad_inches=0.02)
     print(f"Saved PNG visualization to: {png_path}")
     
     # PDF (vector format)
     pdf_path = f"{base_path}.pdf"
-    plt.savefig(pdf_path, format='pdf', bbox_inches='tight', facecolor='white', pad_inches=0.05)
+    plt.savefig(pdf_path, format='pdf', bbox_inches='tight', facecolor='white', pad_inches=0.02)
     print(f"Saved PDF visualization to: {pdf_path}")
     
     plt.close()

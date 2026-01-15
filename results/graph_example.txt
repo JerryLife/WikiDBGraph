@@ -1,29 +1,26 @@
 # FedGNN Graph Example Configuration
 # This file defines a curated database set with meaningful shared labels for FedGNN experiments.
 #
-# Selected: Candidate #26 (Figure Skating)
-# Label: Characteristic (free country / not-free country / partly free country)
-# Databases: 8 databases
-# Graph: 8 nodes, 20 edges
+# Selected: Compulsory education minimum age (binned)
+# Label: MinimumCompulsoryEducationAge / CompulsoryEducationMinAge (<5, 5, 6, 7; >7 dropped)
+# Databases: 5 databases
+# Graph: 5 nodes, 16 edges
 
 [databases]
-01318
-15832
-26192
-34036
-52953
-67222
-79114
-84208
+10626
+13841
+17587
+57240
+73136
 
 [label]
-column = Characteristic
-description = Country freedom status classification (free / not-free / partly free)
+column = MinimumCompulsoryEducationAge,CompulsoryEducationMinAge
+description = Minimum compulsory education age classification (<5, 5, 6, 7; values >7 dropped)
 
 [metadata]
-candidate_id = 26
-subgraph_subset = Characteristic
-run_date = 2026-01-14
-n_nodes = 8
-n_edges = 20
-union_schema_size = 1223
+candidate_id = custom
+subgraph_subset = MinimumCompulsoryEducationAge / CompulsoryEducationMinAge
+run_date = 2026-01-15
+n_nodes = 5
+n_edges = 16
+union_schema_size = 2245

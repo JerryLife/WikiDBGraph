@@ -428,7 +428,8 @@ def plot_alpha_distribution(
     ]
     
     for threshold, color in thresholds:
-        pct = 100 * np.sum(alphas <= threshold) / len(alphas)
+        # Calculate percentage based on alphas_sorted (same data as CDF line)
+        pct = 100 * np.sum(alphas_sorted <= threshold) / len(alphas_sorted)
         ax2.axvline(threshold, color=color, linestyle='--', linewidth=2, alpha=0.8)
         ax2.axhline(pct, color=color, linestyle=':', linewidth=1, alpha=0.4)
         ax2.plot(threshold, pct, 'o', color=color, markersize=7, zorder=5)

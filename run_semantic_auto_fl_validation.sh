@@ -19,14 +19,14 @@ MAX_SIMILARITY=1.0
 MIN_ROWS=100
 SAMPLE_SIZE=2000
 SEED=42
-NUM_GPUS=4
-GPU_IDS="0,1,2,3"  # Empty means use 0 to NUM_GPUS-1
+NUM_GPUS=2
+GPU_IDS="2,3"  # Empty means use 0 to NUM_GPUS-1
 MAX_CONCURRENT_PER_GPU=5
 TIMEOUT=3600  # 1 hour default timeout
-TASK_TYPES="fedavg fedprox scaffold fedov"  # Default: all algorithms except fedtree
+TASK_TYPES="fedprox scaffold fedov"  # Algorithms to compare (same as will be compared with raw)
 
 # Semantic-specific parameters
-SEMANTIC_THRESHOLD=0.95  # Similarity threshold for column matching
+SEMANTIC_THRESHOLD=0.80  # Similarity threshold for column matching
 COLUMN_SAMPLE_SIZE=10     # Number of sample values per column for embedding
 
 # Directories (different from original to avoid conflicts)

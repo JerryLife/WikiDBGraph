@@ -13,6 +13,7 @@ import json
 import torch
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 from tqdm import tqdm
 import torch.nn.functional as F
@@ -151,6 +152,9 @@ class SemanticColumnAligner:
         """
         Format a column for embedding generation using DeepJoin paper template.
         
+        Column names and table titles are normalized (alphanumeric lowercase only)
+        to match the raw pipeline's snapshot matching behavior.
+        
         Template (from DeepJoin paper Section 3.1, Tables 12-13):
         "{table_title}. {column_name} contains {n} values ({max_len}, {min_len}, {avg_len}): {values}."
         
@@ -162,6 +166,11 @@ class SemanticColumnAligner:
         Returns:
             Formatted string for embedding
         """
+        # Normalize column name and table title (same as raw pipeline's snapshot matching)
+        # Keep only alphanumeric and convert to lowercase
+        normalized_col = ''.join(c for c in col_name.lower() if c.isalnum())
+        normalized_title = ''.join(c for c in table_title.lower() if c.isalnum())
+        
         # Convert samples to strings, filter out None/NaN
         valid_samples = []
         for s in samples:
@@ -174,7 +183,7 @@ class SemanticColumnAligner:
         
         # Calculate statistics based on character lengths
         if not distinct_samples:
-            return f"{table_title}. {col_name} contains 0 values (0, 0, 0.0): ."
+            return f"{normalized_title}. {normalized_col} contains 0 values (0, 0, 0.0): ."
         
         lengths = [len(s) for s in distinct_samples]
         max_len = max(lengths)
@@ -185,7 +194,7 @@ class SemanticColumnAligner:
         values_str = ", ".join(distinct_samples[:self.sample_size])
         
         # Format: "{table_title}. {col_name} contains {n} values ({max}, {min}, {avg}): {values}."
-        return f"{table_title}. {col_name} contains {n_distinct} values ({max_len}, {min_len}, {avg_len}): {values_str}."
+        return f"{normalized_title}. {normalized_col} contains {n_distinct} values ({max_len}, {min_len}, {avg_len}): {values_str}."
     
     def compute_column_embedding(self, 
                                   table_title: str,
@@ -378,11 +387,61 @@ class SemanticDataPreprocessor(AutomatedDataPreprocessor):
         # Current db_ids being processed (for caching in identify_common_columns)
         self._current_db_id1 = ""
         self._current_db_id2 = ""
+        
+        # Forced label from raw pipeline config
+        self._forced_label_col = None
+        self._raw_config = None
     
     def set_current_db_ids(self, db_id1: str, db_id2: str):
         """Set db_ids for the current pair being processed (used for caching)."""
         self._current_db_id1 = str(db_id1)
         self._current_db_id2 = str(db_id2)
+    
+    def load_raw_config(self, pair_id: str, raw_data_dir: str = "data/auto") -> Optional[Dict]:
+        """
+        Load config.json from the raw pipeline for a pair.
+        
+        Args:
+            pair_id: Pair ID in format "00007_00013"
+            raw_data_dir: Directory containing raw pipeline output
+            
+        Returns:
+            Config dict if found, None otherwise
+        """
+        config_path = os.path.join(raw_data_dir, pair_id, "config.json")
+        if os.path.exists(config_path):
+            with open(config_path, 'r') as f:
+                return json.load(f)
+        return None
+    
+    def identify_label_by_snapshot(self, df: pd.DataFrame, label_col_name: str) -> Optional[str]:
+        """
+        Find label column in a DataFrame using snapshot matching (same as raw pipeline).
+        
+        Args:
+            df: DataFrame to search
+            label_col_name: Target label column name from raw config
+            
+        Returns:
+            Matching column name in df, or None if not found
+        """
+        target_snapshot = self.create_column_snapshot(label_col_name)
+        
+        for col in df.columns:
+            if self.create_column_snapshot(col) == target_snapshot:
+                return col
+        return None
+    
+    def set_forced_label(self, label_col: Optional[str], raw_config: Optional[Dict] = None):
+        """
+        Set the forced label column and raw config for the current pair.
+        
+        Args:
+            label_col: Label column name from raw config
+            raw_config: Full raw config dict for additional metadata
+        """
+        self._forced_label_col = label_col
+        self._raw_config = raw_config
     
     @property
     def aligner(self) -> SemanticColumnAligner:
@@ -402,8 +461,9 @@ class SemanticDataPreprocessor(AutomatedDataPreprocessor):
         """
         Identify common columns between two DataFrames using semantic matching.
         
-        Overrides the parent method to use BGE embeddings instead of snapshot matching.
-        Uses _current_db_id1/2 for embedding caching if set.
+        If a forced label column is set (from raw pipeline config), the label is matched
+        using snapshot matching (same as raw pipeline) and only feature columns use
+        semantic matching.
         
         Args:
             df1: First DataFrame
@@ -412,29 +472,236 @@ class SemanticDataPreprocessor(AutomatedDataPreprocessor):
         Returns:
             Tuple of (common column names from df1, df2 with renamed columns)
         """
-        # Get semantic matches (pass db_ids for caching)
-        matches = self.aligner.find_semantic_column_matches(
-            df1, df2,
-            db_id_a=self._current_db_id1,
-            db_id_b=self._current_db_id2
-        )
+        forced_label = getattr(self, '_forced_label_col', None)
         
-        if not matches:
-            debug_print("Warning: No semantic column matches found above threshold")
-            # Fall back to parent's snapshot-based matching
-            return super().identify_common_columns(df1, df2)
+        if forced_label:
+            # First, identify the label column in both DataFrames using snapshot matching
+            label_in_df1 = self.identify_label_by_snapshot(df1, forced_label)
+            label_in_df2 = self.identify_label_by_snapshot(df2, forced_label)
+            
+            if not label_in_df1 or not label_in_df2:
+                # STRICT MODE: Do not fall back, raise exception
+                raise ValueError(
+                    f"Forced label '{forced_label}' not found in both DataFrames. "
+                    f"df1 match: {label_in_df1}, df2 match: {label_in_df2}"
+                )
+            else:
+                debug_print(f"Forced label matched: df1='{label_in_df1}', df2='{label_in_df2}'")
         
-        # Create rename mapping for df2 to match df1 column names
-        rename_map = {match[1]: match[0] for match in matches}
-        df2_aligned = df2.rename(columns=rename_map)
-        
-        # Get common column names (using df1 names as reference)
-        common_columns = [match[0] for match in matches]
-        
-        debug_print(f"Semantic matching found {len(common_columns)} common columns")
-        debug_print(f"  Matches with similarity: {[(m[0], m[1], f'{m[2]:.3f}') for m in matches[:5]]}")
+        if forced_label:
+            # Get non-label columns for semantic matching
+            df1_features = df1.drop(columns=[label_in_df1])
+            df2_features = df2.drop(columns=[label_in_df2])
+            
+            # Semantic match only feature columns
+            feature_matches = self.aligner.find_semantic_column_matches(
+                df1_features, df2_features,
+                db_id_a=self._current_db_id1,
+                db_id_b=self._current_db_id2
+            )
+            
+            # Build rename mapping: include label + semantic matches for features
+            rename_map = {label_in_df2: label_in_df1}  # Label uses df1's name
+            for match in feature_matches:
+                rename_map[match[1]] = match[0]
+            
+            df2_aligned = df2.rename(columns=rename_map)
+            # Common columns = label + matched features
+            common_columns = [label_in_df1] + [match[0] for match in feature_matches]
+            
+            debug_print(f"Label-forced semantic matching: 1 label + {len(feature_matches)} features = {len(common_columns)} columns")
+        else:
+            # STRICT MODE: Forced label is required for 100% consistency
+            raise ValueError(
+                "No forced label set. STRICT MODE requires raw config label for all pairs."
+            )
         
         return common_columns, df2_aligned
+    
+    def process_pair(self, pair_metadata: Dict, output_dir: str) -> Dict:
+        """
+        Process a single database pair for FL training with semantic column alignment.
+        
+        Overrides parent to use forced label from raw config when available,
+        ensuring the same classification task as the raw pipeline.
+        
+        Args:
+            pair_metadata: Metadata dictionary for the database pair
+            output_dir: Output directory for processed data
+            
+        Returns:
+            Processing configuration and results
+        """
+        db_id1 = pair_metadata['db_id1']
+        db_id2 = pair_metadata['db_id2']
+        folder1 = pair_metadata['folder1']
+        folder2 = pair_metadata['folder2']
+        
+        debug_print(f"\nProcessing pair: {db_id1} - {db_id2}")
+        debug_print(f"Similarity: {pair_metadata['similarity']:.4f}")
+        
+        try:
+            # Load database tables
+            debug_print("Loading database tables...")
+            df1, _, _ = self.load_database_tables(db_id1, folder1)
+            df2, _, _ = self.load_database_tables(db_id2, folder2)
+            
+            # Identify common columns and align df2 column names with df1
+            # (This uses semantic matching with forced label if set)
+            common_columns, df2_aligned = self.identify_common_columns(df1, df2)
+            
+            if len(common_columns) < 3:  # Need at least 2 features + 1 label
+                raise ValueError(f"Insufficient common columns: {len(common_columns)} (minimum: 3)")
+            
+            # Use forced label from raw config if available
+            if self._raw_config and self._forced_label_col:
+                # Use the same label as raw pipeline
+                label_col = self._forced_label_col
+                raw_metadata = self._raw_config.get('label_metadata', {})
+                task_type = raw_metadata.get('task_type', 'classification')
+                
+                # Verify label is in common columns
+                if label_col not in common_columns:
+                    raise ValueError(f"Forced label '{label_col}' not found in common columns: {common_columns}")
+                
+                # Build label_metadata from raw config
+                label_metadata = {
+                    'column': label_col,
+                    'task_type': task_type,
+                    'n_classes': raw_metadata.get('n_classes', 2),
+                    'missing_ratio': raw_metadata.get('missing_ratio', 0.0),
+                }
+                if 'class_distribution' in raw_metadata:
+                    label_metadata['class_distribution'] = raw_metadata['class_distribution']
+                
+                debug_print(f"Using forced label from raw config: {label_col} (Task: {task_type})")
+            else:
+                # STRICT MODE: Do not fall back to independent label selection
+                # Raise exception to ensure 100% label consistency with raw pipeline
+                raise ValueError(
+                    f"Raw config not found or label not set for pair {db_id1:05d}_{db_id2:05d}. "
+                    "Cannot proceed without forced label from raw pipeline."
+                )
+            
+            # Clean and align data (df2_aligned already has matching column names)
+            df1_clean, df2_clean, column_types = self.clean_and_process_data(
+                df1, df2_aligned, common_columns, label_col, task_type
+            )
+            
+            if df1_clean.empty or df2_clean.empty:
+                raise ValueError("DataFrame became empty after cleaning, no valid labels found.")
+            
+            # Update common_columns to reflect actual columns after constant removal
+            actual_common_columns = list(df1_clean.columns)
+            debug_print(f"Updated common columns after constant removal: {len(common_columns)} -> {len(actual_common_columns)}")
+            common_columns = actual_common_columns
+            
+            # Validate minimum feature requirements
+            feature_columns = [col for col in common_columns if col != label_col]
+            
+            if len(feature_columns) < 2:
+                raise ValueError(f"Insufficient feature columns after cleaning: {len(feature_columns)} (minimum: 2)")
+            
+            debug_print(f"Validation passed: {len(feature_columns)} feature columns available")
+            
+            # Build processing params
+            if task_type == 'classification':
+                combined_labels = pd.concat([df1_clean[label_col], df2_clean[label_col]], ignore_index=True)
+                unique_classes = sorted(combined_labels.unique())
+                processing_params = {
+                    'task_type': task_type,
+                    'label_col': label_col,
+                    'n_classes': len(unique_classes),
+                    'class_names': unique_classes
+                }
+            else:
+                processing_params = {
+                    'task_type': task_type,
+                    'label_col': label_col
+                }
+            
+            # Split data
+            df1_train, df1_test, df2_train, df2_test = self.split_data(df1_clean, df2_clean, label_col)
+            
+            # Create output directory
+            pair_dir = Path(output_dir) / f"{db_id1:05d}_{db_id2:05d}"
+            pair_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Apply label encoding before saving
+            df1_train_encoded = self.apply_label_encoding_for_save(df1_train, column_types)
+            df1_test_encoded = self.apply_label_encoding_for_save(df1_test, column_types)
+            df2_train_encoded = self.apply_label_encoding_for_save(df2_train, column_types)
+            df2_test_encoded = self.apply_label_encoding_for_save(df2_test, column_types)
+            
+            # Save processed data
+            df1_train_encoded.to_csv(pair_dir / f"{db_id1:05d}_train.csv", index=False)
+            df1_test_encoded.to_csv(pair_dir / f"{db_id1:05d}_test.csv", index=False)
+            df2_train_encoded.to_csv(pair_dir / f"{db_id2:05d}_train.csv", index=False)
+            df2_test_encoded.to_csv(pair_dir / f"{db_id2:05d}_test.csv", index=False)
+            
+            # Create configuration
+            config = {
+                'pair_id': f"{db_id1:05d}_{db_id2:05d}",
+                'db_id1': db_id1,
+                'db_id2': db_id2,
+                'similarity': pair_metadata['similarity'],
+                'task_type': task_type,
+                'label_column': label_col,
+                'label_metadata': label_metadata,
+                'processing_params': processing_params,
+                'common_columns': common_columns,
+                'num_common_columns': len(common_columns),
+                'data_shapes': {
+                    'db1_train': df1_train.shape,
+                    'db1_test': df1_test.shape,
+                    'db2_train': df2_train.shape,
+                    'db2_test': df2_test.shape
+                },
+                'feature_columns': feature_columns,
+                'column_types': column_types,
+                'preprocessing_config': {
+                    'test_size': self.test_size,
+                    'random_state': self.random_state,
+                    'min_label_variance': self.min_label_variance,
+                    'max_missing_ratio': self.max_missing_ratio,
+                    'max_rows': self.max_rows,
+                    'similarity_threshold': self.similarity_threshold,
+                    'sample_size': self.sample_size,
+                    'forced_label': self._forced_label_col is not None
+                },
+                'status': 'success'
+            }
+            
+            # Save configuration
+            with open(pair_dir / 'config.json', 'w') as f:
+                json.dump(config, f, indent=2, default=str)
+            
+            debug_print(f"Successfully processed pair {db_id1}-{db_id2}")
+            debug_print(f"  Task type: {task_type}")
+            debug_print(f"  Label: {label_col} (forced={self._forced_label_col is not None})")
+            debug_print(f"  Features: {len(feature_columns)}")
+            
+            return config
+            
+        except Exception as e:
+            import logging
+            import traceback
+            
+            error_msg = f"Failed to process pair {db_id1}-{db_id2}: {str(e)}"
+            logging.error(f"{error_msg}\n{traceback.format_exc()}")
+            
+            error_config = {
+                'pair_id': f"{db_id1:05d}_{db_id2:05d}",
+                'db_id1': db_id1,
+                'db_id2': db_id2,
+                'similarity': pair_metadata['similarity'],
+                'error': str(e),
+                'status': 'failed'
+            }
+            
+            debug_print(f"Failed to process pair {db_id1}-{db_id2}: {e}")
+            
+            return error_config
 
 
 def main():
@@ -470,6 +737,8 @@ def main():
                         help="Number of sample values per column for embedding (default: 10)")
     parser.add_argument("--retry", action="store_true",
                         help="Retry failed pairs from previous run")
+    parser.add_argument("--raw-data-dir", type=str, default="data/auto",
+                        help="Directory with raw pipeline output for label reuse (default: data/auto)")
     parser.add_argument("--debug", action="store_true",
                         help="Enable verbose debug output")
     args = parser.parse_args()
@@ -484,6 +753,7 @@ def main():
     print(f"Using BGE-M3 embeddings for column alignment")
     print(f"Similarity threshold: {args.similarity_threshold}")
     print(f"Sample values per column: {args.column_sample_size}")
+    print(f"Raw data dir for label reuse: {args.raw_data_dir}")
     print()
     
     # Load pairs - support both preprocessing_summary.json and sampled_pairs.json formats
@@ -559,6 +829,23 @@ def main():
             pairs = valid_pairs
             print(f"After folder lookup: {len(pairs)} valid pairs")
     
+    # STRICT MODE: Filter pairs to only those that have raw config in raw_data_dir
+    # This ensures we only process pairs that were successfully processed by raw pipeline
+    print(f"Filtering pairs to those with raw config in {args.raw_data_dir}...")
+    filtered_pairs = []
+    for pair in pairs:
+        pair_id = f"{pair['db_id1']:05d}_{pair['db_id2']:05d}"
+        raw_config_path = os.path.join(args.raw_data_dir, pair_id, "config.json")
+        if os.path.exists(raw_config_path):
+            filtered_pairs.append(pair)
+    
+    print(f"Filtered to {len(filtered_pairs)} pairs with raw configs (from {len(pairs)} total)")
+    pairs = filtered_pairs
+    
+    if not pairs:
+        print("ERROR: No pairs with raw configs found to process!")
+        return 1
+    
     # Initialize semantic preprocessor
     preprocessor = SemanticDataPreprocessor(
         test_size=args.test_size,
@@ -601,6 +888,18 @@ def main():
         try:
             # Set db_ids for caching before processing
             preprocessor.set_current_db_ids(pair['db_id1'], pair['db_id2'])
+            
+            # Load raw config to get the same label as raw pipeline
+            raw_config = preprocessor.load_raw_config(pair_id, args.raw_data_dir)
+            if raw_config:
+                label_col = raw_config.get('label_column')
+                preprocessor.set_forced_label(label_col, raw_config)
+                if DEBUG:
+                    tqdm.write(f"Using forced label from raw config: {label_col}")
+            else:
+                preprocessor.set_forced_label(None, None)
+                if DEBUG:
+                    tqdm.write(f"No raw config found for {pair_id}, using independent label discovery")
             
             # Suppress verbose output from parent class unless in debug mode
             with SuppressOutput():

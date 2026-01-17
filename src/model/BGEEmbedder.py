@@ -15,7 +15,16 @@ from sentence_transformers import SentenceTransformer
 from utils.schema_formatter import format_schema_from_loader
 from utils.load_from_uci import load_wdbc_dataset, format_schema_from_dataframe
 import pandas as pd
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def get_device():
+    """Get the device at runtime to respect CUDA_VISIBLE_DEVICES."""
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+# For backward compatibility - but this evaluates at import time
+# Use get_device() for runtime evaluation
+device = get_device()
 
 
 def generate_and_save_all_embeddings(

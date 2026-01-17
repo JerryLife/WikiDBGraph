@@ -1,4 +1,4 @@
-#!/bin/bash
+For code reference, stay aligned with baseline.deepjoin#!/bin/bash
 
 #
 # Automated Federated Learning Validation Pipeline
@@ -23,7 +23,7 @@ NUM_GPUS=4
 GPU_IDS="0,1,2,3"  # Empty means use 0 to NUM_GPUS-1
 MAX_CONCURRENT_PER_GPU=5
 TIMEOUT=3600  # 1 hour default timeout
-TASK_TYPES="fedprox scaffold fedov"  # Default: all algorithms except fedtree
+TASK_TYPES="fedavg fedprox scaffold fedov"  # Default: all algorithms except fedtree
 
 # Directories
 BASE_DIR=$(pwd)

@@ -248,39 +248,65 @@ fi
 
 log "Using model: ${MODEL_PATH:-BAAI/bge-m3 (pretrained)}"
 
-# Step 3: Test on test triplets
+# Step 3a: Test with PRETRAINED model (baseline)
 TEST_TRIPLETS="${TRIPLETS_DIR}/triplets_test.jsonl"
-TEST_RESULTS_DIR="${OUTPUT_DIR}/test_results"
+PRETRAINED_RESULTS_DIR="${OUTPUT_DIR}/test_results_pretrained"
 if [[ $SKIP_TESTING -eq 0 ]]; then
-    if [[ -f "${TEST_RESULTS_DIR}/summary.txt" ]]; then
-        log "Step 3: Test results already exist, skipping: ${TEST_RESULTS_DIR}/summary.txt"
+    if [[ -f "${PRETRAINED_RESULTS_DIR}/summary.txt" ]]; then
+        log "Step 3a: Pretrained baseline results already exist, skipping: ${PRETRAINED_RESULTS_DIR}/summary.txt"
     elif [[ -f "$TEST_TRIPLETS" ]]; then
-        log "Step 3: Running evaluation on test triplets..."
+        log "Step 3a: Running PRETRAINED baseline evaluation on test triplets..."
         
-        MODEL_ARG=""
-        if [[ -n "$MODEL_PATH" ]]; then
-            MODEL_ARG="--model-path $MODEL_PATH"
-        fi
-        
-        # Use the GitTables-specific evaluator for pre-serialized triplets
+        # Use the GitTables-specific evaluator with pretrained BAAI/bge-m3 (no --model-path)
         python -m preprocess.GitTables.evaluator_gittables \
             --test-triplets "$TEST_TRIPLETS" \
-            --output-dir "$TEST_RESULTS_DIR" \
+            --output-dir "$PRETRAINED_RESULTS_DIR" \
             --seeds 0 1 2 3 4 \
             --gpu "$GPU_ID" \
-            $MODEL_ARG \
-            2>&1 | tee "${OUTPUT_DIR}/logs/evaluation.log"
+            2>&1 | tee "${OUTPUT_DIR}/logs/evaluation_pretrained.log"
         
         if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
-            log_error "Evaluation failed!"
+            log_error "Pretrained evaluation failed!"
             exit 1
         fi
-        log_success "Evaluation complete"
+        log_success "Pretrained baseline evaluation complete"
     else
-        log_warning "Skipping evaluation: test triplets not found"
+        log_warning "Skipping pretrained evaluation: test triplets not found"
     fi
 else
-    log "Skipping testing/evaluation (--skip-testing)"
+    log "Skipping pretrained testing (--skip-testing)"
+fi
+
+# Step 3b: Test with FINE-TUNED model
+FINETUNED_RESULTS_DIR="${OUTPUT_DIR}/test_results_finetuned"
+if [[ $SKIP_TESTING -eq 0 ]]; then
+    if [[ -f "${FINETUNED_RESULTS_DIR}/summary.txt" ]]; then
+        log "Step 3b: Fine-tuned results already exist, skipping: ${FINETUNED_RESULTS_DIR}/summary.txt"
+    elif [[ -f "$TEST_TRIPLETS" ]] && [[ -n "$MODEL_PATH" ]] && [[ -d "$MODEL_PATH" ]]; then
+        log "Step 3b: Running FINE-TUNED model evaluation on test triplets..."
+        log "  Using model: $MODEL_PATH"
+        
+        # Use the GitTables-specific evaluator with fine-tuned model
+        python -m preprocess.GitTables.evaluator_gittables \
+            --test-triplets "$TEST_TRIPLETS" \
+            --output-dir "$FINETUNED_RESULTS_DIR" \
+            --seeds 0 1 2 3 4 \
+            --gpu "$GPU_ID" \
+            --model-path "$MODEL_PATH" \
+            2>&1 | tee "${OUTPUT_DIR}/logs/evaluation_finetuned.log"
+        
+        if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+            log_error "Fine-tuned evaluation failed!"
+            exit 1
+        fi
+        log_success "Fine-tuned model evaluation complete"
+    elif [[ -z "$MODEL_PATH" ]] || [[ ! -d "$MODEL_PATH" ]]; then
+        log_warning "Skipping fine-tuned evaluation: no fine-tuned model found at ${MODEL_PATH:-N/A}"
+    else
+        log_warning "Skipping fine-tuned evaluation: test triplets not found"
+    fi
+else
+    log "Skipping fine-tuned testing (--skip-testing)"
 fi
 
 # Summary
@@ -290,6 +316,7 @@ log "=========================================="
 log "Outputs:"
 log "  Triplets: $TRIPLETS_DIR"
 log "  Model: ${MODEL_PATH:-N/A}"
-log "  Test results: $TEST_RESULTS_DIR"
+log "  Pretrained test results: $PRETRAINED_RESULTS_DIR"
+log "  Fine-tuned test results: $FINETUNED_RESULTS_DIR"
 log "  Logs: ${OUTPUT_DIR}/logs/"
 log "=========================================="

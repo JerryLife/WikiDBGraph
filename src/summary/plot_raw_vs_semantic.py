@@ -25,15 +25,15 @@ warnings.filterwarnings('ignore')
 plt.style.use('default')
 sns.set_palette("husl")
 
-# Configure matplotlib for better fonts and larger text
+# Configure matplotlib for better fonts and larger text (publication-quality)
 plt.rcParams.update({
-    'font.size': 14,
-    'axes.titlesize': 16,
-    'axes.labelsize': 14,
-    'xtick.labelsize': 12,
-    'ytick.labelsize': 12,
-    'legend.fontsize': 12,
-    'figure.titlesize': 18,
+    'font.size': 18,
+    'axes.titlesize': 22,
+    'axes.labelsize': 20,
+    'xtick.labelsize': 18,
+    'ytick.labelsize': 18,
+    'legend.fontsize': 16,
+    'figure.titlesize': 24,
     'font.family': 'sans-serif',
     'font.sans-serif': ['DejaVu Sans', 'Arial', 'Helvetica', 'sans-serif'],
     'figure.dpi': 300,
@@ -152,9 +152,9 @@ def create_comparison_plots(raw_data, semantic_data, algorithms, common_pairs, o
         'f1': 'F1-Score'
     }
     
-    # Color palette for raw vs semantic
-    raw_color = '#1f77b4'      # Blue
-    semantic_color = '#ff7f0e' # Orange
+    # Professional color palette
+    raw_color = '#3274A1'      # Professional blue
+    semantic_color = '#E1812C' # Professional orange
     
     os.makedirs(output_dir, exist_ok=True)
     
@@ -167,13 +167,19 @@ def create_comparison_plots(raw_data, semantic_data, algorithms, common_pairs, o
         for algo in algorithms:
             # Raw approach
             raw_df = raw_data[algo]
-            raw_filtered = raw_df[raw_df['pair_id'].isin(common_pairs)]
-            raw_values = raw_filtered[metric].dropna().values
+            if len(raw_df) > 0:
+                raw_filtered = raw_df[raw_df['pair_id'].isin(common_pairs)]
+                raw_values = raw_filtered[metric].dropna().values
+            else:
+                raw_values = np.array([])
             
             # Semantic approach
             sem_df = semantic_data[algo]
-            sem_filtered = sem_df[sem_df['pair_id'].isin(common_pairs)]
-            sem_values = sem_filtered[metric].dropna().values
+            if len(sem_df) > 0:
+                sem_filtered = sem_df[sem_df['pair_id'].isin(common_pairs)]
+                sem_values = sem_filtered[metric].dropna().values
+            else:
+                sem_values = np.array([])
             
             if len(raw_values) > 0:
                 plot_data.append({
@@ -198,7 +204,7 @@ def create_comparison_plots(raw_data, semantic_data, algorithms, common_pairs, o
             continue
         
         # Create the grouped bar plot
-        fig, ax = plt.subplots(figsize=(12, 6))
+        fig, ax = plt.subplots(figsize=(14, 7))
         
         # Group positions
         n_algorithms = len(algorithms)
@@ -235,55 +241,64 @@ def create_comparison_plots(raw_data, semantic_data, algorithms, common_pairs, o
                 sem_stds.append(0)
                 sem_values_all.append(np.array([]))
         
-        # Plot bars
+        # Plot bars without error bars
         bars_raw = ax.bar(x_base - bar_width/2, raw_means, bar_width, 
-                         yerr=raw_stds, label='Raw (String Match)',
-                         color=raw_color, capsize=5, alpha=0.8)
+                         label='Raw (String Match)',
+                         color=raw_color, alpha=0.9, edgecolor='black', linewidth=1.2)
         bars_sem = ax.bar(x_base + bar_width/2, sem_means, bar_width,
-                         yerr=sem_stds, label='Semantic (BGE Embedding)',
-                         color=semantic_color, capsize=5, alpha=0.8)
+                         label='Semantic (BGE Embedding)',
+                         color=semantic_color, alpha=0.9, edgecolor='black', linewidth=1.2)
         
-        # Add scatter points for individual pairs
+        # Add transparent scatter points for individual data points
         for i, (raw_vals, sem_vals) in enumerate(zip(raw_values_all, sem_values_all)):
             if len(raw_vals) > 0:
                 jitter = np.random.normal(0, 0.03, len(raw_vals))
                 ax.scatter(np.full(len(raw_vals), x_base[i] - bar_width/2) + jitter, 
-                          raw_vals, color=raw_color, alpha=0.15, s=10, 
-                          edgecolors='black', linewidth=0.2)
+                          raw_vals, color=raw_color, alpha=0.2, s=15, 
+                          edgecolors='black', linewidth=0.3, zorder=5)
             if len(sem_vals) > 0:
                 jitter = np.random.normal(0, 0.03, len(sem_vals))
                 ax.scatter(np.full(len(sem_vals), x_base[i] + bar_width/2) + jitter,
-                          sem_vals, color=semantic_color, alpha=0.15, s=10,
-                          edgecolors='black', linewidth=0.2)
+                          sem_vals, color=semantic_color, alpha=0.2, s=15,
+                          edgecolors='black', linewidth=0.3, zorder=5)
         
-        # Add value labels on bars
+        # Add mean ± std text on each bar
         for i, (raw_m, raw_s, sem_m, sem_s) in enumerate(zip(raw_means, raw_stds, sem_means, sem_stds)):
             if raw_m > 0:
-                ax.text(x_base[i] - bar_width/2, raw_m + raw_s + 0.02, 
-                       f'{raw_m:.3f}', ha='center', va='bottom', fontsize=9,
-                       fontweight='bold')
+                # Position text in the middle of the bar
+                text_y = raw_m / 2
+                ax.text(x_base[i] - bar_width/2, text_y, 
+                       f'{raw_m:.3f}\n±{raw_s:.3f}', 
+                       ha='center', va='center', fontsize=14,
+                       fontweight='bold', color='white', zorder=10)
             if sem_m > 0:
-                ax.text(x_base[i] + bar_width/2, sem_m + sem_s + 0.02,
-                       f'{sem_m:.3f}', ha='center', va='bottom', fontsize=9,
-                       fontweight='bold')
+                text_y = sem_m / 2
+                ax.text(x_base[i] + bar_width/2, text_y,
+                       f'{sem_m:.3f}\n±{sem_s:.3f}',
+                       ha='center', va='center', fontsize=14,
+                       fontweight='bold', color='white', zorder=10)
         
         # Customize plot
-        ax.set_xlabel('FL Algorithm', fontweight='bold', fontsize=14)
-        ax.set_ylabel(metric_labels[metric], fontweight='bold', fontsize=14)
-        ax.set_title(f'{metric_labels[metric]}: Raw vs Semantic Approach (n={len(common_pairs)} pairs)',
-                    fontweight='bold', fontsize=16, pad=20)
+        ax.set_xlabel('FL Algorithm', fontweight='bold', fontsize=20)
+        ax.set_ylabel(metric_labels[metric], fontweight='bold', fontsize=20)
+        ax.set_title(f'{metric_labels[metric]}: Raw vs Semantic Approach',
+                    fontweight='bold', fontsize=22, pad=20)
         ax.set_xticks(x_base)
-        ax.set_xticklabels([algo.upper() for algo in algorithms], fontweight='bold')
-        ax.legend(loc='lower right', framealpha=0.9)
+        ax.set_xticklabels([algo.upper() for algo in algorithms], fontweight='bold', fontsize=18)
+        ax.legend(loc='lower right', framealpha=0.95, fontsize=16, edgecolor='black')
         ax.grid(True, alpha=0.3, linestyle='--', axis='y')
         ax.set_axisbelow(True)
         
-        # Set y-axis limits
+        # Set y-axis limits based on all values
         all_values = np.concatenate([v for v in raw_values_all + sem_values_all if len(v) > 0])
         if len(all_values) > 0:
-            y_min = max(0, min(all_values) - 0.1)
-            y_max = min(1.0, max(all_values) + 0.15)
+            y_min = max(0, min(all_values) - 0.05)
+            y_max = min(1.0, max(all_values) + 0.1)
             ax.set_ylim(y_min, y_max)
+        
+        # Add subtle background
+        ax.set_facecolor('#fafafa')
+        fig.patch.set_facecolor('white')
         
         plt.tight_layout()
         
@@ -432,6 +447,11 @@ def print_summary_statistics(raw_data, semantic_data, algorithms, common_pairs):
             raw_df = raw_data[algo]
             sem_df = semantic_data[algo]
             
+            # Skip if either DataFrame is empty (no 'pair_id' column)
+            if len(raw_df) == 0 or len(sem_df) == 0:
+                print(f"{algo.upper():<12} {'N/A':<12} {'N/A':<15} {'N/A':<10} {'N/A':<10}")
+                continue
+            
             raw_filtered = raw_df[raw_df['pair_id'].isin(common_pairs)]
             sem_filtered = sem_df[sem_df['pair_id'].isin(common_pairs)]
             
@@ -479,7 +499,7 @@ def main():
     semantic_results_dir = args.semantic_results_dir
     output_dir = args.output_dir
     
-    # The semantic pipeline ran only these algorithms
+    # Include fedavg along with other algorithms
     algorithms = ['fedprox', 'scaffold', 'fedov']
     
     # Load data
@@ -500,13 +520,9 @@ def main():
     # Print summary statistics
     print_summary_statistics(raw_data, semantic_data, algorithms, common_pairs)
     
-    # Create comparison plots
+    # Create comparison plots only (no delta plots)
     print("\nCreating comparison plots...")
     create_comparison_plots(raw_data, semantic_data, algorithms, common_pairs, output_dir)
-    
-    # Create delta plots
-    print("\nCreating delta plots...")
-    create_delta_plot(raw_data, semantic_data, algorithms, common_pairs, output_dir)
     
     print("\n" + "="*60)
     print("COMPARISON COMPLETE!")
@@ -515,8 +531,6 @@ def main():
     print("Generated files:")
     print("  - raw_vs_semantic_*.png (comparison bar plots)")
     print("  - raw_vs_semantic_*.pdf (publication-ready)")
-    print("  - semantic_vs_raw_delta_*.png (delta distribution plots)")
-    print("  - semantic_vs_raw_delta_*.pdf (publication-ready)")
 
 
 if __name__ == "__main__":

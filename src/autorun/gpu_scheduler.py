@@ -680,6 +680,8 @@ def main():
                        help="Maximum number of pairs to process (default: all)")
     parser.add_argument("--skip-validation", action='store_true',
                        help="Skip input validation (faster but riskier)")
+    parser.add_argument("--skip-existing", action='store_true',
+                       help="Skip tasks where result file already exists (task-wise caching)")
     
     # Script path arguments
     parser.add_argument("--fedavg-script", type=str, default="src/autorun/fedavg.py",
@@ -748,6 +750,7 @@ def main():
     
     total_tasks = 0
     failed_to_add = 0
+    skipped_existing = 0
     
     for pair in pairs:
         pair_id = pair['pair_id']
@@ -756,9 +759,15 @@ def main():
         
         # Add specified task types for each pair
         for task_type in args.task_types:
+            # Check if result already exists (task-wise caching)
+            output_file = Path(args.output_dir) / f"{pair_id}_{task_type}_results.json"
+            if args.skip_existing and output_file.exists():
+                logger.debug(f"Skipping existing result: {output_file}")
+                skipped_existing += 1
+                continue
+            
             if args.skip_validation:
                 # Skip validation for speed
-                output_file = Path(args.output_dir) / f"{pair_id}_{task_type}_results.json"
                 task = GPUTask(
                     pair_id=pair_id,
                     data_dir=data_dir,
@@ -779,6 +788,9 @@ def main():
     
     if failed_to_add > 0:
         logger.warning(f"Failed to add {failed_to_add} tasks due to validation errors")
+    
+    if skipped_existing > 0:
+        logger.info(f"Skipped {skipped_existing} existing result files (task-wise caching)")
     
     logger.info(f"Added {total_tasks} tasks ({len(pairs)} pairs × {len(args.task_types)} algorithms) to scheduler")
     

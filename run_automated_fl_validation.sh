@@ -1,5 +1,3 @@
-For code reference, stay aligned with baseline.deepjoin#!/bin/bash
-
 #
 # Automated Federated Learning Validation Pipeline
 #

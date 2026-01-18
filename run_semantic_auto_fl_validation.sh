@@ -23,7 +23,7 @@ NUM_GPUS=2
 GPU_IDS="2,3"  # Empty means use 0 to NUM_GPUS-1
 MAX_CONCURRENT_PER_GPU=5
 TIMEOUT=3600  # 1 hour default timeout
-TASK_TYPES="fedprox scaffold fedov"  # Algorithms to compare (same as will be compared with raw)
+TASK_TYPES="fedavg fedprox scaffold fedov"  # Algorithms to compare (includes fedavg)
 
 # Semantic-specific parameters
 SEMANTIC_THRESHOLD=0.80  # Similarity threshold for column matching
@@ -400,29 +400,61 @@ fi
 
 # Step 3: Run parallel FL training (IDENTICAL to original)
 if [[ -z "$SKIP_TRAINING" ]]; then
-    if [[ -f "$EXECUTION_REPORT" ]]; then
-        log "Execution report already exists, skipping training"
+    log "Step 3: Running parallel FL training (same as original)..."
+    log "GPU configuration: $NUM_GPUS GPUs, max $MAX_CONCURRENT_PER_GPU concurrent tasks per GPU"
+    log "Algorithms to run: $TASK_TYPES"
+    
+    if [[ ! -f "$PREPROCESSING_SUMMARY" ]]; then
+        log_error "Preprocessing summary not found: $PREPROCESSING_SUMMARY"
+        log_error "Please run preprocessing step first"
+        exit 1
+    fi
+    
+    cd "$BASE_DIR"
+    export PYTHONPATH=src
+    
+    # Task-wise caching: Check existing results and count what needs to run
+    log "Checking for existing result files (task-wise caching)..."
+    existing_count=0
+    total_tasks=0
+    
+    # Get list of pairs from preprocessing summary
+    pairs_list=$(python -c "
+import json, os
+try:
+    with open('$PREPROCESSING_SUMMARY', 'r') as f:
+        summary = json.load(f)
+    # Iterate over 'results' list which contains successfully processed pairs
+    for result in summary.get('results', []):
+        if 'error' not in result:
+            print(result['pair_id'])
+except Exception as e:
+    pass
+" 2>/dev/null)
+    
+    for algo in $TASK_TYPES; do
+        for pair_id in $pairs_list; do
+            result_file="$RESULTS_DIR/${pair_id}_${algo}_results.json"
+            total_tasks=$((total_tasks + 1))
+            if [[ -f "$result_file" ]]; then
+                existing_count=$((existing_count + 1))
+            fi
+        done
+    done
+    
+    pending_tasks=$((total_tasks - existing_count))
+    log "Task-wise cache status: $existing_count/$total_tasks completed, $pending_tasks pending"
+    
+    if [[ $pending_tasks -eq 0 ]]; then
+        log_success "All tasks already completed. Use --force-rerun to reprocess."
     else
-        log "Step 3: Running parallel FL training (same as original)..."
-        log "GPU configuration: $NUM_GPUS GPUs, max $MAX_CONCURRENT_PER_GPU concurrent tasks per GPU"
-        log "Algorithms to run: $TASK_TYPES"
-        
-        if [[ ! -f "$PREPROCESSING_SUMMARY" ]]; then
-            log_error "Preprocessing summary not found: $PREPROCESSING_SUMMARY"
-            log_error "Please run preprocessing step first"
-            exit 1
-        fi
-        
-        cd "$BASE_DIR"
-        export PYTHONPATH=src
-        
         # Show GPU status
         if command -v nvidia-smi &> /dev/null; then
             log "Current GPU status:"
             nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu --format=csv,noheader,nounits
         fi
         
-        # Execute GPU scheduler (IDENTICAL to original)
+        # Execute GPU scheduler with skip-existing flag (IDENTICAL to original)
         python src/autorun/gpu_scheduler.py \
             --preprocessing-summary "$PREPROCESSING_SUMMARY" \
             --data-dir "$DATA_DIR" \
@@ -432,6 +464,7 @@ if [[ -z "$SKIP_TRAINING" ]]; then
             --log-dir "$LOG_DIR" \
             --timeout "$TIMEOUT" \
             --task-types $TASK_TYPES \
+            --skip-existing \
             2>&1 | tee "$LOG_DIR/training.log"
         
         training_exit_code=${PIPESTATUS[0]}

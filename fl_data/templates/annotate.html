@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标注 - {{ pair_id }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 1.8em;
+        }
+        
+        .progress {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .nav-btn:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .config-display {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .config-section {
+            margin-bottom: 25px;
+        }
+        
+        .config-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .config-item {
+            margin-bottom: 10px;
+            padding: 8px 0;
+        }
+        
+        .config-label {
+            font-weight: 600;
+            color: #555;
+            margin-right: 10px;
+            display: inline-block;
+            min-width: 150px;
+        }
+        
+        .config-value {
+            color: #333;
+        }
+        
+        .config-value ul {
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+        
+        .config-value li {
+            margin-bottom: 5px;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .metric-item.metric-good {
+            border-color: #4caf50;
+            background: #f1f8f4;
+        }
+        
+        .metric-item.metric-bad {
+            border-color: #f44336;
+            background: #fff5f5;
+        }
+        
+        .metric-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .metric-item.metric-good .metric-value {
+            color: #4caf50;
+        }
+        
+        .metric-item.metric-bad .metric-value {
+            color: #f44336;
+        }
+        
+        .metrics-annotation {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric-annotation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .metric-annotation-item .metric-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+        
+        .metric-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .metric-btn {
+            padding: 8px 20px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+        
+        .metric-btn:hover {
+            background: #f5f5f5;
+        }
+        
+        .metric-btn.selected-true {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        .metric-btn.selected-false {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .action-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+        
+        .btn-yes {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-yes:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-yes.selected {
+            background: #2e7d32;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-no {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-no:hover {
+            background: #da190b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+        
+        .btn-no.selected {
+            background: #c62828;
+            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.3);
+        }
+        
+        .save-status {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #4caf50;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .save-status.show {
+            opacity: 1;
+        }
+        
+        .json-display {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .toggle-view {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        
+        .toggle-btn {
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        
+        .toggle-btn:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>数据库对: {{ pair_id }}</h1>
+            <div class="progress">进度: {{ current_index }} / {{ total }}</div>
+        </div>
+        
+        <div class="nav-buttons">
+            {% if prev_pair %}
+            <a href="/annotate/{{ prev_pair }}" class="nav-btn">← 上一个</a>
+            {% else %}
+            <button class="nav-btn" disabled>← 上一个</button>
+            {% endif %}
+            
+            <a href="/" class="nav-btn">返回列表</a>
+            
+            {% if next_pair %}
+            <a href="/annotate/{{ next_pair }}" class="nav-btn">下一个 →</a>
+            {% else %}
+            <button class="nav-btn" disabled>下一个 →</button>
+            {% endif %}
+        </div>
+        
+        <div class="toggle-view">
+            <button class="toggle-btn" onclick="toggleView()">切换视图</button>
+        </div>
+        
+        <div class="config-display" id="configDisplay">
+            <div id="formattedView">
+                <div class="config-section">
+                    <div class="section-title">列信息</div>
+                    <div class="config-item">
+                        <span class="config-label">共同列数:</span>
+                        <span class="config-value highlight">{{ config.num_common_columns }}</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">共同列:</span>
+                        <div class="config-value">
+                            <ul>
+                                {% for col in config.common_columns %}
+                                <li>{{ col }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% if config.feature_columns %}
+                    <div class="config-item">
+                        <span class="config-label">特征列:</span>
+                        <div class="config-value">
+                            <ul>
+                                {% for col in config.feature_columns %}
+                                <li>{{ col }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="config-section">
+                    <div class="section-title">质量指标（人工审核）</div>
+                    <div class="metrics-annotation">
+                        <div class="metric-annotation-item">
+                            <div class="metric-label">列对齐良好</div>
+                            <div class="metric-buttons">
+                                <button class="metric-btn {% if metrics.column_alignment_good == True %}selected-true{% endif %}" 
+                                        onclick="saveMetric('column_alignment_good', true)">
+                                    ✓ 是
+                                </button>
+                                <button class="metric-btn {% if metrics.column_alignment_good == False %}selected-false{% endif %}" 
+                                        onclick="saveMetric('column_alignment_good', false)">
+                                    ✗ 否
+                                </button>
+                            </div>
+                        </div>
+                        <div class="metric-annotation-item">
+                            <div class="metric-label">标签合理性</div>
+                            <div class="metric-buttons">
+                                <button class="metric-btn {% if metrics.label_reasonable == True %}selected-true{% endif %}" 
+                                        onclick="saveMetric('label_reasonable', true)">
+                                    ✓ 是
+                                </button>
+                                <button class="metric-btn {% if metrics.label_reasonable == False %}selected-false{% endif %}" 
+                                        onclick="saveMetric('label_reasonable', false)">
+                                    ✗ 否
+                                </button>
+                            </div>
+                        </div>
+                        <div class="metric-annotation-item">
+                            <div class="metric-label">任务合理</div>
+                            <div class="metric-buttons">
+                                <button class="metric-btn {% if metrics.task_reasonable == True %}selected-true{% endif %}" 
+                                        onclick="saveMetric('task_reasonable', true)">
+                                    ✓ 是
+                                </button>
+                                <button class="metric-btn {% if metrics.task_reasonable == False %}selected-false{% endif %}" 
+                                        onclick="saveMetric('task_reasonable', false)">
+                                    ✗ 否
+                                </button>
+                            </div>
+                        </div>
+                        <div class="metric-annotation-item">
+                            <div class="metric-label">关联性</div>
+                            <div class="metric-buttons">
+                                <button class="metric-btn {% if metrics.is_related == True %}selected-true{% endif %}" 
+                                        onclick="saveMetric('is_related', true)">
+                                    ✓ 是
+                                </button>
+                                <button class="metric-btn {% if metrics.is_related == False %}selected-false{% endif %}" 
+                                        onclick="saveMetric('is_related', false)">
+                                    ✗ 否
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <div class="section-title">基本信息</div>
+                    <div class="config-item">
+                        <span class="config-label">数据库对ID:</span>
+                        <span class="config-value">{{ config.pair_id }}</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">数据库ID 1:</span>
+                        <span class="config-value">{{ config.db_id1 }}</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">数据库ID 2:</span>
+                        <span class="config-value">{{ config.db_id2 }}</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">相似度:</span>
+                        <span class="config-value highlight">{{ "%.4f"|format(config.similarity) }}</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">状态:</span>
+                        <span class="config-value">{{ config.status }}</span>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <div class="section-title">任务信息</div>
+                    <div class="config-item">
+                        <span class="config-label">任务类型:</span>
+                        <span class="config-value">{{ config.task_type }}</span>
+                    </div>
+                    {% if config.label_column %}
+                    <div class="config-item">
+                        <span class="config-label">标签列:</span>
+                        <span class="config-value">{{ config.label_column }}</span>
+                    </div>
+                    {% endif %}
+                    {% if config.label_metadata %}
+                    <div class="config-item">
+                        <span class="config-label">标签元数据:</span>
+                        <div class="config-value">
+                            <ul>
+                                {% for key, value in config.label_metadata.items() %}
+                                <li><strong>{{ key }}:</strong> 
+                                    {% if value is mapping %}
+                                        {% for k, v in value.items() %}
+                                            {{ k }}: {{ v }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {{ value }}
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="config-section">
+                    <div class="section-title">数据形状</div>
+                    {% if config.data_shapes %}
+                    <div class="config-item">
+                        <span class="config-label">数据库1训练集:</span>
+                        <span class="config-value">{{ config.data_shapes.db1_train[0] }} 行 × {{ config.data_shapes.db1_train[1] }} 列</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">数据库1测试集:</span>
+                        <span class="config-value">{{ config.data_shapes.db1_test[0] }} 行 × {{ config.data_shapes.db1_test[1] }} 列</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">数据库2训练集:</span>
+                        <span class="config-value">{{ config.data_shapes.db2_train[0] }} 行 × {{ config.data_shapes.db2_train[1] }} 列</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">数据库2测试集:</span>
+                        <span class="config-value">{{ config.data_shapes.db2_test[0] }} 行 × {{ config.data_shapes.db2_test[1] }} 列</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if config.column_types %}
+                <div class="config-section">
+                    <div class="section-title">列类型</div>
+                    <div class="config-value">
+                        <ul>
+                            {% for col, col_type in config.column_types.items() %}
+                            <li><strong>{{ col }}:</strong> {{ col_type }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if config.preprocessing_config %}
+                <div class="config-section">
+                    <div class="section-title">预处理配置</div>
+                    <div class="config-value">
+                        <ul>
+                            {% for key, value in config.preprocessing_config.items() %}
+                            <li><strong>{{ key }}:</strong> {{ value }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div id="jsonView" style="display: none;">
+                <div class="json-display">{{ config|tojson(indent=2) }}</div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="action-btn btn-yes {% if current_label == 'true' %}selected{% endif %}" 
+                    onclick="saveAnnotation(true)">
+                ✓ 有效对
+            </button>
+            <button class="action-btn btn-no {% if current_label == 'false' %}selected{% endif %}" 
+                    onclick="saveAnnotation(false)">
+                ✗ 无效对
+            </button>
+        </div>
+        
+        <div class="save-status" id="saveStatus">保存成功！</div>
+    </div>
+    
+    <script>
+        let currentLabel = '{{ current_label }}';
+        
+        // 导航变量
+        const hasPrev = {{ 'true' if prev_pair else 'false' }};
+        const hasNext = {{ 'true' if next_pair else 'false' }};
+        const prevUrl = '{{ prev_pair if prev_pair else "" }}';
+        const nextUrl = '{{ next_pair if next_pair else "" }}';
+        
+        function toggleView() {
+            const formattedView = document.getElementById('formattedView');
+            const jsonView = document.getElementById('jsonView');
+            
+            if (formattedView.style.display === 'none') {
+                formattedView.style.display = 'block';
+                jsonView.style.display = 'none';
+            } else {
+                formattedView.style.display = 'none';
+                jsonView.style.display = 'block';
+            }
+        }
+        
+        function saveAnnotation(isLink) {
+            const pairId = '{{ pair_id }}';
+            const statusDiv = document.getElementById('saveStatus');
+            
+            // 更新按钮状态
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            if (isLink) {
+                document.querySelector('.btn-yes').classList.add('selected');
+            } else {
+                document.querySelector('.btn-no').classList.add('selected');
+            }
+            
+            // 发送请求
+            fetch('/api/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    pair_id: pairId,
+                    is_valid_pair: isLink
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.textContent = '保存成功！正在跳转...';
+                    statusDiv.style.color = '#4caf50';
+                    statusDiv.classList.add('show');
+                    currentLabel = isLink ? 'true' : 'false';
+                    
+                    // 延迟一小段时间后自动跳转到下一个
+                    setTimeout(() => {
+                        if (hasNext && nextUrl) {
+                            window.location.href = '/annotate/' + nextUrl;
+                        } else {
+                            // 如果没有下一个，跳转回列表页面
+                            statusDiv.textContent = '保存成功！这是最后一个，返回列表...';
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 1000);
+                        }
+                    }, 500);
+                } else {
+                    statusDiv.textContent = '保存失败: ' + (data.error || '未知错误');
+                    statusDiv.style.color = '#f44336';
+                    statusDiv.classList.add('show');
+                }
+            })
+            .catch(error => {
+                statusDiv.textContent = '保存失败: ' + error.message;
+                statusDiv.style.color = '#f44336';
+                statusDiv.classList.add('show');
+            });
+        }
+        
+        function saveMetric(metricName, value) {
+            const pairId = '{{ pair_id }}';
+            const statusDiv = document.getElementById('saveStatus');
+            
+            fetch('/save_metric', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    pair_id: pairId,
+                    metric_name: metricName,
+                    value: value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 更新按钮状态
+                    const buttons = document.querySelectorAll(`[onclick*="${metricName}"]`);
+                    buttons.forEach(btn => {
+                        btn.classList.remove('selected-true', 'selected-false');
+                        if (btn.textContent.includes('是') && value) {
+                            btn.classList.add('selected-true');
+                        } else if (btn.textContent.includes('否') && !value) {
+                            btn.classList.add('selected-false');
+                        }
+                    });
+                    
+                    // 显示保存成功消息
+                    statusDiv.textContent = '指标保存成功！';
+                    statusDiv.style.color = '#4caf50';
+                    statusDiv.classList.add('show');
+                    setTimeout(() => {
+                        statusDiv.classList.remove('show');
+                    }, 1500);
+                } else {
+                    statusDiv.textContent = '保存失败: ' + (data.error || '未知错误');
+                    statusDiv.style.color = '#f44336';
+                    statusDiv.classList.add('show');
+                }
+            })
+            .catch(error => {
+                statusDiv.textContent = '保存失败: ' + error.message;
+                statusDiv.style.color = '#f44336';
+                statusDiv.classList.add('show');
+            });
+        }
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '1' || e.key === 'y' || e.key === 'Y') {
+                saveAnnotation(true);
+            } else if (e.key === '2' || e.key === 'n' || e.key === 'N') {
+                saveAnnotation(false);
+            } else if (e.key === 'ArrowLeft' && hasPrev) {
+                window.location.href = '/annotate/' + prevUrl;
+            } else if (e.key === 'ArrowRight' && hasNext) {
+                window.location.href = '/annotate/' + nextUrl;
+            }
+        });
+    </script>
+</body>
+</html>

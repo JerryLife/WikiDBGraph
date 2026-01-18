@@ -243,10 +243,10 @@ def create_comparison_plots(raw_data, semantic_data, algorithms, common_pairs, o
         
         # Plot bars without error bars
         bars_raw = ax.bar(x_base - bar_width/2, raw_means, bar_width, 
-                         label='Raw (String Match)',
+                         label='String Match',
                          color=raw_color, alpha=0.9, edgecolor='black', linewidth=1.2)
         bars_sem = ax.bar(x_base + bar_width/2, sem_means, bar_width,
-                         label='Semantic (BGE Embedding)',
+                         label='DeepJoin Embedding',
                          color=semantic_color, alpha=0.9, edgecolor='black', linewidth=1.2)
         
         # Add transparent scatter points for individual data points
@@ -281,7 +281,7 @@ def create_comparison_plots(raw_data, semantic_data, algorithms, common_pairs, o
         # Customize plot
         ax.set_xlabel('FL Algorithm', fontweight='bold', fontsize=20)
         ax.set_ylabel(metric_labels[metric], fontweight='bold', fontsize=20)
-        ax.set_title(f'{metric_labels[metric]}: Raw vs Semantic Approach',
+        ax.set_title(f'{metric_labels[metric]}: String Match vs DeepJoin Embedding',
                     fontweight='bold', fontsize=22, pad=20)
         ax.set_xticks(x_base)
         ax.set_xticklabels([algo.upper() for algo in algorithms], fontweight='bold', fontsize=18)
@@ -500,7 +500,7 @@ def main():
     output_dir = args.output_dir
     
     # Include fedavg along with other algorithms
-    algorithms = ['fedprox', 'scaffold', 'fedov']
+    algorithms = ['fedavg', 'fedprox', 'scaffold', 'fedov']
     
     # Load data
     print("\nLoading raw approach results...")

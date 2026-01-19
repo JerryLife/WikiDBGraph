@@ -369,12 +369,12 @@ def create_delta_plot(raw_data, semantic_data, algorithms, common_pairs, output_
                 std_val = delta_data[algo]['std']
                 color = colors[i % len(colors)]
                 
-                # Scatter points
-                if len(values) > 0:
-                    jitter = np.random.normal(0, 0.05, len(values))
-                    ax.scatter(np.full(len(values), x_positions[i]) + jitter, values,
-                              color=color, alpha=0.15, s=20,
-                              edgecolors='black', linewidth=0.3)
+                # # Scatter points
+                # if len(values) > 0:
+                #     jitter = np.random.normal(0, 0.05, len(values))
+                #     ax.scatter(np.full(len(values), x_positions[i]) + jitter, values,
+                #               color=color, alpha=0.15, s=20,
+                #               edgecolors='black', linewidth=0.3)
                 
                 # Mean line
                 line_width = 0.15

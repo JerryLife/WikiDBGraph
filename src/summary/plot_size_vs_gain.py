@@ -275,7 +275,7 @@ def create_scatter_plot(df, output_dir, stats, cl_algorithm='fedavg', semantic_d
     x_raw = df['total_train_rows'].values
     y_raw = df['gain'].values
     
-    scatter_raw = ax.scatter(x_raw, y_raw, c=raw_color, alpha=0.3, s=35, 
+    scatter_raw = ax.scatter(x_raw, y_raw, c=raw_color, alpha=0.05, s=35, 
                              edgecolors='darkblue', linewidth=0.3, zorder=3,
                              label=f'String Match ({stats["neutral_or_positive_rate"]:.1f}% neutral/positive)')
     
@@ -309,7 +309,7 @@ def create_scatter_plot(df, output_dir, stats, cl_algorithm='fedavg', semantic_d
         x_sem = semantic_df['total_train_rows'].values
         y_sem = semantic_df['gain'].values
         
-        scatter_sem = ax.scatter(x_sem, y_sem, c=semantic_color, alpha=0.1, s=35, 
+        scatter_sem = ax.scatter(x_sem, y_sem, c=semantic_color, alpha=0.05, s=35, 
                                  edgecolors='darkorange', linewidth=0.3, zorder=3,
                                  label=f'DeepJoin Embedding ({semantic_stats["neutral_or_positive_rate"]:.1f}% neutral/positive)')
         

@@ -704,11 +704,11 @@ def create_performance_plots(data, output_dir, show_both_solo_clients=False):
                     jitter = np.random.normal(0, 0.05, len(values))
                     x_jittered = np.full(len(values), x_positions[i]) + jitter
                     
-                    # Plot individual points (database pairs)
-                    ax.scatter(x_jittered, values, 
-                              color=color, alpha=0.1, s=20, 
-                              edgecolors='black', linewidth=0.3,
-                              label=f'{method} pairs')
+                    # # Plot individual points (database pairs)
+                    # ax.scatter(x_jittered, values, 
+                    #           color=color, alpha=0.1, s=20, 
+                    #           edgecolors='black', linewidth=0.3,
+                    #           label=f'{method} pairs')
                 
                 # Plot mean as horizontal line
                 line_width = 0.15  # Reduced line width
@@ -1069,11 +1069,11 @@ def create_delta_distribution_plots(data, output_dir, show_both_solo_clients=Fal
                     jitter = np.random.normal(0, 0.05, len(values))
                     x_jittered = np.full(len(values), x_positions[i]) + jitter
                     
-                    # Plot individual points (database pairs)
-                    ax.scatter(x_jittered, values, 
-                              color=color, alpha=0.1, s=20, 
-                              edgecolors='black', linewidth=0.3,
-                              label=f'{method} pairs')
+                    # # Plot individual points (database pairs)
+                    # ax.scatter(x_jittered, values, 
+                    #           color=color, alpha=0.1, s=20, 
+                    #           edgecolors='black', linewidth=0.3,
+                    #           label=f'{method} pairs')
                 
                 # Plot mean as horizontal line
                 line_width = 0.15  # Reduced line width

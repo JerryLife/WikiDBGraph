@@ -241,26 +241,17 @@ def create_comparison_plots(raw_data, semantic_data, algorithms, common_pairs, o
                 sem_stds.append(0)
                 sem_values_all.append(np.array([]))
         
-        # Plot bars without error bars
+        # Plot bars with error bars showing standard deviation
         bars_raw = ax.bar(x_base - bar_width/2, raw_means, bar_width, 
+                         yerr=raw_stds, capsize=5,
                          label='String Match',
-                         color=raw_color, alpha=0.9, edgecolor='black', linewidth=1.2)
+                         color=raw_color, alpha=0.9, edgecolor='black', linewidth=1.2,
+                         error_kw={'elinewidth': 2, 'capthick': 2, 'ecolor': 'black'})
         bars_sem = ax.bar(x_base + bar_width/2, sem_means, bar_width,
+                         yerr=sem_stds, capsize=5,
                          label='DeepJoin Embedding',
-                         color=semantic_color, alpha=0.9, edgecolor='black', linewidth=1.2)
-        
-        # Add transparent scatter points for individual data points
-        for i, (raw_vals, sem_vals) in enumerate(zip(raw_values_all, sem_values_all)):
-            if len(raw_vals) > 0:
-                jitter = np.random.normal(0, 0.03, len(raw_vals))
-                ax.scatter(np.full(len(raw_vals), x_base[i] - bar_width/2) + jitter, 
-                          raw_vals, color=raw_color, alpha=0.2, s=15, 
-                          edgecolors='black', linewidth=0.3, zorder=5)
-            if len(sem_vals) > 0:
-                jitter = np.random.normal(0, 0.03, len(sem_vals))
-                ax.scatter(np.full(len(sem_vals), x_base[i] + bar_width/2) + jitter,
-                          sem_vals, color=semantic_color, alpha=0.2, s=15,
-                          edgecolors='black', linewidth=0.3, zorder=5)
+                         color=semantic_color, alpha=0.9, edgecolor='black', linewidth=1.2,
+                         error_kw={'elinewidth': 2, 'capthick': 2, 'ecolor': 'black'})
         
         # Add mean ± std text on each bar
         for i, (raw_m, raw_s, sem_m, sem_s) in enumerate(zip(raw_means, raw_stds, sem_means, sem_stds)):

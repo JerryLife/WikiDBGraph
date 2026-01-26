@@ -23,6 +23,7 @@ SERIALIZATION_MODE="full"
 SAMPLE_SIZE=3
 NUM_NEGATIVES=6
 SIMILARITY_THRESHOLD=0.6713
+NNS=0
 SEED=0
 
 # Training parameters
@@ -72,6 +73,7 @@ OPTIONS:
     --sample-size N         Sample values per column (default: 3)
     --num-negatives N       Negatives per triplet (default: 6)
     --threshold FLOAT       Similarity threshold (default: 0.6713)
+    --nns N                 Use k-Nearest Neighbors with Faiss instead of all-pairs (default: 0 = disabled)
     --seed N                Random seed (default: 0)
     --lr FLOAT              Learning rate (default: 1e-05)
     --epochs N              Training epochs (default: 10)
@@ -110,6 +112,7 @@ while [[ $# -gt 0 ]]; do
         --sample-size) SAMPLE_SIZE="$2"; shift 2 ;;
         --num-negatives) NUM_NEGATIVES="$2"; shift 2 ;;
         --threshold) SIMILARITY_THRESHOLD="$2"; shift 2 ;;
+        --nns) NNS="$2"; shift 2 ;;
         --seed) SEED="$2"; shift 2 ;;
         --lr) LR="$2"; shift 2 ;;
         --epochs) EPOCHS="$2"; shift 2 ;;
@@ -381,14 +384,25 @@ if [[ $SKIP_SIMILARITY -eq 0 ]]; then
     if [[ -f "$PREDICTIONS_FILE" ]]; then
         log "Step 4: Predictions already exist, skipping: $PREDICTIONS_FILE"
     else
-        log "Step 4: Computing all-pairs similarity..."
-        python -m preprocess.similarity_computer \
-            --embeddings "$EMBEDDINGS_FILE" \
-            --output "$PREDICTIONS_FILE" \
-            --threshold "$SIMILARITY_THRESHOLD" \
-            --batch-size 256 \
-            --gpu "$GPU_ID" \
-            2>&1 | tee "${OUTPUT_DIR}/logs/similarity_computation.log"
+        if [[ $NNS -gt 0 ]]; then
+            log "Step 4: Computing top-${NNS} neighbors using Faiss..."
+            python -m preprocess.faiss_similarity_computer \
+                --embeddings "$EMBEDDINGS_FILE" \
+                --output "$PREDICTIONS_FILE" \
+                --k "$NNS" \
+                --gpu "$GPU_ID" \
+                2>&1 | tee "${OUTPUT_DIR}/logs/similarity_computation.log"
+        else
+            log "Step 4: Computing all-pairs similarity..."
+            python -m preprocess.similarity_computer \
+                --embeddings "$EMBEDDINGS_FILE" \
+                --output "$PREDICTIONS_FILE" \
+                --threshold "$SIMILARITY_THRESHOLD" \
+                --batch-size 256 \
+                --gpu "$GPU_ID" \
+                2>&1 | tee "${OUTPUT_DIR}/logs/similarity_computation.log"
+        fi
+
         if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
             log_error "Similarity computation failed!"
             exit 1

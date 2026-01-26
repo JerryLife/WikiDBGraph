@@ -80,6 +80,15 @@ def collect_results(results_dir: str, model_key: str, is_original: bool) -> Dict
     return {}
 
 
+def collect_baseline_results(results_dir: str) -> Dict[str, float]:
+    """Collect results for the string match baseline."""
+    baseline_dir = Path(results_dir) / "baseline_string_match"
+    summary_path = baseline_dir / "test_results" / "summary.txt"
+    if summary_path.exists():
+        return parse_summary(str(summary_path))
+    return {}
+
+
 def format_metric(metrics: Dict, key: str) -> str:
     """Format metric as mean±std."""
     if key not in metrics:
@@ -122,8 +131,13 @@ def generate_ablation_table(
         "mpnet": "all-mpnet-base-v2"
     }
     
+    # Collect baseline results
+    baseline_results = collect_baseline_results(results_dir)
+    
     # Collect results for both original and fine-tuned
     all_results = {}
+    if baseline_results:
+        all_results['baseline'] = baseline_results
     for model_key in models.keys():
         all_results[f"{model_key}_orig"] = collect_results(results_dir, model_key, is_original=True)
         all_results[f"{model_key}_ft"] = collect_results(results_dir, model_key, is_original=False)
@@ -135,6 +149,11 @@ def generate_ablation_table(
     print("=" * 100)
     print(f"{'Model':<30} {'Type':<12} {'AUC':<18} {'Precision':<18} {'Recall':<18}")
     print("-" * 100)
+    
+    # Print baseline first
+    if baseline_results:
+        print(f"{'String Match (Jaccard)':<30} {'-':<12} {format_metric(baseline_results, 'auc'):<18} {format_metric(baseline_results, 'precision'):<18} {format_metric(baseline_results, 'recall'):<18}")
+        print("-" * 100)
     
     for model_key, model_name in models.items():
         # Original
@@ -178,6 +197,11 @@ def generate_ablation_table(
         \\midrule
 """
     
+    # Add baseline row first
+    if 'baseline' in all_results:
+        latex += f"        String Match (Jaccard) & - & {format_ranked('baseline', 'auc')} & {format_ranked('baseline', 'precision')} & {format_ranked('baseline', 'recall')} \\\\\n"
+        latex += "        \\midrule\n"
+    
     for model_key, model_name in models.items():
         # Original
         orig_key = f"{model_key}_orig"
@@ -210,8 +234,8 @@ def generate_ablation_table(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate encoder model ablation table")
-    parser.add_argument("--results-dir", type=str, required=True,
-                        help="Directory with ablation results")
+    parser.add_argument("--results-dir", type=str, default="out",
+                        help="Directory with ablation results (default: out)")
     parser.add_argument("--output", type=str, default="fig/ablation_encoder_model.tex",
                         help="Output path for LaTeX table")
     

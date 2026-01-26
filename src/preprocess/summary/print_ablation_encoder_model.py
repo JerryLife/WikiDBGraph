@@ -1,0 +1,247 @@
+"""
+Generate LaTeX table for encoder model ablation study.
+
+Compares BGE-M3 vs sentence-transformers/all-mpnet-base-v2 (both original and fine-tuned).
+"""
+
+import os
+import re
+import argparse
+import numpy as np
+from pathlib import Path
+from typing import Dict, Optional, List, Tuple
+
+
+def parse_summary(summary_path: str) -> Dict[str, float]:
+    """Parse summary file for all metrics (new format with mean±std)."""
+    metrics = {}
+    with open(summary_path, 'r') as f:
+        content = f.read()
+    
+    # Parse AUC
+    auc_match = re.search(r'AUC:\s*([0-9.]+)', content)
+    if auc_match:
+        metrics['auc'] = float(auc_match.group(1))
+    auc_std_match = re.search(r'AUC_std:\s*([0-9.]+)', content)
+    if auc_std_match:
+        metrics['auc_std'] = float(auc_std_match.group(1))
+    
+    # Parse threshold
+    thresh_match = re.search(r'Best Threshold:\s*([0-9.]+)', content)
+    if thresh_match:
+        metrics['threshold'] = float(thresh_match.group(1))
+    
+    # Parse Precision
+    prec_match = re.search(r'Precision:\s*([0-9.]+)', content)
+    if prec_match:
+        metrics['precision'] = float(prec_match.group(1))
+    prec_std_match = re.search(r'Precision_std:\s*([0-9.]+)', content)
+    if prec_std_match:
+        metrics['precision_std'] = float(prec_std_match.group(1))
+    
+    # Parse Recall
+    rec_match = re.search(r'Recall:\s*([0-9.]+)', content)
+    if rec_match:
+        metrics['recall'] = float(rec_match.group(1))
+    rec_std_match = re.search(r'Recall_std:\s*([0-9.]+)', content)
+    if rec_std_match:
+        metrics['recall_std'] = float(rec_std_match.group(1))
+    
+    # Parse F1
+    f1_match = re.search(r'F1:\s*([0-9.]+)', content)
+    if f1_match:
+        metrics['f1'] = float(f1_match.group(1))
+    f1_std_match = re.search(r'F1_std:\s*([0-9.]+)', content)
+    if f1_std_match:
+        metrics['f1_std'] = float(f1_std_match.group(1))
+    
+    return metrics
+
+
+def collect_results(results_dir: str, model_key: str, is_original: bool) -> Dict[str, float]:
+    """Collect results for a model (original or fine-tuned)."""
+    if is_original:
+        # out/original_{model}/test_results/
+        model_dir = Path(results_dir) / f"original_{model_key}"
+    else:
+        # out/graph_full_ss3_neg6_{model}/test_results/ or out/graph_full_ss3_neg6/test_results/
+        if model_key == "bge-m3":
+            model_dir = Path(results_dir) / "graph_full_ss3_neg6"
+        else:
+            model_dir = Path(results_dir) / f"graph_full_ss3_neg6_{model_key}"
+    
+    if not model_dir.exists():
+        return {}
+    
+    summary_path = model_dir / "test_results" / "summary.txt"
+    if summary_path.exists():
+        return parse_summary(str(summary_path))
+    
+    return {}
+
+
+def collect_baseline_results(results_dir: str) -> Dict[str, float]:
+    """Collect results for the string match baseline."""
+    baseline_dir = Path(results_dir) / "baseline_string_match"
+    summary_path = baseline_dir / "test_results" / "summary.txt"
+    if summary_path.exists():
+        return parse_summary(str(summary_path))
+    return {}
+
+
+def format_metric(metrics: Dict, key: str) -> str:
+    """Format metric as mean±std."""
+    if key not in metrics:
+        return "N/A"
+    
+    mean = metrics[key]
+    std_key = f"{key}_std"
+    
+    if std_key in metrics and metrics[std_key] > 0:
+        std = metrics[std_key]
+        return f"{mean:.4f}±{std:.4f}"
+    else:
+        return f"{mean:.4f}"
+
+
+def get_ranking(all_results: Dict, metric: str) -> Tuple[Optional[str], Optional[str]]:
+    """Get best and second-best keys for a metric."""
+    values = []
+    for key, results in all_results.items():
+        if metric in results:
+            values.append((key, results[metric]))
+    
+    if not values:
+        return None, None
+    
+    values.sort(key=lambda x: x[1], reverse=True)
+    best = values[0][0] if values else None
+    second = values[1][0] if len(values) > 1 else None
+    return best, second
+
+
+def generate_ablation_table(
+    results_dir: str,
+    output_path: str
+) -> Optional[str]:
+    """Generate LaTeX table comparing encoder models (original and fine-tuned)."""
+    
+    models = {
+        "bge-m3": "BGE-M3",
+        "mpnet": "all-mpnet-base-v2"
+    }
+    
+    # Collect baseline results
+    baseline_results = collect_baseline_results(results_dir)
+    
+    # Collect results for both original and fine-tuned
+    all_results = {}
+    if baseline_results:
+        all_results['baseline'] = baseline_results
+    for model_key in models.keys():
+        all_results[f"{model_key}_orig"] = collect_results(results_dir, model_key, is_original=True)
+        all_results[f"{model_key}_ft"] = collect_results(results_dir, model_key, is_original=False)
+    
+    # Print summary first
+    print()
+    print("=" * 100)
+    print("Encoder Model Ablation Results")
+    print("=" * 100)
+    print(f"{'Model':<30} {'Type':<12} {'AUC':<18} {'Precision':<18} {'Recall':<18}")
+    print("-" * 100)
+    
+    # Print baseline first
+    if baseline_results:
+        print(f"{'String Match (Jaccard)':<30} {'-':<12} {format_metric(baseline_results, 'auc'):<18} {format_metric(baseline_results, 'precision'):<18} {format_metric(baseline_results, 'recall'):<18}")
+        print("-" * 100)
+    
+    for model_key, model_name in models.items():
+        # Original
+        orig = all_results[f"{model_key}_orig"]
+        print(f"{model_name:<30} {'Original':<12} {format_metric(orig, 'auc'):<18} {format_metric(orig, 'precision'):<18} {format_metric(orig, 'recall'):<18}")
+        
+        # Contrast.
+        ft = all_results[f"{model_key}_ft"]
+        print(f"{'':<30} {'Contrast.':<12} {format_metric(ft, 'auc'):<18} {format_metric(ft, 'precision'):<18} {format_metric(ft, 'recall'):<18}")
+    
+    print("=" * 100)
+    
+    def format_ranked(key: str, metric: str) -> str:
+        """Format metric: bold if best, underline if second-best."""
+        val = format_metric(all_results[key], metric)
+        if val == "N/A":
+            return val
+        best, second = get_ranking(all_results, metric)
+        if key == best:
+            return f"\\textbf{{{val}}}"
+        elif key == second:
+            return f"\\underline{{{val}}}"
+        return val
+    
+    # Check if any results exist
+    has_results = any(all_results[k] for k in all_results.keys())
+    if not has_results:
+        print("\n❌ No results found!")
+        return None
+    
+    # Generate LaTeX
+    latex = """\\begin{table}[tb]
+    \\centering
+    \\caption{Ablation study: Encoder model comparison (optimal threshold, 5 seeds). Contrast.: contrastive learning.}
+    \\label{tab:ablation-encoder-model}
+    \\resizebox{\\columnwidth}{!}{
+    \\setlength{\\tabcolsep}{3pt}
+    \\begin{tabular}{llccc}
+        \\toprule
+        \\textbf{Encoder Model} & \\textbf{Method} & \\textbf{AUC-ROC} & \\textbf{Precision} & \\textbf{Recall} \\\\
+        \\midrule
+"""
+    
+    # Add baseline row first
+    if 'baseline' in all_results:
+        latex += f"        String Match (Jaccard) & - & {format_ranked('baseline', 'auc')} & {format_ranked('baseline', 'precision')} & {format_ranked('baseline', 'recall')} \\\\\n"
+        latex += "        \\midrule\n"
+    
+    for model_key, model_name in models.items():
+        # Original
+        orig_key = f"{model_key}_orig"
+        latex += f"        \\multirow{{2}}{{*}}{{{model_name}}} & Original & {format_ranked(orig_key, 'auc')} & {format_ranked(orig_key, 'precision')} & {format_ranked(orig_key, 'recall')} \\\\\n"
+        
+        # Contrast.
+        ft_key = f"{model_key}_ft"
+        latex += f"         & Contrast. & {format_ranked(ft_key, 'auc')} & {format_ranked(ft_key, 'precision')} & {format_ranked(ft_key, 'recall')} \\\\\n"
+        latex += "        \\midrule\n"
+    
+    # Remove last midrule and add bottomrule
+    latex = latex.rsplit("\\midrule\n", 1)[0]
+    latex += """        \\bottomrule
+    \\end{tabular}}
+\\end{table}
+"""
+    
+    # Save
+    os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+    with open(output_path, 'w') as f:
+        f.write(latex)
+    
+    print(f"\n✅ Saved ablation table to {output_path}")
+    print("\nGenerated LaTeX:")
+    print("-" * 40)
+    print(latex)
+    
+    return output_path
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate encoder model ablation table")
+    parser.add_argument("--results-dir", type=str, default="out",
+                        help="Directory with ablation results (default: out)")
+    parser.add_argument("--output", type=str, default="fig/ablation_encoder_model.tex",
+                        help="Output path for LaTeX table")
+    
+    args = parser.parse_args()
+    
+    generate_ablation_table(
+        results_dir=args.results_dir,
+        output_path=args.output
+    )

@@ -49,6 +49,6 @@ def plot_graph(seed):
     print(f"Saved fig/overlap_graph_seed{seed}.png")
 
 if __name__ == "__main__":
-    # Plot graph for each seed
-    for seed in range(10):
+    # Plot graph for default seeds (match train_fedgnn defaults)
+    for seed in range(5):
         plot_graph(seed)

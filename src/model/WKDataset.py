@@ -121,7 +121,7 @@ class WKDataset:
             if not os.path.exists(file_path):
                 print(f"[Warning] CSV file not found: {file_path}")
                 continue
-            df = pd.read_csv(file_path)
+            df = pd.read_csv(file_path, low_memory=False)
             if sample and len(df) > sample_size:
                 df = df.sample(n=sample_size, random_state=42)
             if flatten_columns:

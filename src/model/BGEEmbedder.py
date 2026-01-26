@@ -15,7 +15,16 @@ from sentence_transformers import SentenceTransformer
 from utils.schema_formatter import format_schema_from_loader
 from utils.load_from_uci import load_wdbc_dataset, format_schema_from_dataframe
 import pandas as pd
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def get_device():
+    """Get the device at runtime to respect CUDA_VISIBLE_DEVICES."""
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+# For backward compatibility - but this evaluates at import time
+# Use get_device() for runtime evaluation
+device = get_device()
 
 
 def generate_and_save_all_embeddings(
@@ -89,14 +98,25 @@ class BGEEmbedder:
         if model_type == "bge-m3":
             model_name = model_path if model_path is not None else "BAAI/bge-m3"
             self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self.model = AutoModel.from_pretrained(model_name).to(device)
-            self.model.gradient_checkpointing_enable()
+            # Load in bfloat16 to reduce memory usage
+            self.model = AutoModel.from_pretrained(
+                model_name,
+                torch_dtype=torch.bfloat16
+            ).to(device)
+            # Enable gradient checkpointing to trade compute for memory
+            self.model.gradient_checkpointing_enable(
+                gradient_checkpointing_kwargs={"use_reentrant": False}
+            )
         elif model_type == "bge-large-en-v1.5":
             model_name = "BAAI/bge-large-en-v1.5"
             self.model = SentenceTransformer(model_name).to(device)
             self.tokenizer = None
+        elif model_type == "mpnet" or model_type == "all-mpnet-base-v2":
+            model_name = model_path if model_path is not None else "sentence-transformers/all-mpnet-base-v2"
+            self.model = SentenceTransformer(model_name).to(device)
+            self.tokenizer = None
         else:
-            raise ValueError("Unsupported model_type. Choose 'bge-m3' or 'bge-large-en-v1.5'.")
+            raise ValueError(f"Unsupported model_type '{model_type}'. Choose 'bge-m3', 'bge-large-en-v1.5', or 'mpnet'.")
 
         self.model.eval()
         self.embeddings = None
@@ -152,8 +172,49 @@ class BGEEmbedder:
                     device=device
                 )
             return embedding
+        elif self.model_type in ["mpnet", "all-mpnet-base-v2"]:
+            # SentenceTransformer-based models
+            if is_train:
+                # For training, we need to use the underlying model directly for gradient tracking
+                # SentenceTransformer.encode() doesn't preserve gradients
+                tokenizer = self.model.tokenizer
+                transformer = self.model[0].auto_model  # First module is the transformer
+                
+                all_embeddings = []
+                for i in range(0, len(texts), batch_size):
+                    batch = texts[i:i + batch_size]
+                    inputs = tokenizer(
+                        batch,
+                        return_tensors="pt",
+                        padding=True,
+                        truncation=True,
+                        max_length=512  # mpnet max length
+                    ).to(device)
+                    
+                    # Forward pass with gradients
+                    outputs = transformer(**inputs)
+                    # Mean pooling
+                    attention_mask = inputs['attention_mask']
+                    token_embeddings = outputs.last_hidden_state
+                    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+                    sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
+                    sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+                    embedding = F.normalize(sum_embeddings / sum_mask, p=2, dim=-1)
+                    all_embeddings.append(embedding)
+                
+                return torch.cat(all_embeddings, dim=0)
+            else:
+                with torch.no_grad():
+                    embedding = self.model.encode(
+                        texts,
+                        convert_to_tensor=True,
+                        normalize_embeddings=True,
+                        batch_size=batch_size,
+                        device=device
+                    )
+                return embedding
         else:
-            raise ValueError("Unsupported model_type.")
+            raise ValueError(f"Unsupported model_type: {self.model_type}")
 
     def get_embedding_from_db_id(self, db_id, loader, show_wikidata_property_id: bool = False, sample: bool = True):
         schema = [format_schema_from_loader(loader, db_id, sample=sample, show_wikidata_property_id=show_wikidata_property_id)]
@@ -195,36 +256,71 @@ class BGEEmbedder:
         from tqdm import tqdm
 
         class TripletJSONLDataset(Dataset):
-            def __init__(self, path):
+            def __init__(self, path, loader):
                 self.data = []
+                self.loader = loader
+                print(f"Loading dataset from {path}...")
                 with open(path, "r") as f:
                     for line in f:
-                        self.data.append(json.loads(line))
+                        item = json.loads(line)
+                        # Pre-format to avoid slow disk access during training
+                        # Note: If the dataset is huge, this should be done in __getitem__ or cached
+                        self.data.append(item)
+                
+                self.cache = {}
+
+            def _get_formatted(self, db_id):
+                if db_id not in self.cache:
+                    self.cache[db_id] = format_schema_from_loader(self.loader, db_id)
+                return self.cache[db_id]
 
             def __len__(self):
                 return len(self.data)
 
             def __getitem__(self, idx):
-                return self.data[idx]
+                item = self.data[idx]
+                anchor = self._get_formatted(item["anchor"])
+                pos = self._get_formatted(item["positive"])
+                negs = [self._get_formatted(neg) for neg in item["negatives"]]
+                return anchor, pos, negs
 
-        def info_nce_loss(anchor_emb, pos_emb, neg_embs, temperature=0.5):
-            all_embs = torch.cat([pos_emb, neg_embs], dim=0)
-            sims = F.cosine_similarity(anchor_emb, all_embs, dim=1) / temperature
-            # print(f"sims: {sims}")
-            labels = torch.zeros(1, dtype=torch.long).to(anchor_emb.device)
-            loss = F.cross_entropy(sims.unsqueeze(0), labels)
+        def info_nce_loss(anchor_embs, pos_embs, neg_embs_flat, num_negs, temperature=0.5):
+            """
+            Optimized InfoNCE loss for a batch.
+            anchor_embs: [B, D]
+            pos_embs: [B, D]
+            neg_embs_flat: [B * num_negs, D]
+            """
+            batch_size = anchor_embs.shape[0]
+            # Reshape negatives: [B, num_negs, D]
+            neg_embs = neg_embs_flat.view(batch_size, num_negs, -1)
+            
+            # Combine positives and negatives for similarity calculation: [B, 1 + num_negs, D]
+            pos_neg_embs = torch.cat([pos_embs.unsqueeze(1), neg_embs], dim=1)
+            
+            # Calculate cosine similarities: [B, 1 + num_negs]
+            # Using torch.bmm for batch matrix multiplication
+            # anchor_embs: [B, 1, D], pos_neg_embs.transpose(1, 2): [B, D, 1 + num_negs]
+            sims = torch.bmm(anchor_embs.unsqueeze(1), pos_neg_embs.transpose(1, 2)).squeeze(1) / temperature
+            
+            # Labels are always 0 (the positive sample is at index 0)
+            labels = torch.zeros(batch_size, dtype=torch.long, device=anchor_embs.device)
+            loss = F.cross_entropy(sims, labels)
             return loss
 
         model = self.model
         tokenizer = self.tokenizer
         model.train()
 
-        train_set = TripletJSONLDataset(train_path)
-        val_set = TripletJSONLDataset(val_path)
-        train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, collate_fn=lambda x: x)
-        val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, collate_fn=lambda x: x)
+        # num_workers > 0 is now safe because caching is done in TripletJSONLDataset
+        # pin_memory=True speeds up CPU to GPU transfers
+        train_set = TripletJSONLDataset(train_path, loader)
+        val_set = TripletJSONLDataset(val_path, loader)
+        train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, collate_fn=lambda x: x, num_workers=4, pin_memory=True)
+        val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, collate_fn=lambda x: x, num_workers=4, pin_memory=True)
 
         optimizer = AdamW(model.parameters(), lr=lr)
+        # Note: GradScaler is not needed for bfloat16 (same exponent range as float32)
         best_val_loss = float("inf")
 
         def evaluate():
@@ -232,15 +328,24 @@ class BGEEmbedder:
             total_loss = 0.0
             with torch.no_grad():
                 for batch in val_loader:
-                    for item in batch:
-                        anchor = format_schema_from_loader(loader, item["anchor"])
-                        pos = format_schema_from_loader(loader, item["positive"])
-                        negs = [format_schema_from_loader(loader, neg) for neg in item["negatives"]]
-
-                        texts = [anchor, pos] + negs
-                        emb = self.get_embedding(texts, batch_size=batch_size)
-                        loss = info_nce_loss(emb[0:1], emb[1:2], emb[2:], temperature)
-                        total_loss += loss
+                    # Collect all texts in the batch
+                    all_anchors = [item[0] for item in batch]
+                    all_positives = [item[1] for item in batch]
+                    all_negatives = [neg for item in batch for neg in item[2]]
+                    num_negs = len(batch[0][2])
+                    
+                    all_texts = all_anchors + all_positives + all_negatives
+                    
+                    with torch.amp.autocast('cuda', dtype=torch.bfloat16):
+                        embs = self.get_embedding(all_texts, batch_size=len(all_texts))
+                        
+                        b_size = len(batch)
+                        anchor_embs = embs[:b_size]
+                        pos_embs = embs[b_size:2*b_size]
+                        neg_embs_flat = embs[2*b_size:]
+                        
+                        loss = info_nce_loss(anchor_embs, pos_embs, neg_embs_flat, num_negs, temperature)
+                    total_loss += loss.item()
             model.train()
             return total_loss / len(val_loader)
 
@@ -249,28 +354,38 @@ class BGEEmbedder:
             progress = tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}")
 
             for batch in progress:
-                torch.cuda.reset_peak_memory_stats(device)
                 optimizer.zero_grad()
-                batch_loss = 0.0
-
-                for item in batch:
-                    anchor = format_schema_from_loader(loader, item["anchor"])
-                    pos = format_schema_from_loader(loader, item["positive"])
-                    negs = [format_schema_from_loader(loader, neg) for neg in item["negatives"]]
-
-                    texts = [anchor, pos] + negs
-                    emb = self.get_embedding(texts, is_train=True, batch_size=batch_size)
-                    loss = info_nce_loss(emb[0:1], emb[1:2], emb[2:], temperature)
-                    batch_loss += loss
-                    del emb
                 
-                batch_loss.backward()
+                # Collect all texts in the batch for combined processing
+                all_anchors = [item[0] for item in batch]
+                all_positives = [item[1] for item in batch]
+                all_negatives = [neg for item in batch for neg in item[2]]
+                num_negs = len(batch[0][2])
+                
+                all_texts = all_anchors + all_positives + all_negatives
+                
+                # Use autocast for forward pass (bfloat16)
+                with torch.amp.autocast('cuda', dtype=torch.bfloat16):
+                    embs = self.get_embedding(all_texts, is_train=True, batch_size=len(all_texts))
+                    
+                    b_size = len(batch)
+                    anchor_embs = embs[:b_size]
+                    pos_embs = embs[b_size:2*b_size]
+                    neg_embs_flat = embs[2*b_size:]
+                    
+                    loss = info_nce_loss(anchor_embs, pos_embs, neg_embs_flat, num_negs, temperature)
+                
+                # Direct backward pass (no scaler needed for bfloat16)
+                loss.backward()
                 optimizer.step()
-                total_loss += batch_loss.item()
-                progress.set_postfix(loss=batch_loss.item())
-                peak_memory = torch.cuda.max_memory_allocated(device) / 1024**2
-                print(f"[Step {epoch+1}] 💡 Peak GPU memory usage: {peak_memory:.2f} MB")
-                torch.cuda.empty_cache()
+                
+                total_loss += loss.item()
+                progress.set_postfix(loss=loss.item())
+
+                # Peek memory occasionally instead of every step to save time
+                if progress.n % 10 == 0 and torch.cuda.is_available():
+                    peak_memory = torch.cuda.max_memory_allocated(device) / 1024**2
+                    # print(f"Peak GPU memory: {peak_memory:.2f} MB")
 
             avg_train_loss = total_loss / len(train_loader)
             print(f"Epoch {epoch+1} train loss: {avg_train_loss:.4f}")
@@ -281,13 +396,21 @@ class BGEEmbedder:
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
                 os.makedirs(os.path.join(save_dir, "best"), exist_ok=True)
-                model.save_pretrained(os.path.join(save_dir, "best"))
-                tokenizer.save_pretrained(os.path.join(save_dir, "best"))
+                if tokenizer is not None:
+                    # HuggingFace model (bge-m3)
+                    model.save_pretrained(os.path.join(save_dir, "best"))
+                    tokenizer.save_pretrained(os.path.join(save_dir, "best"))
+                else:
+                    # SentenceTransformer model (mpnet, bge-large-en-v1.5)
+                    model.save(os.path.join(save_dir, "best"))
                 print(f"💾 Saved best model to {save_dir}/best")
 
             os.makedirs(os.path.join(save_dir, "last"), exist_ok=True)
-            model.save_pretrained(os.path.join(save_dir, "last"))
-            tokenizer.save_pretrained(os.path.join(save_dir, "last"))
+            if tokenizer is not None:
+                model.save_pretrained(os.path.join(save_dir, "last"))
+                tokenizer.save_pretrained(os.path.join(save_dir, "last"))
+            else:
+                model.save(os.path.join(save_dir, "last"))
             print(f"📝 Saved last model to {save_dir}/last")
 
     def test(self, test_path, loader, batch_size=32, save_dir="test_results"):

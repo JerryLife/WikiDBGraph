@@ -1,6 +1,6 @@
 # WikiDBs - Database Similarity Graph and Federated Learning
 
-A graph-based database analysis system for WikiData databases that performs similarity analysis, matching, and federated learning experiments.
+A graph-based database analysis system for WikiData databases that performs similarity analysis, schema matching, and federated learning experiments.
 
 ## Project Overview
 
@@ -20,202 +20,297 @@ pip install -e .
 export PYTHONPATH=src
 ```
 
-## Preprocessing Pipeline
+## Source Directory Structure
 
-The `src/preprocess/` module provides a unified, extensible pipeline for data processing.
+```
+src/
+├── preprocess/          # Data preprocessing and embedding pipeline
+│   ├── GitTables/       # GitTables dataset support
+│   └── summary/         # Ablation study analysis
+├── model/               # Neural network models (FL algorithms, embedders)
+├── demo/                # Training scripts for FL experiments
+├── autorun/             # Automated FL validation system
+├── analysis/            # Graph analysis and visualization
+├── baseline/            # Baseline methods (SANTOS, string matching)
+├── summary/             # Results aggregation and plotting
+├── train/               # Model training utilities
+├── test/                # Test scripts
+└── utils/               # Shared utilities
+```
 
-### Components
+---
+
+## Preprocessing Pipeline (`src/preprocess/`)
+
+Unified, extensible pipeline for data processing from raw databases to embeddings and graphs.
+
+### Core Modules
 
 | Module | Description |
 |--------|-------------|
-| `schema_serializer.py` | Serialize schemas with ablation modes |
+| `config.py` | Centralized hyperparameter configuration |
+| `schema_serializer.py` | Serialize database schemas with ablation modes |
 | `triplet_generator.py` | Generate contrastive learning triplets |
-| `embedding_generator.py` | Batch embedding generation |
-| `similarity_computer.py` | All-pairs similarity computation |
-| `edge_filter.py` | Filter edges by threshold |
-| `graph_builder.py` | Build DGL graphs |
+| `embedding_generator.py` | Batch embedding generation using BGE-M3 |
+| `similarity_computer.py` | All-pairs cosine similarity computation |
+| `faiss_similarity_computer.py` | GPU-accelerated similarity with FAISS |
+| `edge_filter.py` | Filter edges by similarity threshold |
+| `graph_builder.py` | Build DGL graphs from filtered edges |
+| `trainer.py` | Contrastive model training |
+| `evaluator.py` | Model evaluation with ROC/AUC metrics |
 
-### Schema Serialization with Ablation Modes
+### Schema Serialization Modes
 
 The `SchemaSerializer` supports three modes for ablation studies:
 
 ```python
 from preprocess import SchemaSerializer
-from model.WKDataset import WKDataset
 
-loader = WKDataset(schema_dir="data/schema", csv_base_dir="data/unzip")
-
-# Full mode (default) - backward compatible
+# Full mode (default) - schema + sample values
 serializer = SchemaSerializer(mode="full", sample_size=3)
-text = serializer.serialize(loader, "00001")
 
-# Schema only - table and column names
+# Schema only - table and column names only
 serializer = SchemaSerializer(mode="schema_only")
-text = serializer.serialize(loader, "00001")
 
 # Data only - sample values only
 serializer = SchemaSerializer(mode="data_only", sample_size=3)
-text = serializer.serialize(loader, "00001")
 ```
 
 ### Configuration
 
-All hyperparameters centralized in `PreprocessConfig`:
+All hyperparameters are centralized in `PreprocessConfig`:
 
 ```python
 from preprocess import PreprocessConfig
 
 config = PreprocessConfig(
-    serialization_mode="full",  # "schema_only", "data_only", "full"
-    sample_size=3,              # representative values per column
-    num_negatives=6,            # negatives per triplet
-    similarity_threshold=0.6713 # edge filtering threshold
+    serialization_mode="full",    # "schema_only", "data_only", "full"
+    sample_size=3,                # representative values per column
+    num_negatives=6,              # negatives per triplet
+    similarity_threshold=0.6713   # edge filtering threshold
 )
 ```
 
 ### End-to-End Pipeline
 
 ```bash
-# 1. Generate triplets for training
-python -m preprocess.triplet_generator \
-    --qid-pairs data/qid_pairs.csv \
-    --negative-pool data/negative_candidates.csv \
-    --output-dir data/split_triplets \
-    --num-negatives 6
-
-# 2. Train BGE-M3 embedding model
-python src/script/train_bge_softmax.py
-
-# 3. Generate embeddings for all databases
-python -m preprocess.embedding_generator \
-    --schema-dir data/schema \
-    --csv-dir data/unzip \
-    --output data/graph/all_embeddings.pt \
-    --model-path out/model/best
-
-# 4. Compute all-pairs similarity
-python -m preprocess.similarity_computer \
-    --embeddings data/graph/all_embeddings.pt \
-    --output data/graph/all_predictions.pt \
-    --threshold 0.6713
-
-# 5. Filter edges at desired threshold
-python -m preprocess.edge_filter \
-    --predictions data/graph/all_predictions.pt \
-    --output data/graph/filtered_edges.csv \
-    --threshold 0.94
-
-# 6. Build DGL graph
-python -m preprocess.graph_builder \
-    --edges data/graph/filtered_edges.csv \
-    --embeddings data/graph/all_embeddings.pt \
-    --output data/graph/graph.dgl
+# Run complete preprocessing pipeline
+./src/preprocess/run_preprocess.sh --mode full --sample-size 3 --num-negatives 6
 ```
 
-## BGE-M3 Embedding Model
+### Ablation Scripts
 
-### Training
+| Script | Description |
+|--------|-------------|
+| `run_ablation_encoder_model.sh` | Compare different encoder models |
+| `run_ablation_sample_size.sh` | Vary sample size per column |
+| `run_ablation_num_negatives.sh` | Vary number of negative samples |
+| `run_ablation_serialization_mode.sh` | Compare schema/data/full modes |
+| `run_ablation_threshold.sh` | Analyze similarity threshold effects |
 
-The model is finetuned using InfoNCE loss with triplet data:
+### GitTables Support (`src/preprocess/GitTables/`)
+
+Self-supervised preprocessing pipeline for the GitTables dataset:
+
+| Module | Description |
+|--------|-------------|
+| `table_extractor.py` | Extract tables from GitTables parquet files |
+| `synthetic_splitter.py` | Generate synthetic partitions (vertical/horizontal) |
+| `table_serializer.py` | Serialize tables to text format |
+| `triplet_generator.py` | Generate self-supervised triplets |
+| `trainer_gittables.py` | Train on GitTables triplets |
+| `evaluator_gittables.py` | Evaluate on GitTables |
+| `run_gittables_preprocess.sh` | Complete GitTables pipeline |
+
+---
+
+## Models (`src/model/`)
+
+| Module | Description |
+|--------|-------------|
+| `BGEEmbedder.py` | BGE-M3 embedding model with training and inference |
+| `WKDataset.py` | WikiDB dataset loader |
+| `FedAvg.py` | Federated Averaging implementation |
+| `FedProx.py` | FedProx with proximal term regularization |
+| `SCAFFOLD.py` | SCAFFOLD with variance reduction |
+| `FedOV.py` | One-shot vertical federated learning |
+| `FedGNN.py` | Graph Neural Network for FL |
+| `FedGTA.py` | Graph-based FL with attention |
+| `SplitNN.py` | Split learning for vertical FL |
+| `column_encoder.py` | Column-level encoding model |
+
+---
+
+## Demo/Training Scripts (`src/demo/`)
+
+Training scripts for federated learning experiments:
+
+| Script | Type | Description |
+|--------|------|-------------|
+| `train_fedavg.py` | Horizontal FL | Federated Averaging |
+| `train_fedprox.py` | Horizontal FL | FedProx algorithm |
+| `train_scaffold.py` | Horizontal FL | SCAFFOLD algorithm |
+| `train_fedov.py` | One-shot FL | One-shot vertical FL |
+| `train_splitnn.py` | Vertical FL | Split neural network |
+| `train_fedgnn.py` | Graph FL | Graph neural network FL |
+| `train_fedgta.py` | Graph FL | Graph FL with attention |
+| `train_fedtree.py` | Tree FL | Tree-based FL |
+
+### Supporting Modules
+
+| Module | Description |
+|--------|-------------|
+| `prepare_horizontal_data.py` | Prepare data for horizontal FL |
+| `prepare_vertical_data.py` | Prepare data for vertical FL |
+| `centralized_training.py` | Centralized baseline training |
+| `run_centralized_training.py` | Run centralized experiments |
+| `run_individual_clients.py` | Run individual client training |
+
+### Usage
 
 ```bash
-cd src && export PYTHONPATH=.
-python script/train_bge_softmax.py
-```
-
-Training uses:
-- **Data**: Triplets from `data/split_triplets/`
-- **Loss**: InfoNCE with temperature=0.5
-- **Optimizer**: AdamW with lr=1e-5
-- **Output**: Finetuned model in `out/col_matcher_bge-m3_*/weights/`
-
-### Evaluation
-
-```bash
-# Evaluate on test triplets with ROC/AUC
-python -c "
-from model.BGEEmbedder import BGEEmbedder
-embedder = BGEEmbedder(model_path='out/model/best')
-embedder.test_scalable(
-    test_path='data/split_triplets/triplets_test_seed42.jsonl',
-    embedding_path='data/graph/all_embeddings.pt',
-    save_dir='out/test_results'
-)
-"
-```
-
-Outputs: `roc_curve.png`, `predictions.csv`, `summary.txt`
-
-## Federated Learning Experiments
-
-### Available Algorithms
-
-| Algorithm | Type | Script |
-|-----------|------|--------|
-| FedAvg | Horizontal FL | `src/demo/train_fedavg.py` |
-| FedProx | Horizontal FL | `src/demo/train_fedprox.py` |
-| SCAFFOLD | Horizontal FL | `src/demo/train_scaffold.py` |
-| FedOV | One-shot FL | `src/demo/train_fedov.py` |
-| SplitNN | Vertical FL | `src/demo/train_splitnn.py` |
-
-### Running Experiments
-
-```bash
-# Single experiment
+# Single FL experiment
 python src/demo/train_fedavg.py --seed 0 --databases 02799 79665
 
-# Automated validation pipeline
-./run_automated_fl_validation.sh \
-    --min-similarity 0.98 \
-    --sample-size 2000 \
-    --task-types "fedprox scaffold fedov"
+# With custom parameters
+python src/demo/train_fedprox.py --mu 0.01 --global-rounds 20 --local-epochs 5
 ```
 
-### Generate Results Tables
+---
+
+## Automated FL Validation (`src/autorun/`)
+
+Comprehensive pipeline for automated federated learning validation experiments.
+
+| Module | Description |
+|--------|-------------|
+| `pair_sampler.py` | Sample database pairs by similarity |
+| `data_preprocessor.py` | Prepare FL data from database pairs |
+| `semantic_data_preprocessor.py` | Semantic column matching preprocessor |
+| `gpu_scheduler.py` | Multi-GPU task scheduling |
+| `fedavg.py` / `fedprox.py` / `scaffold.py` | Parameterized FL trainers |
+| `solo.py` | Individual client training baseline |
+| `fedov.py` | One-shot FL trainer |
+
+### Usage
 
 ```bash
-python src/summary/run_and_generate_horizontal_table.py --show-std --num-seeds 5
-python src/summary/run_and_generate_vertical_table.py --show-std --num-seeds 5
+# Run automated validation
+./run_automated_fl_validation.sh \
+    --min-similarity 0.98 \
+    --sample-size 200 \
+    --num-gpus 4
 ```
 
-## Directory Structure
+See `src/autorun/README.md` for detailed documentation.
 
-```
-wikidbs/
-├── src/
-│   ├── preprocess/       # Unified preprocessing pipeline
-│   ├── model/            # Neural network models
-│   ├── demo/             # Training scripts
-│   ├── analysis/         # Graph analysis
-│   └── summary/          # Results aggregation
-├── data/
-│   ├── schema/           # Database schema JSON files
-│   ├── unzip/            # Raw database CSV files
-│   ├── split_triplets/   # Training triplets
-│   └── graph/            # Embeddings and graphs
-└── results/              # Experiment results
-```
+---
 
-## Ablation Studies
+## Analysis (`src/analysis/`)
 
-To compare different schema representations:
+Graph analysis and visualization tools:
 
-```python
-from preprocess import SchemaSerializer, PreprocessConfig
+| Module | Description |
+|--------|-------------|
+| `CommunityDetection.py` | Community detection algorithms |
+| `EdgeProperties.py` | Edge property analysis |
+| `NodeProperties.py` | Node property analysis |
+| `NodeSemantic.py` | Semantic node analysis |
+| `NodeStatistical.py` | Statistical node analysis |
+| `WikiDBSubgraph.py` | Subgraph extraction and analysis |
+| `visualize_graph.py` | Graph visualization |
+| `estimate_dirichlet_alpha.py` | Data heterogeneity estimation |
+| `find_sparse_subgraph_and_task.py` | Find suitable FL subgraphs |
+| `collect_similar_database_pairs.py` | Collect similar database pairs |
+| `compute_all_join_size.py` | Compute join sizes between databases |
 
-# Run embedding generation with different modes
-for mode in ["schema_only", "data_only", "full"]:
-    config = PreprocessConfig(serialization_mode=mode)
-    # Generate embeddings and evaluate...
-```
+---
+
+## Baseline Methods (`src/baseline/`)
+
+### SANTOS (`src/baseline/santos/`)
+
+SANTOS knowledge base synthesis and evaluation:
+
+| Module | Description |
+|--------|-------------|
+| `synthesize_kb.py` | Synthesize SANTOS knowledge base |
+| `score_pairs.py` | Score database pairs with SANTOS |
+| `evaluate_auc.py` | Evaluate AUC metrics |
+| `run_santos_evaluation.sh` | Run SANTOS evaluation pipeline |
+
+### String Matching (`src/baseline/string_match/`)
+
+Simple string matching baseline:
+
+| Module | Description |
+|--------|-------------|
+| `string_match_evaluator.py` | String-based similarity evaluation |
+| `run_string_match_baseline.sh` | Run string matching baseline |
+
+---
+
+## Summary & Visualization (`src/summary/`)
+
+Results aggregation, table generation, and plotting:
+
+### Table Generation
+
+| Script | Description |
+|--------|-------------|
+| `run_and_generate_horizontal_table.py` | Generate horizontal FL results tables |
+| `run_and_generate_vertical_table.py` | Generate vertical FL results tables |
+| `run_and_generate_ml_model_tables.py` | Generate ML model comparison tables |
+| `generate_federated_learning_tables.py` | Generate FL summary tables |
+| `print_auto_horizontal.py` | Print automated horizontal results |
+| `print_gittables_metrics.py` | Print GitTables evaluation metrics |
+| `print_predictions_metrics.py` | Print prediction metrics |
+
+### Plotting
+
+| Script | Description |
+|--------|-------------|
+| `plot_auto_horizontal.py` | Plot automated horizontal FL results |
+| `plot_raw_vs_semantic.py` | Compare raw vs semantic column matching |
+| `plot_size_vs_gain.py` | Dataset size vs FL gain analysis |
+| `plot_component_distribution.py` | Graph component distribution |
+| `plot_graph.py` | Graph visualization |
+| `plot_sim_distribution.py` | Similarity distribution plots |
+| `plot_test_results.py` | Test results visualization |
+
+---
+
+## Training Utilities (`src/train/`)
+
+| Script | Description |
+|--------|-------------|
+| `train_bge_softmax.py` | Train BGE-M3 with softmax loss |
+| `split_dataset.py` | Split datasets for training |
+| `build_graph.py` | Build graph from embeddings |
+| `embed_full.sh` | Full embedding generation |
+
+---
+
+## Utilities (`src/utils/`)
+
+| Module | Description |
+|--------|-------------|
+| `schema_formatter.py` | Format database schemas to text |
+| `wikidbs.py` | WikiDB helper functions |
+| `load_from_uci.py` | Load UCI datasets |
+| `llm_judger.py` | LLM-based evaluation |
+| `print_schema.py` | Print schema information |
+
+---
 
 ## Requirements
 
-- Python 3.12+
-- CUDA 12.1+
+- Python 3.10+
 - PyTorch with CUDA support
 - DGL (Deep Graph Library)
-- RAPIDS cuML (optional, for GPU acceleration)
+- sentence-transformers
+- transformers
+- FAISS (optional, for GPU-accelerated similarity)
 
 ## License
 
